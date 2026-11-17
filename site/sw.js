@@ -1,6 +1,6 @@
 // Makes Read XP installable (Brave / Chrome need a service worker) and readable offline:
 // the app shell and the issues you opened are cached; the network is always tried first so issues are never stale.
-const CACHE = "rxp-v8";
+const CACHE = "rxp-v9";
 const ROOT = new URL("./", self.location).pathname;
 const SHELL = ["", "style.css", "app.js", "md.js", "manifest.webmanifest", "icon-192.png", "icon-512.png", "sample.json"].map(p => ROOT + p);
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL))); self.skipWaiting(); });

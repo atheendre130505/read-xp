@@ -22,6 +22,52 @@ try { const raw = JSON.parse(localStorage.getItem("rxp") || "{}");
       S = { ...structuredClone(DEF), progress: raw.progress || {}, chats: raw.chats || {}, settings: { ...DEF.settings, ...(raw.settings || {}) } }; }
 catch { S = structuredClone(DEF); }
 const save = () => { try { localStorage.setItem("rxp", JSON.stringify(S)); } catch {} };
+const todayKey = () => new Date().toLocaleDateString("en-CA");
+S.rr ||= {};                                               // stories read on your other devices (short hashes)
+(function prune() {                                        // forget stories older than two weeks
+  const cut = new Date(Date.now() - 14 * 864e5).toLocaleDateString("en-CA");
+  for (const k of Object.keys(S.progress)) if (/^\d{4}-\d\d-\d\d/.test(k) && k.slice(0, 10) < cut) { delete S.progress[k]; delete S.chats[k]; }
+  for (const [h, at] of Object.entries(S.rr)) if (Date.now() - at > 14 * 864e5) delete S.rr[h];
+})();
+
+// What you've read syncs between your phone and laptop through your private ntfy topic (+"-sync", so it never
+// notifies). Each message is a snapshot of short hashes of the stories read in the last few days.
+const h36 = k => { let h = 5381; for (let i = 0; i < k.length; i++) h = (h * 33 ^ k.charCodeAt(i)) >>> 0; return h.toString(36); };
+const sync = {
+  url: () => S.settings.ntfy ? `https://ntfy.sh/${S.settings.ntfy}-sync` : null,
+  snapshot() {
+    const now = Date.now(), out = {};
+    for (const [k, p] of Object.entries(S.progress)) if (p.done && now - (p.at || now) < 3 * 864e5) out[h36(k)] = p.at || now;
+    for (const [h, at] of Object.entries(S.rr)) if (now - at < 3 * 864e5) out[h] = at;
+    return out;
+  },
+  async push() {                       // if ntfy refuses (e.g. its free daily limit), keep it and retry later
+    const u = this.url(); if (!u) return;
+    try { const r = await fetch(u, { method: "POST", body: JSON.stringify({ r: this.snapshot() }) }); S.syncPending = !r.ok; }
+    catch { S.syncPending = true; }
+    save();
+  },
+  merge(text) {
+    try {
+      const r = JSON.parse(text).r || {};
+      let changed = false;
+      for (const [h, at] of Object.entries(r)) if (!S.rr[h]) { S.rr[h] = at; changed = true; }
+      if (changed) { save(); if (!R && !location.hash.startsWith("#/settings")) route(); }
+    } catch {}
+  },
+  async pull() {
+    const u = this.url(); if (!u) return;
+    try {
+      const t = await (await fetch(u + "/json?poll=1&since=12h")).text();
+      for (const line of t.split("\n")) { if (!line) continue; const j = JSON.parse(line); if (j.event === "message") this.merge(j.message); }
+    } catch {}
+  },
+  live() {
+    const u = this.url(); if (!u || this.es || !window.EventSource) return;
+    this.es = new EventSource(u + "/sse");
+    this.es.onmessage = e => { try { const j = JSON.parse(e.data); if (j.event === "message") this.merge(j.message); } catch {} };
+  },
+};
 
 // setup link: #setup=<base64 {k: gemini key, t: ntfy topic}>. The fragment never reaches any server.
 (function setupFromLink() {
@@ -93,19 +139,22 @@ setInterval(async () => {
   } catch {}
 }, 20000);
 const allStories = iss => iss.topics.flatMap(t => t.stories.map(s => ({ ...s, topic: t })));
-// There is no choosing: stories are read in one fixed order, the older of the last two editions first.
-async function nextUp() {
+// There is no choosing: one fixed order. Unread stories carry over: the oldest edition with unread stories comes first.
+async function readingQueue() {
   if (!INDEX.length) await loadIndex();
-  for (const e of INDEX.slice(0, 2).reverse()) {
+  const out = [];
+  for (const e of INDEX.slice(0, 14).reverse()) {
     const iss = await issue(e.date).catch(() => null);
     if (!iss) continue;
-    const s = allStories(iss).find(x => !isRead(e.date, x));
-    if (s) return { date: e.date, s, iss };
+    for (const x of allStories(iss)) if (!isRead(e.date, x)) out.push({ date: e.date, s: x, iss });
   }
-  return null;
+  return out;
 }
+async function nextUp() { return (await readingQueue())[0] || null; }
+const editionName = iss => iss.day ? new Date(iss.day + "T12:00").toLocaleDateString(undefined, { weekday: "long" })
+  + (iss.edition ? ` ${iss.edition}` : "") : "Sample";
 const pkey = (date, s) => `${date}/${s.id}`;
-const isRead = (date, s) => !!S.progress[pkey(date, s)]?.done;
+const isRead = (date, s) => !!S.progress[pkey(date, s)]?.done || !!S.rr[h36(pkey(date, s))];
 const outlets = s => s.sources.map(x => x.source.split(" · ")[0]).filter((v, k, a) => a.indexOf(v) === k);
 const kindLabel = k => ({ news: "Report", analysis: "Analysis", research: "New research" }[k] || k);
 
@@ -129,30 +178,33 @@ function greeting() { const h = new Date().getHours(); return h < 5 ? "Good even
 
 async function renderHome() {
   if (!INDEX.length) await loadIndex();
-  const up = await nextUp();
-  const date = up ? up.date : INDEX[0].date;
-  const iss = up ? up.iss : await issue(date), list = allStories(iss);
-  const nRead = list.filter(s => isRead(date, s)).length;
-  const started = list.some(s => S.progress[pkey(date, s)]);
-  const nice = date === "sample" ? "A sample story while your first issue is written"
-    : new Date((iss.day || date) + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })
-      + (iss.edition ? ` · ${iss.edition === "evening" ? "Evening" : "Morning"} edition` : "");
+  const q = await readingQueue(), up = q[0] || null;
+  // nothing to choose: opening Read goes straight into the next story in line
+  if (up) { location.replace(`#/read/${up.date}/${encodeURIComponent(up.s.id)}`); return; }
+  const latest = await issue(INDEX[0].date);
+  const today = todayKey();
+  const readToday = Object.values(S.progress).filter(p => p.done && p.at && new Date(p.at).toLocaleDateString("en-CA") === today).length;
+  const started = up && S.progress[pkey(up.date, up.s)];
+  const writing = latest.partial;
+  const groups = [];
+  for (const x of q) { const g = groups.at(-1); if (g && g.date === x.date) g.items.push(x); else groups.push({ date: x.date, iss: x.iss, items: [x] }); }
+  const nice = INDEX[0].date === "sample" ? "A sample story while your first issue is written"
+    : new Date((latest.day || INDEX[0].date) + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
   app.innerHTML = `<div class="bar"><div class="in"><div class="word">Read</div>
       <div class="mid"></div>${installEvt && !installed() ? `<button class="installbtn" data-act="install">Install app</button>` : ""}<a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
     <div class="col">
-      <div class="hello"><h1>${greeting()}</h1>
-        <p>${esc(nice)}</p>${date === "sample" ? "" : `<p class="count"><b>${nRead}</b> of ${list.length}${iss.partial ? "+" : ""} read<i class="dot"></i>about ${list.filter(s => !isRead(date, s)).reduce((n, s) => n + s.minutes, 0)} min left</p>`}</div>
+      <div class="hello"><h1>${greeting()}</h1><p>${esc(nice)}</p>
+        <p class="count"><b>${readToday}</b> read today<i class="dot"></i>${q.length}${writing ? "+" : ""} to go<i class="dot"></i>about ${q.reduce((n, x) => n + x.s.minutes, 0)} min</p></div>
       ${up ? `<button class="begin" data-go="#/read/${up.date}/${encodeURIComponent(up.s.id)}"><div>
           <div class="lab">${started ? "Continue reading" : "Begin"}</div><div class="t">${esc(up.s.title)}</div></div><div class="go">${I.right}</div></button>`
-           : iss.partial ? `<div class="hello" style="padding:24px 0 34px"><p class="typing">The next story is being written</p></div>`
-           : `<div class="hello" style="padding:24px 0 34px"><p>You've read everything. The next edition is written at nine.</p></div>`}
-      ${iss.topics.map(t => `<section class="topic"><h2><span>${esc(t.name)}</span><span>${t.stories.filter(s => isRead(date, s)).length} of ${t.stories.length}${t.pending ? "+" : ""}</span></h2>
-        ${t.stories.map(s => `<div class="item static ${isRead(date, s) ? "read" : ""} ${up && up.s.id === s.id ? "current" : ""}">
-          <div class="t">${esc(s.title)}</div>
-          <div class="m">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min<i class="dot"></i>${esc(outlets(s).slice(0, 2).join(", "))}</div></div>`).join("")}
-        ${t.pending ? `<div class="item static pending"><div class="m typing">${t.pending === 1 ? "One more story" : t.pending + " more stories"} being written</div></div>` : ""}
+           : writing ? `<div class="hello" style="padding:24px 0 34px"><p class="typing">The next story is being written</p></div>`
+           : `<div class="hello" style="padding:24px 0 34px"><p>You're all caught up. The next edition is written at nine.</p></div>`}
+      ${groups.map(g => `<section class="topic"><h2><span>${g.date === INDEX[0].date ? "Still to read" : "Carried over · " + esc(editionName(g.iss))}</span><span>${g.items.length}</span></h2>
+        ${g.items.map(x => `<div class="item static ${up && up.s.id === x.s.id && up.date === x.date ? "current" : ""}">
+          <div class="t">${esc(x.s.title)}</div>
+          <div class="m">${esc(x.s.topic.name)}<i class="dot"></i>${x.s.minutes} min<i class="dot"></i>${esc(outlets(x.s).slice(0, 2).join(", "))}</div></div>`).join("")}
       </section>`).join("")}
-      ${iss.partial ? `<p class="writing typing">More topics are being written. They'll appear here as they're ready.</p>` : ""}
+      ${writing ? `<p class="writing typing">More stories are being written. They'll appear here as they're ready.</p>` : ""}
     </div>`;
 }
 
@@ -171,11 +223,12 @@ async function renderReader(date, id) {
   }
   const p = (S.progress[pkey(date, s)] ||= { sec: 1, done: false });
   save();
-  R = { date, iss, s, p, next: p.done ? await nextUp() : null, key: pkey(date, s), pos: i + 1, total: list.length, used: new Set() };
+  R = { date, iss, s, p, togo: (await readingQueue()).length, next: p.done ? await nextUp() : null, key: pkey(date, s), pos: i + 1, total: list.length, used: new Set() };
   attached = "";
   document.body.classList.add("reading"); wake(true);
-  app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/" aria-label="Home">${I.back}</a>
-      <div class="mid">${esc(s.topic.name)}</div><div class="right" id="left"></div></div><div class="prog"><i id="prog"></i></div></div>
+  app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a>
+      <div class="mid">${esc(s.topic.name)}</div><div class="right" id="left"></div>
+      ${p.done ? "" : `<button class="installbtn" data-act="mark">Mark as read</button>`}</div><div class="prog"><i id="prog"></i></div></div>
     <article class="story">
       <div class="kicker">${esc(s.topic.name)}</div>
       <h1>${esc(s.title)}</h1><p class="dek">${esc(s.dek)}</p>
@@ -205,7 +258,7 @@ const turnHTML = c => `<div class="turn-you">${c.quote ? `<span class="quote">${
 function drawBottom() {
   const { s, p } = R;
   const left = s.sections.slice(p.sec).reduce((n, x) => n + x.body.split(/\s+/).length, 0);
-  $("#left").textContent = `${R.pos} of ${R.total}${R.iss.partial ? "+" : ""} · ` + (p.done ? "finished" : `${Math.max(1, Math.round(left / WPM + .4))} min left`);
+  $("#left").textContent = (R.togo ? `${R.togo} to go · ` : "") + (p.done ? "read" : `${Math.max(1, Math.round(left / WPM + .4))} min left`);
   $("#prog").style.width = (100 * (p.done ? 1 : p.sec / (s.sections.length + 1))) + "%";
   const c = $("#cont");
   if (p.sec < s.sections.length) {
@@ -213,7 +266,7 @@ function drawBottom() {
     c.innerHTML = nx.cue ? `<button class="say" data-act="continue"><span>${esc(nx.cue)}</span></button>`
                          : `<button data-act="continue">${I.down}<span>Continue</span></button>`;
   } else if (!p.done) {
-    c.innerHTML = `<button class="say" data-act="finish"><span>Thanks, that was good.</span></button>`;
+    c.innerHTML = `<button class="primary" data-act="finish"><span>Mark as read</span></button>`;
   } else {
     drawEnd();
     c.innerHTML = R.next ? `<button class="primary" data-go="#/read/${R.next.date}/${encodeURIComponent(R.next.s.id)}"><span>Next: ${esc(R.next.s.title)}</span>${I.right}</button>`
@@ -281,7 +334,17 @@ function cont() {
   drawBottom();
   scrollToEl($(`[data-cue="${k}"]`) || $(`[data-sec="${k}"]`));
 }
-async function finish() { R.p.done = true; save(); R.next = await nextUp(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
+function markRead(key) {
+  const p = (S.progress[key] ||= { sec: 1 });
+  if (!p.done) { p.done = true; p.at = Date.now(); save(); sync.push(); }
+}
+async function finish() { markRead(R.key); R.next = await nextUp(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
+async function markAndNext() {
+  markRead(R.key);
+  const n = await nextUp();
+  toast("Marked as read");
+  location.hash = n ? `#/read/${n.date}/${encodeURIComponent(n.s.id)}` : "#/";
+}
 
 // ───────── selection → attach to composer ─────────
 const pill = $("#askpill");
@@ -429,6 +492,7 @@ document.addEventListener("click", e => {
     case "install": return install();
     case "continue": return cont();
     case "finish": return finish();
+    case "mark": return markAndNext();
     case "detach": attached = ""; $("#att").innerHTML = ""; return;
     case "copy-topic": navigator.clipboard?.writeText(S.settings.ntfy); return toast("Copied");
     case "reset": if (confirm("Clear what you've read and your questions on this device?")) { S.progress = {}; S.chats = {}; save(); toast("Cleared"); renderSettings(); } return;
@@ -453,5 +517,6 @@ async function install() {
 }
 
 applySettings();
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
-loadIndex().then(route);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { sync.pull(); if (S.syncPending) sync.push(); } });
+setInterval(() => { if (S.syncPending) sync.push(); }, 5 * 60000); navigator.serviceWorker.register("sw.js").catch(() => {});
+sync.pull().finally(() => { loadIndex().then(route); sync.live(); if (Object.keys(sync.snapshot()).length) sync.push(); });
