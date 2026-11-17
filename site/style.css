@@ -179,3 +179,5 @@ body.hints .story { --lh:1.9; }
 .hello .count { margin-top:8px; color:var(--text); font-size:15px; display:flex; justify-content:center; align-items:center; gap:8px; }
 .hello .count b { color:var(--acc); font-weight:600; }
 .preview p { margin:0; }
+.installbtn { border:1px solid var(--line); background:var(--surface); color:var(--fg); border-radius:10px; padding:7px 12px; font:500 13.5px var(--ui); margin-right:4px; }
+.installbtn:hover { border-color:var(--faint); }

@@ -129,7 +129,7 @@ async function renderHome(date) {
     : new Date((iss.day || date) + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })
       + (iss.edition ? ` · ${iss.edition === "evening" ? "Evening" : "Morning"} edition` : "");
   app.innerHTML = `<div class="bar"><div class="in">${isToday ? `<div class="word">Read</div>` : `<a class="ib" href="#/" aria-label="Today">${I.back}</a>`}
-      <div class="mid"></div><a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
+      <div class="mid"></div>${installEvt && !installed() ? `<button class="installbtn" data-act="install">Install app</button>` : ""}<a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
     <div class="col">
       <div class="hello"><h1>${isToday ? greeting() : "From the archive"}</h1>
         <p>${esc(nice)}</p>${date === "sample" ? "" : `<p class="count"><b>${nRead}</b> of ${list.length}${iss.partial ? "+" : ""} read<i class="dot"></i>about ${list.filter(s => !isRead(date, s)).reduce((n, s) => n + s.minutes, 0)} min left</p>`}</div>
@@ -391,6 +391,11 @@ function renderSettings() {
     ${st.ntfy ? `<p class="note">Install the free ntfy app, then subscribe below. Each morning at ten it tells you what's in the issue; tapping it opens Read.</p>
       <p><a class="btn" href="ntfy://ntfy.sh/${esc(st.ntfy)}">Subscribe in ntfy</a> <button class="btn" data-act="copy-topic">Copy topic</button></p>`
       : `<p class="note">Open your setup link on this device to turn on the reminder.</p>`}
+    <h3>App</h3>
+    ${installed() ? `<p class="note">Installed. Read opens in its own window from the Start menu or your home screen.</p>`
+      : `<div class="row"><label>Install Read on this device<small>Its own window and icon, on Windows (Start menu, taskbar) and on your phone.</small></label>
+         <button class="btn" data-act="install">Install</button></div>
+         ${installEvt ? "" : `<p class="note">If the button does nothing, open the browser menu and choose "Install Read" (Brave, Chrome, Edge).</p>`}`}
     <h3>This device</h3>
     <p class="note">${Object.values(S.progress).filter(p => p.done).length} stories read. Nothing here leaves this device.</p>
     <p style="margin-bottom:60px"><button class="btn" data-act="reset">Clear reading history</button></p>
@@ -409,6 +414,7 @@ document.addEventListener("click", e => {
   if (d.toggle) { S.settings[d.toggle] = !S.settings[d.toggle]; save(); applySettings(); return renderSettings(); }
   if (d.fs) { S.settings.fs = Math.min(26, Math.max(15, S.settings.fs + +d.fs)); save(); applySettings(); return renderSettings(); }
   switch (d.act) {
+    case "install": return install();
     case "continue": return cont();
     case "finish": return finish();
     case "detach": attached = ""; $("#att").innerHTML = ""; return;
@@ -420,6 +426,19 @@ addEventListener("keydown", e => {   // laptop: Space or → continues
   if (!R || /TEXTAREA|INPUT/.test(document.activeElement?.tagName)) return;
   if (e.key === " " || e.key === "ArrowRight") { e.preventDefault(); if (R.p.sec < R.s.sections.length) cont(); else if (!R.p.done) finish(); }
 });
+
+// "Install app": Brave / Chrome / Edge offer this on Windows and Android; we keep the offer and show our own button
+let installEvt = null;
+const installed = () => matchMedia("(display-mode: standalone), (display-mode: fullscreen), (display-mode: window-controls-overlay)").matches;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; if (!R) route(); });
+addEventListener("appinstalled", () => { installEvt = null; toast("Installed"); if (!R) route(); });
+async function install() {
+  if (!installEvt) return toast("Use the browser menu: Install app");
+  installEvt.prompt();
+  await installEvt.userChoice.catch(() => {});
+  installEvt = null;
+  if (!R) route();
+}
 
 applySettings();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
