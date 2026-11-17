@@ -184,10 +184,10 @@ body.hints .story { --lh:1.9; }
 .item.static { cursor:default; } .item.static:hover { background:none; }
 .item.current .t::before { content:"Up next  "; font:500 11px var(--ui); color:var(--acc); text-transform:uppercase; letter-spacing:.08em; vertical-align:2px; }
 
-/* laptops: use more of the width (about 85 characters a line) and a slightly larger size */
+/* laptops: use most of the width, the way a book page fills the screen */
 @media (min-width: 900px) {
-  :root { --measure: 85ch; --fs: 21px; }
-  .col, .dock .in { max-width: 900px; }
-  .bar .in { max-width: 1000px; }
+  :root { --measure: min(1100px, 76vw); }
+  .col, .dock .in { max-width: min(1100px, 76vw); }
+  .bar .in { max-width: min(1180px, 82vw); }
+  .story { font-size: calc(var(--fs) + 1px); }
 }
-@media (min-width: 1400px) { :root { --measure: 92ch; } .col, .dock .in { max-width: 980px; } }
