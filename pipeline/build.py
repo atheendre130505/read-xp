@@ -2,7 +2,7 @@
 
   feeds  ->  candidates (recent, unseen)  ->  the LLM picks the most important stories per topic
          ->  full text of each story's sources  ->  the LLM writes a deep, story-driven piece
-         ->  site/issues/<date>.json (+ index.json)  ->  10:00 reminder scheduled on ntfy
+         ->  site/issues/<date>-<morning|evening>.json (+ index.json)  ->  10:00 reminder scheduled on ntfy
 
 Run:  GEMINI_API_KEY=... python pipeline/build.py [--site site] [--topics econ,philo] [--stories 1]
 """
@@ -283,13 +283,16 @@ def main():
     ap.add_argument("--topics", default="")
     ap.add_argument("--stories", type=int, default=0, help="override stories per topic (testing)")
     ap.add_argument("--remind-only", action="store_true")
+    ap.add_argument("--edition", choices=["morning", "evening"], help="default: by the time of day")
     a = ap.parse_args()
 
     site = Path(a.site)
     out_dir = site / "issues"
     out_dir.mkdir(parents=True, exist_ok=True)
     site_url = os.environ.get("SITE_URL", "https://atheendre130505.github.io/read-xp/")
-    date = today_str()
+    day = today_str()
+    edition = a.edition or ("morning" if dt.datetime.now(TZ).hour < 15 else "evening")
+    date = f"{day}-{edition}"                              # two editions a day, kept apart
 
     if a.remind_only:                                      # pipeline failed: still nudge at 10:00
         remind({"topics": []}, site_url)
@@ -310,7 +313,7 @@ def main():
                 recent_heads.setdefault(t["id"], []).extend(s["title"] for s in t["stories"])
 
     wanted = set(filter(None, a.topics.split(",")))
-    issue = {"date": date, "generated": dt.datetime.now(TZ).isoformat(timespec="minutes"),
+    issue = {"date": date, "day": day, "edition": edition, "generated": dt.datetime.now(TZ).isoformat(timespec="minutes"),
              "model": llm.models()[0], "partial": True, "topics": []}
 
     def publish():
@@ -322,12 +325,12 @@ def main():
         (out_dir / f"{date}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), "utf-8")
         seen_path.write_text(json.dumps(seen, indent=0), "utf-8")
         first = next(s for t in issue["topics"] for s in t["stories"])
-        entry = {"date": date, "stories": n, "minutes": sum(s["minutes"] for t in issue["topics"] for s in t["stories"]),
+        entry = {"date": date, "day": day, "edition": edition, "stories": n, "minutes": sum(s["minutes"] for t in issue["topics"] for s in t["stories"]),
                  "headline": first["title"], "partial": issue["partial"]}
         idx = [entry] + [e for e in index if e["date"] != date]
-        for e in idx[45:]:                                # older issues fall off
+        for e in idx[90:]:                                # older issues fall off
             (out_dir / f"{e['date']}.json").unlink(missing_ok=True)
-        index_path.write_text(json.dumps(idx[:45], ensure_ascii=False, indent=1), "utf-8")
+        index_path.write_text(json.dumps(idx[:90], ensure_ascii=False, indent=1), "utf-8")
 
     for topic in TOPICS:
         if wanted and topic["id"] not in wanted:
@@ -382,7 +385,8 @@ def main():
         sys.exit(1)
     publish()
     print(f"\nissue {date}: {n_stories} stories", flush=True)
-    remind(issue, site_url)
+    if edition == "morning":                              # the 10:00 nudge comes with the morning edition
+        remind(issue, site_url)
 
 
 if __name__ == "__main__":

@@ -8,8 +8,8 @@ the decisions people took and why. The aim is that you understand it, not skim i
   icon, with no tabs and no address bar.
 - **Laptop:** the "Read XP" Desktop shortcut opens it in its own window.
 
-## Each morning
-1. **07:30 IST:** GitHub Actions reads about 110 sources, listed in `pipeline/sources.py`:
+## Twice a day
+1. **09:00 and 21:00 IST** (a morning and an evening edition): GitHub Actions reads about 110 sources, listed in `pipeline/sources.py`:
    - **Indian:** The Indian Express (incl. Explained), The Economic Times, Business Standard, Mint, The Hindu,
      BusinessLine, Inc42, YourStory.
    - **World:** Reuters, Bloomberg, WSJ, FT, The Economist, BBC, Guardian, NYT, NPR, Al Jazeera, DW, France 24, Politico.
@@ -22,7 +22,7 @@ the decisions people took and why. The aim is that you understand it, not skim i
 3. Gemini then acts as **writer**. It reads the full text of the sources and writes a 1,000–1,800-word, story-driven
    piece: a hook, then what happened in order, the mechanism step by step, history and context, what's disputed, and
    what to watch. Facts must come from the sources, which are listed under each story.
-4. **10:00 IST:** a notification on your phone (ntfy) with the first headline. Tapping it opens the app.
+4. **10:00 IST:** after the morning edition, a notification on your phone (ntfy) with the first headline. Tapping it opens the app.
 
 ## Reading
 - A story arrives one section at a time. Tap **Continue** (or press Space / → on a laptop).

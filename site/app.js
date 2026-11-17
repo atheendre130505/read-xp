@@ -117,7 +117,8 @@ async function renderHome(date) {
   const started = list.some(s => S.progress[pkey(date, s)]);
   const isToday = date === INDEX[0].date;
   const nice = date === "sample" ? "A sample story while your first issue is written"
-    : new Date(date + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+    : new Date((iss.day || date) + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })
+      + (iss.edition ? ` · ${iss.edition === "evening" ? "Evening" : "Morning"} edition` : "");
   app.innerHTML = `<div class="bar"><div class="in">${isToday ? `<div class="word">Read</div>` : `<a class="ib" href="#/" aria-label="Today">${I.back}</a>`}
       <div class="mid"></div><a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
     <div class="col">
@@ -125,7 +126,7 @@ async function renderHome(date) {
         <p>${esc(nice)}</p>${date === "sample" ? "" : `<p class="count"><b>${nRead}</b> of ${list.length}${iss.partial ? "+" : ""} read<i class="dot"></i>about ${list.filter(s => !isRead(date, s)).reduce((n, s) => n + s.minutes, 0)} min left</p>`}</div>
       ${next ? `<button class="begin" data-go="#/read/${date}/${encodeURIComponent(next.id)}"><div>
           <div class="lab">${started ? "Continue reading" : "Begin with"}</div><div class="t">${esc(next.title)}</div></div><div class="go">${I.right}</div></button>`
-             : `<div class="hello" style="padding:24px 0 34px"><p>You've read everything in this issue. The next one arrives before ten.</p></div>`}
+             : `<div class="hello" style="padding:24px 0 34px"><p>You've read everything in this edition. The next one is written at nine.</p></div>`}
       ${iss.topics.map(t => `<section class="topic"><h2><span>${esc(t.name)}</span><span>${t.stories.filter(s => isRead(date, s)).length} of ${t.stories.length}${t.pending ? "+" : ""}</span></h2>
         ${t.stories.map(s => `<button class="item ${isRead(date, s) ? "read" : ""}" data-go="#/read/${date}/${encodeURIComponent(s.id)}">
           <div class="t">${esc(s.title)}</div>
@@ -134,7 +135,7 @@ async function renderHome(date) {
       </section>`).join("")}
       ${iss.partial ? `<p class="writing typing">More topics are being written. They'll appear here as they're ready.</p>` : ""}
       ${INDEX.length > 1 ? `<section class="topic past"><h2><span>Earlier issues</span></h2>${INDEX.filter(e => e.date !== date).slice(0, 10).map(e =>
-        `<button data-go="#/day/${e.date}"><span>${esc(e.headline)}</span><small>${new Date(e.date + "T12:00").toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })} · ${e.stories} stories</small></button>`).join("")}</section>` : ""}
+        `<button data-go="#/day/${e.date}"><span>${esc(e.headline)}</span><small>${new Date((e.day || e.date) + "T12:00").toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}${e.edition ? ` · ${e.edition}` : ""} · ${e.stories} stories</small></button>`).join("")}</section>` : ""}
     </div>`;
 }
 

@@ -2,7 +2,8 @@ name: daily-issue
 
 on:
   schedule:
-    - cron: "0 2 * * *"        # 07:30 IST: the issue is ready long before the 10:00 reminder
+    - cron: "30 3 * * *"       # 09:00 IST: morning edition (also schedules the 10:00 reminder)
+    - cron: "30 15 * * *"      # 21:00 IST: evening edition
   workflow_dispatch: {}          # "Run workflow" button: build an issue now
   push:
     branches: [main]             # code change: just redeploy the site
@@ -38,7 +39,7 @@ jobs:
           pip install -r requirements.txt
           python pipeline/build.py --site site
       - name: Still remind at 10:00 if writing failed
-        if: failure() && github.event_name == 'schedule'
+        if: failure() && github.event_name == 'schedule' && github.event.schedule == '30 3 * * *'
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
