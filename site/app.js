@@ -87,12 +87,23 @@ setInterval(async () => {
     INDEX = await getJSON("issues/index.json").catch(() => INDEX);
     if (R && R.date === date) {
       const list = allStories(fresh), i = list.findIndex(x => x.id === R.s.id);
-      R.iss = fresh; R.next = list[i + 1];
-      if (R.p.done) drawBottom();
+      R.iss = fresh; R.total = list.length;
+      if (R.p.done) { R.next = await nextUp(); drawBottom(); }
     } else if (!R && !location.hash.startsWith("#/settings")) route();
   } catch {}
 }, 20000);
 const allStories = iss => iss.topics.flatMap(t => t.stories.map(s => ({ ...s, topic: t })));
+// There is no choosing: stories are read in one fixed order, the older of the last two editions first.
+async function nextUp() {
+  if (!INDEX.length) await loadIndex();
+  for (const e of INDEX.slice(0, 2).reverse()) {
+    const iss = await issue(e.date).catch(() => null);
+    if (!iss) continue;
+    const s = allStories(iss).find(x => !isRead(e.date, x));
+    if (s) return { date: e.date, s, iss };
+  }
+  return null;
+}
 const pkey = (date, s) => `${date}/${s.id}`;
 const isRead = (date, s) => !!S.progress[pkey(date, s)]?.done;
 const outlets = s => s.sources.map(x => x.source.split(" · ")[0]).filter((v, k, a) => a.indexOf(v) === k);
@@ -116,35 +127,32 @@ addEventListener("hashchange", route);
 // ───────── home ─────────
 function greeting() { const h = new Date().getHours(); return h < 5 ? "Good evening" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; }
 
-async function renderHome(date) {
+async function renderHome() {
   if (!INDEX.length) await loadIndex();
-  date ||= INDEX[0].date;
-  const iss = await issue(date), list = allStories(iss);
-  const total = list.reduce((n, s) => n + s.minutes, 0);
+  const up = await nextUp();
+  const date = up ? up.date : INDEX[0].date;
+  const iss = up ? up.iss : await issue(date), list = allStories(iss);
   const nRead = list.filter(s => isRead(date, s)).length;
-  const next = list.find(s => !isRead(date, s));
   const started = list.some(s => S.progress[pkey(date, s)]);
-  const isToday = date === INDEX[0].date;
   const nice = date === "sample" ? "A sample story while your first issue is written"
     : new Date((iss.day || date) + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" })
       + (iss.edition ? ` · ${iss.edition === "evening" ? "Evening" : "Morning"} edition` : "");
-  app.innerHTML = `<div class="bar"><div class="in">${isToday ? `<div class="word">Read</div>` : `<a class="ib" href="#/" aria-label="Today">${I.back}</a>`}
+  app.innerHTML = `<div class="bar"><div class="in"><div class="word">Read</div>
       <div class="mid"></div>${installEvt && !installed() ? `<button class="installbtn" data-act="install">Install app</button>` : ""}<a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
     <div class="col">
-      <div class="hello"><h1>${isToday ? greeting() : "From the archive"}</h1>
+      <div class="hello"><h1>${greeting()}</h1>
         <p>${esc(nice)}</p>${date === "sample" ? "" : `<p class="count"><b>${nRead}</b> of ${list.length}${iss.partial ? "+" : ""} read<i class="dot"></i>about ${list.filter(s => !isRead(date, s)).reduce((n, s) => n + s.minutes, 0)} min left</p>`}</div>
-      ${next ? `<button class="begin" data-go="#/read/${date}/${encodeURIComponent(next.id)}"><div>
-          <div class="lab">${started ? "Continue reading" : "Begin with"}</div><div class="t">${esc(next.title)}</div></div><div class="go">${I.right}</div></button>`
-             : `<div class="hello" style="padding:24px 0 34px"><p>You've read everything in this edition. The next one is written at nine.</p></div>`}
+      ${up ? `<button class="begin" data-go="#/read/${up.date}/${encodeURIComponent(up.s.id)}"><div>
+          <div class="lab">${started ? "Continue reading" : "Begin"}</div><div class="t">${esc(up.s.title)}</div></div><div class="go">${I.right}</div></button>`
+           : iss.partial ? `<div class="hello" style="padding:24px 0 34px"><p class="typing">The next story is being written</p></div>`
+           : `<div class="hello" style="padding:24px 0 34px"><p>You've read everything. The next edition is written at nine.</p></div>`}
       ${iss.topics.map(t => `<section class="topic"><h2><span>${esc(t.name)}</span><span>${t.stories.filter(s => isRead(date, s)).length} of ${t.stories.length}${t.pending ? "+" : ""}</span></h2>
-        ${t.stories.map(s => `<button class="item ${isRead(date, s) ? "read" : ""}" data-go="#/read/${date}/${encodeURIComponent(s.id)}">
+        ${t.stories.map(s => `<div class="item static ${isRead(date, s) ? "read" : ""} ${up && up.s.id === s.id ? "current" : ""}">
           <div class="t">${esc(s.title)}</div>
-          <div class="m">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min<i class="dot"></i>${esc(outlets(s).slice(0, 2).join(", "))}</div></button>`).join("")}
-        ${t.pending ? `<div class="item pending"><div class="m typing">${t.pending === 1 ? "One more story" : t.pending + " more stories"} being written</div></div>` : ""}
+          <div class="m">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min<i class="dot"></i>${esc(outlets(s).slice(0, 2).join(", "))}</div></div>`).join("")}
+        ${t.pending ? `<div class="item static pending"><div class="m typing">${t.pending === 1 ? "One more story" : t.pending + " more stories"} being written</div></div>` : ""}
       </section>`).join("")}
       ${iss.partial ? `<p class="writing typing">More topics are being written. They'll appear here as they're ready.</p>` : ""}
-      ${INDEX.length > 1 ? `<section class="topic past"><h2><span>Earlier issues</span></h2>${INDEX.filter(e => e.date !== date).slice(0, 10).map(e =>
-        `<button data-go="#/day/${e.date}"><span>${esc(e.headline)}</span><small>${new Date((e.day || e.date) + "T12:00").toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}${e.edition ? ` · ${e.edition}` : ""} · ${e.stories} stories</small></button>`).join("")}</section>` : ""}
     </div>`;
 }
 
@@ -157,14 +165,17 @@ async function renderReader(date, id) {
   const i = list.findIndex(s => s.id === id);
   if (i < 0) { location.hash = "#/"; return; }
   const s = list[i];
+  if (!isRead(date, s)) {                                  // no skipping ahead
+    const up = await nextUp();
+    if (up && (up.date !== date || up.s.id !== s.id)) { location.replace(`#/read/${up.date}/${encodeURIComponent(up.s.id)}`); return; }
+  }
   const p = (S.progress[pkey(date, s)] ||= { sec: 1, done: false });
   save();
-  R = { date, iss, s, p, next: list[i + 1], key: pkey(date, s), pos: i + 1, total: list.length, used: new Set() };
+  R = { date, iss, s, p, next: p.done ? await nextUp() : null, key: pkey(date, s), pos: i + 1, total: list.length, used: new Set() };
   attached = "";
   document.body.classList.add("reading"); wake(true);
-  app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/day/${date}" aria-label="Back">${I.back}</a>
-      <div class="mid">${esc(s.topic.name)}</div><div class="right" id="left"></div>
-      ${list[i + 1] ? `<a class="ib" href="#/read/${date}/${encodeURIComponent(list[i + 1].id)}" aria-label="Next story" title="Next story">${I.right}</a>` : ""}</div><div class="prog"><i id="prog"></i></div></div>
+  app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/" aria-label="Home">${I.back}</a>
+      <div class="mid">${esc(s.topic.name)}</div><div class="right" id="left"></div></div><div class="prog"><i id="prog"></i></div></div>
     <article class="story">
       <div class="kicker">${esc(s.topic.name)}</div>
       <h1>${esc(s.title)}</h1><p class="dek">${esc(s.dek)}</p>
@@ -205,9 +216,9 @@ function drawBottom() {
     c.innerHTML = `<button class="say" data-act="finish"><span>Thanks, that was good.</span></button>`;
   } else {
     drawEnd();
-    c.innerHTML = R.next ? `<button class="primary" data-go="#/read/${R.date}/${encodeURIComponent(R.next.id)}"><span>Next: ${esc(R.next.title)}</span>${I.right}</button>`
+    c.innerHTML = R.next ? `<button class="primary" data-go="#/read/${R.next.date}/${encodeURIComponent(R.next.s.id)}"><span>Next: ${esc(R.next.s.title)}</span>${I.right}</button>`
                 : R.iss.partial ? `<button disabled><span class="typing">The next story is being written</span></button>`
-                : `<button data-go="#/day/${R.date}"><span>That's the whole issue</span></button>`;
+                : `<button data-go="#/"><span>You've read everything</span></button>`;
   }
 }
 
@@ -270,7 +281,7 @@ function cont() {
   drawBottom();
   scrollToEl($(`[data-cue="${k}"]`) || $(`[data-sec="${k}"]`));
 }
-function finish() { R.p.done = true; save(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
+async function finish() { R.p.done = true; save(); R.next = await nextUp(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
 
 // ───────── selection → attach to composer ─────────
 const pill = $("#askpill");

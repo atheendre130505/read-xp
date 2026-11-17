@@ -181,3 +181,5 @@ body.hints .story { --lh:1.9; }
 .preview p { margin:0; }
 .installbtn { border:1px solid var(--line); background:var(--surface); color:var(--fg); border-radius:10px; padding:7px 12px; font:500 13.5px var(--ui); margin-right:4px; }
 .installbtn:hover { border-color:var(--faint); }
+.item.static { cursor:default; } .item.static:hover { background:none; }
+.item.current .t::before { content:"Up next  "; font:500 11px var(--ui); color:var(--acc); text-transform:uppercase; letter-spacing:.08em; vertical-align:2px; }
