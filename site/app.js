@@ -245,6 +245,7 @@ async function renderReader(date, id) {
   const firstP = $(".sec p");
   rulerH = firstP ? parseFloat(getComputedStyle(firstP).lineHeight) : S.settings.fs * 1.7;
   setRulerTop();
+  restorePlace();
 }
 
 function sectionHTML(k) {
@@ -325,6 +326,37 @@ document.addEventListener("click", e => {
   save(); setRulerTop(top, lh);
 });
 
+// Remember exactly where you are (which beat, how far into it, measured at the ruler line) so reopening the
+// app puts you back on the same line, whatever the screen size.
+function placeNow() {
+  const y = rulerTopPx() + 2;
+  const blocks = [...document.querySelectorAll("#thread .sec, #thread .cue, #thread .qa")];
+  let best = null;
+  for (const el of blocks) { const r = el.getBoundingClientRect(); if (r.top <= y) best = el; else break; }
+  const sec = best?.closest?.(".sec") || (best && best.previousElementSibling?.closest?.(".sec")) || null;
+  if (!sec) return { k: -1, f: 0 };
+  const r = sec.getBoundingClientRect();
+  return { k: +sec.dataset.sec, f: Math.max(0, Math.min(1, (y - r.top) / Math.max(1, r.height))) };
+}
+let placeT;
+addEventListener("scroll", () => {
+  if (!R) return;
+  clearTimeout(placeT);
+  placeT = setTimeout(() => { if (R) { R.p.place = placeNow(); save(); } }, 400);
+}, { passive: true });
+const savePlace = () => { if (R && document.body.classList.contains("reading")) { R.p.place = placeNow(); save(); } };
+addEventListener("pagehide", savePlace);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") savePlace(); });
+function restorePlace() {
+  const pl = R.p.place;
+  if (!pl || pl.k < 0) return;
+  const sec = $(`[data-sec="${pl.k}"]`);
+  if (!sec) return;
+  const go = () => { const r = sec.getBoundingClientRect(); scrollTo(0, Math.max(0, scrollY + r.top + r.height * pl.f - rulerTopPx() - 2)); };
+  go();
+  document.fonts?.ready.then(go);                       // fonts change line breaks; settle once they load
+}
+
 function cont() {
   const { s, p } = R;
   if (p.sec >= s.sections.length) return;
@@ -333,6 +365,7 @@ function cont() {
   $("#thread").insertAdjacentHTML("beforeend", sectionHTML(k));
   drawBottom();
   scrollToEl($(`[data-cue="${k}"]`) || $(`[data-sec="${k}"]`));
+  R.p.place = { k, f: 0 }; save();                       // a new beat: reopening starts you at its first line
 }
 function markRead(key) {
   const p = (S.progress[key] ||= { sec: 1 });
