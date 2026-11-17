@@ -1198,7 +1198,123 @@
      ]
     }
    ],
-   "pending": 1
+   "pending": 0
+  },
+  {
+   "id": "scitech",
+   "name": "Science & Technology",
+   "stories": [
+    {
+     "id": "cracks-in-our-cosmic-model-new-telescopes-reveal-universe-my",
+     "title": "Cracks in Our Cosmic Model: New Telescopes Reveal Universe Mysteries",
+     "dek": "Recent observations of early black holes and massive galaxy surveys suggest our standard model of the universe may be incomplete.",
+     "kind": "news",
+     "why": "Challenging foundational cosmological models with observations from the dawn of the universe signals a potential paradigm shift in astrophysics.",
+     "minutes": 3,
+     "words": 750,
+     "sections": [
+      {
+       "heading": "New Cosmic Discoveries",
+       "cue": "",
+       "body": "Nature reports that astronomers have discovered a rare pair of extremely bright black holes gobbling gas less than one billion years after the Big Bang. Meanwhile, Quanta Magazine details how two major astronomical projects—the Dark Energy Survey (DES) and the Dark Energy Spectroscopic Instrument (DESI)—have shared massive new datasets covering billions of years of cosmic history. Together, these findings suggest that our foundational understanding of what the universe is made of is beginning to fracture. Simone Ferraro, a cosmologist at Lawrence Berkeley National Laboratory, notes that there are **cracks in the standard model** of cosmology, returning the field to a state of healthy confusion after two decades of stability."
+      },
+      {
+       "heading": "The Standard Model",
+       "cue": "How did we build our current model?",
+       "body": "For decades, cosmologists used a framework known as **Lambda-CDM** to explain the history and fate of the universe. In this story, visible matter like stars and glowing galaxies makes up only a tiny sliver of reality, while an invisible, lethargically drifting substance called cold dark matter holds galaxies together through gravity. The bombshell discovery in 1998 showed that the expansion of the universe was not slowing down, but actually speeding up due to an unknown force dubbed **dark energy**. Physicists modeled this dark energy as an unchanging property of the vacuum of space, represented mathematically by a constant called lambda. This meant the universe was roughly 30 percent matter and 70 percent dark energy, a recipe that successfully weathered decades of testing."
+      },
+      {
+       "heading": "New Survey Data",
+       "cue": "What changed to break the model?",
+       "body": "Experimental cosmology works like piecing together a person's life from scattered records. Between 2013 and 2019, the Dark Energy Survey used a powerful 570-megapixel camera on a telescope in the Chilean Andes to photograph hundreds of millions of galaxies. By early 2026, DES researchers published their final map analyzing how matter has clumped together over time through a cosmic tug-of-war between gravity and dark energy. When researchers combined these findings with sharper images of the cosmic microwave background—the leftover light from the early universe—and new data from DESI in Arizona, the **Lambda-CDM model** stopped fitting the data cleanly. Instead of matching neatly, different datasets began to clash with one another."
+      },
+      {
+       "heading": "Mapping the Cosmos",
+       "cue": "How do these surveys actually work?",
+       "body": "To measure how fast the universe has grown, projects like DESI use thousands of tiny eyes that swivel to focus on individual galaxies, capturing their motions with high precision. This technology tracks hidden cosmic structures formed when sound waves rippled through matter in the early universe, creating spherical shells of dense matter that eventually gathered into galaxies. Because these shells are uniform in size, astronomers can determine their distance from Earth just by observing how large or small they appear. Meanwhile, DES measures dark matter by studying how tightly visible galaxies cluster at the center of vast invisible dark matter clouds, and how those clouds distort the light of distant background galaxies."
+      },
+      {
+       "heading": "The Mismatch Puzzle",
+       "cue": "Are there errors in the data?",
+       "body": "When researchers checked if a hidden error in one dataset could explain the discrepancy, they found they could not simply toss out a single piece of evidence to fix the math. The picture of the early universe from the cosmic microwave background does not quite match the matter maps, the matter maps do not quite match the supernovas, and the supernovas do not quite match the early universe picture. This suggests the tension is not a random artifact of combining different instruments, but a **genuine clash** between the real universe and our theoretical models. In the statistical language of physicists, the data shows a three-sigma preference for an exotic theory where dark energy is actually weakening over time rather than remaining constant."
+      },
+      {
+       "heading": "Theoretical Challenges",
+       "cue": "What happens if dark energy changes?",
+       "body": "If future observations confirm that dark energy is changing, theorists will face monumental hurdles. They already struggle to explain why the vacuum of space possesses the specific, infinitesimally tiny amount of energy that it does. Confirming that this mysterious energy is evaporating at a slow rate would layer on a second massive challenge. Some cosmologists wonder if they should instead tweak other assumptions, such as the timing of when early stars burnt off a hydrogen fog that filled the infant universe, an event currently placed at roughly 700 million years after the Big Bang."
+      },
+      {
+       "heading": "A Paradigm Shift",
+       "cue": "What does this mean for us?",
+       "body": "While these discoveries sit at the bleeding edge of fundamental physics and will not change daily life on Earth, they represent a potential paradigm shift in astrophysics. For the public, these ongoing investigations highlight how science operates as an honest, self-correcting endeavor where new, better data can always overturn decades of consensus. As researchers continue to refine their measurements and search for answers, the field of cosmology remains thrillingly uncertain, reminding us how much of our vast universe remains genuinely unknown."
+      }
+     ],
+     "glossary": [
+      {
+       "word": "cosmology",
+       "hint": "study of universe origins"
+      },
+      {
+       "word": "supernovas",
+       "hint": "exploding dying stars"
+      },
+      {
+       "word": "cosmic microwave background",
+       "hint": "leftover ancient light"
+      },
+      {
+       "word": "sigma",
+       "hint": "statistical confidence measure"
+      },
+      {
+       "word": "paradigm shift",
+       "hint": "fundamental scientific change"
+      },
+      {
+       "word": "astrophysics",
+       "hint": "physics of celestial bodies"
+      },
+      {
+       "word": "vacuum",
+       "hint": "empty space"
+      }
+     ],
+     "terms": [
+      {
+       "term": "Dark Energy",
+       "meaning": "An unidentified force that causes the expansion of the universe to accelerate."
+      },
+      {
+       "term": "Dark Matter",
+       "meaning": "Invisible matter that does not emit light but holds galaxies together with its gravity."
+      },
+      {
+       "term": "Lambda-CDM",
+       "meaning": "The standard cosmological model featuring a cosmological constant and cold dark matter."
+      }
+     ],
+     "ask": [
+      "What specific future telescope projects will help resolve this cosmic tension?",
+      "How do scientists measure the exact distance to galaxies billions of light-years away?",
+      "What other alternative theories besides changing dark energy are physicists considering?"
+     ],
+     "sources": [
+      {
+       "title": "Meet the ‘celestial bodies of fathomless powerful darkness’",
+       "url": "https://www.nature.com/articles/d41586-026-03750-4",
+       "source": "Nature · News",
+       "date": "2026-11-17"
+      },
+      {
+       "title": "What Makes Up the Cosmos? A 20-Year Survey Hints That Something Is Missing.",
+       "url": "https://www.quantamagazine.org/what-makes-up-the-cosmos-a-20-year-survey-hints-that-something-is-missing-20261116/",
+       "source": "Quanta Magazine",
+       "date": "2026-11-16"
+      }
+     ]
+    }
+   ],
+   "pending": 3
   }
  ]
 }
