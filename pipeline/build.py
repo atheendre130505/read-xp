@@ -200,6 +200,9 @@ ARTICLE
 {text}"""
 
 
+INLINE_HINT = re.compile(r'<(hint|span|abbr|gloss)\b[^>]*?"([^"]*)"[^>]*>(.*?)</\1>', re.I | re.S)
+
+
 def clean_gloss(g, text):
     out, seen = [], set()
     for e in g or []:
@@ -232,6 +235,16 @@ def write(topic, story):
     secs = [s for s in piece.get("beats", piece.get("sections", [])) if s.get("body")]
     if len(secs) < 3:
         raise ValueError("too short")
+    # the model sometimes writes hints inline (<hint style="key part">linchpin</hint>, <span title=..>):
+    # move them into the glossary and keep the text clean
+    inline = []
+    for sec in secs:
+        def take(m):
+            inline.append({"word": m.group(3).strip(), "hint": m.group(2).strip()})
+            return m.group(3)
+        sec["body"] = INLINE_HINT.sub(take, sec["body"])
+        sec["body"] = re.sub(r"</?[a-zA-Z][^>]*>", "", sec["body"])
+    piece["glossary"] = (piece.get("glossary") or []) + inline
     n_words = sum(len(s["body"].split()) for s in secs)
     return {
         "id": re.sub(r"[^a-z0-9]+", "-", piece.get("title", "story").lower()).strip("-")[:60],

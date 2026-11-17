@@ -183,3 +183,11 @@ body.hints .story { --lh:1.9; }
 .installbtn:hover { border-color:var(--faint); }
 .item.static { cursor:default; } .item.static:hover { background:none; }
 .item.current .t::before { content:"Up next  "; font:500 11px var(--ui); color:var(--acc); text-transform:uppercase; letter-spacing:.08em; vertical-align:2px; }
+
+/* laptops: use more of the width (about 85 characters a line) and a slightly larger size */
+@media (min-width: 900px) {
+  :root { --measure: 85ch; --fs: 21px; }
+  .col, .dock .in { max-width: 900px; }
+  .bar .in { max-width: 1000px; }
+}
+@media (min-width: 1400px) { :root { --measure: 92ch; } .col, .dock .in { max-width: 980px; } }
