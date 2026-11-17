@@ -29,8 +29,17 @@
     return html;
   }
 
+  // the writer sometimes puts hints inline, e.g. <hint="never done before">unprecedented</hint>,
+  // <hint style="key part">linchpin</hint> or <span title="...">word</span>: turn those into proper hints
+  const INLINE_HINT = /<(hint|span|abbr|gloss)\b[^>]*?"([^"]*)"[^>]*>(.*?)<\/\1>/gi;
+  const MARK = /(\d+)/g;                     // private-use characters as placeholders
+
   function inline(s, o = {}) {
+    const hints = [];
+    s = String(s).replace(INLINE_HINT, (m, tag, hint, word) => { hints.push([word, hint]); return `${hints.length - 1}`; });
+    s = s.replace(/<\/?[a-z][^>]*>/gi, "");                // any other stray tag
     s = esc(s);
+    s = s.replace(MARK, (m, i) => o.gloss ? `<ruby>${esc(hints[i][0])}<rt>${esc(hints[i][1])}</rt></ruby>` : esc(hints[i][0]));
     s = s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, "$1<i>$2</i>");
     if (o.gloss?.length) s = gloss(s, o.gloss, o.used || new Set());
     if (o.bionic) {   // bold the first ~40% of each word (fixation aid; off by default)
@@ -40,7 +49,7 @@
   }
 
   function md(src, opts = {}) {
-    const o = { ...opts, gloss: (opts.gloss || []).slice().sort((a, b) => b.word.length - a.word.length) };
+    const o = { ...opts, gloss: opts.gloss ? opts.gloss.slice().sort((a, b) => b.word.length - a.word.length) : null };
     const lines = String(src || "").replace(/\r/g, "").split("\n");
     const out = [];
     let para = [], list = null;
