@@ -1,6 +1,6 @@
 """One-time setup. Run from the read-xp folder:   .venv\\Scripts\\python scripts\\setup.py
 
-1. asks for your free Gemini API key (https://aistudio.google.com/apikey) — typed, never shown;
+1. reads your free Gemini API key from .env (GEMINI_API_KEY=..., https://aistudio.google.com/apikey);
 2. makes a private, random ntfy topic for the 10:00 reminder;
 3. stores both as GitHub Actions secrets (via the gh CLI you are already logged in to);
 4. writes setup.env + setup-qr.png (both git-ignored): scan the QR with your phone, open it in Brave,
@@ -8,7 +8,6 @@
 5. starts the first issue build.
 """
 import base64
-import getpass
 import json
 import secrets
 import subprocess
@@ -27,9 +26,11 @@ def gh(*args, input_text=None):
 def main():
     env_path = ROOT / "setup.env"
     old = dict(line.split("=", 1) for line in env_path.read_text().splitlines() if "=" in line) if env_path.exists() else {}
-    key = getpass.getpass("Gemini API key (from aistudio.google.com/apikey; Enter = keep current): ").strip() or old.get("GEMINI_API_KEY", "")
+    dot = ROOT / ".env"
+    found = dict(l.split("=", 1) for l in dot.read_text().splitlines() if "=" in l and not l.startswith("#")) if dot.exists() else {}
+    key = found.get("GEMINI_API_KEY", "").strip() or old.get("GEMINI_API_KEY", "")
     if not key:
-        sys.exit("A Gemini key is needed.")
+        sys.exit("Put your Gemini key in .env first: GEMINI_API_KEY=...")
     topic = old.get("NTFY_TOPIC") or "readxp-" + secrets.token_urlsafe(12).replace("_", "").replace("-", "")[:16].lower()
 
     gh("secret", "set", "GEMINI_API_KEY", "--repo", REPO, input_text=key)
@@ -46,8 +47,9 @@ def main():
     except ImportError:
         print("Open this link on your phone (Brave):", link)
 
-    gh("workflow", "run", "daily.yml", "--repo", REPO)
-    print("✓ first issue is being written (about 15-25 min): https://github.com/" + REPO + "/actions")
+    if "--no-run" not in sys.argv:
+        gh("workflow", "run", "daily.yml", "--repo", REPO)
+        print("✓ first issue is being written (about 15-25 min): https://github.com/" + REPO + "/actions")
     print(f"\nReminder: install the ntfy app on your phone and subscribe to topic  {topic}")
 
 

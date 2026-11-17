@@ -21,8 +21,18 @@ def _version(name: str) -> float:
     return float(m.group(1)) if m else 0.0
 
 
+def _probe(model: str) -> bool:
+    try:
+        r = requests.post(f"{API}/models/{model}:generateContent", params={"key": KEY}, timeout=30,
+                          json={"contents": [{"parts": [{"text": "Reply with: ok"}]}]})
+        return r.status_code == 200
+    except requests.RequestException:
+        return False
+
+
 def models() -> list[str]:
-    """Usable text models, best first."""
+    """Usable text models, best first. Each candidate is tried with a tiny request, because some listed
+    models are retired for new keys, overloaded, or hang; only the ones that answer are used."""
     global _models
     if _models is not None:
         return _models
@@ -34,18 +44,18 @@ def models() -> list[str]:
     r.raise_for_status()
     names = [m["name"].split("/", 1)[1] for m in r.json().get("models", [])
              if "generateContent" in m.get("supportedGenerationMethods", [])]
-    bad = re.compile(r"image|tts|audio|live|embed|vision|thinking-exp|learnlm|gemma|robotics|computer|exp-\d|-\d{3}$")
-    names = [n for n in names if n.startswith("gemini-") and not bad.search(n)]
+    bad = re.compile(r"image|tts|audio|live|embed|vision|omni|thinking-exp|learnlm|gemma|robotics|computer|exp-\d|-\d{3}$")
+    names = [n for n in names if n.startswith("gemini-") and "flash" in n and not bad.search(n)]
 
-    def rank(n: str):
-        lite = "lite" in n
-        flash = "flash" in n
-        preview = "preview" in n or "exp" in n
-        return (0 if flash and not lite else 1 if flash else 2, preview, -_version(n), len(n))
+    def rank(n: str):          # full flash before lite, stable before preview, newest first
+        return ("lite" in n, "preview" in n or "latest" in n, -_version(n), len(n))
 
-    names = [n for n in names if "flash" in n]       # Pro has a tiny free quota; flash writes well
-    _models = sorted(names, key=rank)[:4] or ["gemini-2.5-flash", "gemini-2.5-flash-lite"]
-    print("models:", _models)
+    names = sorted(names, key=rank)[:10]
+    import concurrent.futures as cf
+    with cf.ThreadPoolExecutor(10) as ex:
+        ok = dict(zip(names, ex.map(_probe, names)))
+    _models = [n for n in names if ok[n]][:4] or ["gemini-3-flash-preview", "gemini-3.5-flash-lite"]
+    print("models:", _models, "| not answering:", [n for n in names if not ok[n]])
     return _models
 
 
@@ -64,7 +74,7 @@ def generate(prompt: str, *, system: str = "", json_out: bool = False, temperatu
         for attempt in range(4):
             try:
                 r = requests.post(f"{API}/models/{model}:generateContent", params={"key": KEY},
-                                  json=body, timeout=240)
+                                  json=body, timeout=180)
             except requests.RequestException as e:
                 last = e
                 time.sleep(10)

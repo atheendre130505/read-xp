@@ -1,23 +1,29 @@
-// Read XP — a focused daily reader. One finite issue a day, read section by section, ask about any passage.
-// Everything you do (progress, XP, chats, settings, your Gemini key) stays on this device only.
+// Read — a calm daily reader. One finite issue a day, read a section at a time, ask about any passage.
+// Everything (what you've read, your conversations, settings, your Gemini key) stays on this device.
 "use strict";
 
 const $ = (s, el = document) => el.querySelector(s);
 const app = $("#app");
 const WPM = 230;
-const DAILY_GOAL = 3;                         // stories a day for the goal bonus
-const XP = { section: 5, story: 20, quiz: 10, ask: 5, goal: 30 };
-const RANKS = [[75, "Oracle"], [50, "Polymath"], [35, "Sage"], [20, "Scholar"], [10, "Thinker"], [5, "Reader"], [1, "Curious"]];
+const I = {   // line icons (no emoji anywhere)
+  back: '<svg viewBox="0 0 20 20" width="20" height="20"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  gear: '<svg viewBox="0 0 20 20" width="20" height="20"><path d="M3.5 6h8M15.5 6h1M3.5 14h1M8.5 14h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="13.5" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="6.5" cy="14" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  up: '<svg viewBox="0 0 20 20" width="18" height="18"><path d="M10 15.5v-11M5 9.5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  down: '<svg viewBox="0 0 20 20" width="16" height="16"><path d="M10 4.5v11M15 10.5l-5 5-5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  right: '<svg viewBox="0 0 20 20" width="18" height="18"><path d="M4.5 10h11M10.5 5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  x: '<svg viewBox="0 0 20 20" width="14" height="14"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+};
 
 // ───────── storage (device only) ─────────
-const DEF = { settings: { theme: "paper", font: "literata", fs: 19, ruler: true, bionic: false, awake: true, key: "", ntfy: "", model: "" },
-              progress: {}, chats: {}, xp: 0, days: {}, asked: {} };
+const DEF = { settings: { theme: "light", font: "source", fs: 19, ruler: true, bionic: false, awake: true, key: "", ntfy: "", model: "", rulerPos: 0.3 },
+              progress: {}, chats: {} };
 let S;
-try { S = Object.assign(structuredClone(DEF), JSON.parse(localStorage.getItem("rxp") || "{}")); S.settings = Object.assign({}, DEF.settings, S.settings); }
+try { const raw = JSON.parse(localStorage.getItem("rxp") || "{}");
+      S = { ...structuredClone(DEF), progress: raw.progress || {}, chats: raw.chats || {}, settings: { ...DEF.settings, ...(raw.settings || {}) } }; }
 catch { S = structuredClone(DEF); }
 const save = () => { try { localStorage.setItem("rxp", JSON.stringify(S)); } catch {} };
 
-// ───────── setup link: #setup=<base64 {k: gemini key, t: ntfy topic}> (fragment never reaches a server) ─────────
+// setup link: #setup=<base64 {k: gemini key, t: ntfy topic}>. The fragment never reaches any server.
 (function setupFromLink() {
   const m = location.hash.match(/setup=([^&]+)/);
   if (!m) return;
@@ -25,54 +31,24 @@ const save = () => { try { localStorage.setItem("rxp", JSON.stringify(S)); } cat
     const cfg = JSON.parse(atob(decodeURIComponent(m[1]).replace(/-/g, "+").replace(/_/g, "/")));
     if (cfg.k) S.settings.key = cfg.k;
     if (cfg.t) S.settings.ntfy = cfg.t;
-    save();
-    setTimeout(() => toast("✓ Set up on this device"), 400);
+    save(); setTimeout(() => toast("Set up on this device"), 400);
   } catch { setTimeout(() => toast("That setup link didn't work"), 400); }
   history.replaceState(null, "", location.pathname + "#/");
 })();
 
-// ───────── levels ─────────
-const xpToNext = l => 50 + 15 * l;
-function levelOf(xp) { let l = 1, need = 0; while (l < 100 && xp >= need + xpToNext(l)) { need += xpToNext(l); l++; } return { l, into: xp - need, next: xpToNext(l) }; }
-const rankOf = l => RANKS.find(([min]) => l >= min)[1];
-const todayKey = () => new Date().toLocaleDateString("en-CA");      // local YYYY-MM-DD
-function streak() {
-  let n = 0; const d = new Date();
-  if (!(S.days[todayKey()] > 0)) d.setDate(d.getDate() - 1);        // today not read yet: streak still alive from yesterday
-  while (S.days[d.toLocaleDateString("en-CA")] > 0) { n++; d.setDate(d.getDate() - 1); }
-  return n;
-}
-function gain(n, why) {
-  const before = levelOf(S.xp).l;
-  S.xp += n; save();
-  const after = levelOf(S.xp).l;
-  if (after > before) { toast(`Level ${after} · ${rankOf(after)} 🎉`, 2600); burst(); }
-  else if (why) toast(`+${n} XP · ${why}`);
-}
-
-// ───────── look & feel ─────────
+// ───────── look ─────────
 function applySettings() {
   const st = S.settings, r = document.documentElement;
   r.dataset.theme = st.theme; r.dataset.font = st.font;
   r.style.setProperty("--fs", st.fs + "px");
   document.body.classList.toggle("ruler-on", !!st.ruler);
-  const bg = getComputedStyle(r).getPropertyValue("--bg").trim();
-  $('meta[name="theme-color"]').setAttribute("content", bg || "#f6f1e7");
+  $('meta[name="theme-color"]').setAttribute("content", getComputedStyle(r).getPropertyValue("--bg").trim() || "#faf9f5");
+  setRulerTop();
 }
-
 let toastT;
-function toast(msg, ms = 1600) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), ms); }
-function burst() {
-  const b = $("#burst"), cols = ["#b5532a", "#2f6f62", "#d9893d", "#2f7d4f", "#6a5acd"];
-  for (let i = 0; i < 60; i++) {
-    const p = document.createElement("i");
-    p.style.cssText = `left:${50 + (Math.random() - .5) * 30}%;top:-10px;background:${cols[i % 5]};--dx:${(Math.random() - .5) * 300}px;--r:${Math.random() * 720}deg;animation-delay:${Math.random() * .3}s`;
-    b.appendChild(p); setTimeout(() => p.remove(), 1800);
-  }
-}
+function toast(msg, ms = 1800) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("show"), ms); }
 
-// keep the screen on while reading
-let lock = null;
+let lock = null;   // keep the screen on while reading
 async function wake(on) {
   try {
     if (on && S.settings.awake && "wakeLock" in navigator && !lock) { lock = await navigator.wakeLock.request("screen"); lock.addEventListener("release", () => (lock = null)); }
@@ -86,166 +62,163 @@ let INDEX = [], ISSUES = {};
 async function getJSON(u) { const r = await fetch(u, { cache: "no-cache" }); if (!r.ok) throw new Error(r.status); return r.json(); }
 async function loadIndex() {
   try { INDEX = await getJSON("issues/index.json"); } catch { INDEX = []; }
-  if (!INDEX.length) INDEX = [{ date: "sample", stories: 0, minutes: 0, headline: "Sample issue" }];
+  if (!INDEX.length) INDEX = [{ date: "sample", stories: 1, minutes: 6, headline: "Sample" }];
 }
-async function issue(date) {
-  if (!ISSUES[date]) ISSUES[date] = await getJSON(date === "sample" ? "sample.json" : `issues/${date}.json`);
-  return ISSUES[date];
-}
+async function issue(date) { return (ISSUES[date] ||= await getJSON(date === "sample" ? "sample.json" : `issues/${date}.json`)); }
+// While an issue is still being written, look for new stories every 20 s and slot them in.
+setInterval(async () => {
+  const date = INDEX[0]?.date;
+  if (!date || date === "sample" || !(ISSUES[date]?.partial ?? INDEX[0].partial)) return;
+  try {
+    const fresh = await getJSON(`issues/${date}.json`);
+    const count = i => i ? allStories(i).length : 0;
+    if (count(fresh) === count(ISSUES[date]) && fresh.partial === ISSUES[date]?.partial) return;
+    ISSUES[date] = fresh;
+    INDEX = await getJSON("issues/index.json").catch(() => INDEX);
+    if (R && R.date === date) {
+      const list = allStories(fresh), i = list.findIndex(x => x.id === R.s.id);
+      R.iss = fresh; R.next = list[i + 1];
+      if (R.p.done) drawBottom();
+    } else if (!R && !location.hash.startsWith("#/settings")) route();
+  } catch {}
+}, 20000);
 const allStories = iss => iss.topics.flatMap(t => t.stories.map(s => ({ ...s, topic: t })));
 const pkey = (date, s) => `${date}/${s.id}`;
-const prog = (date, s) => (S.progress[pkey(date, s)] ||= { sec: 1, done: false, quiz: {} });
+const isRead = (date, s) => !!S.progress[pkey(date, s)]?.done;
+const outlets = s => s.sources.map(x => x.source.split(" · ")[0]).filter((v, k, a) => a.indexOf(v) === k);
+const kindLabel = k => ({ news: "Report", analysis: "Analysis", research: "New research" }[k] || k);
 
 // ───────── router ─────────
 async function route() {
-  const h = location.hash.replace(/^#\/?/, "");
-  const [view, a, b] = h.split("/");
-  document.body.classList.remove("reading"); wake(false); hidePill();
-  window.scrollTo(0, 0);
+  const [view, a, b] = location.hash.replace(/^#\/?/, "").split("/");
+  document.body.classList.remove("reading"); wake(false); hidePill(); R = null;
+  scrollTo(0, 0);
   try {
     if (view === "read") return await renderReader(a, decodeURIComponent(b));
     if (view === "settings") return renderSettings();
-    if (view === "day") return await renderHome(a);
-    return await renderHome();
+    return await renderHome(view === "day" ? a : undefined);
   } catch (e) {
-    app.innerHTML = `<div class="wrap"><div class="empty">Couldn't load today's issue.<br><small>${esc(String(e))}</small><br><br><button class="btn" onclick="location.reload()">Try again</button></div></div>`;
+    app.innerHTML = `<div class="col"><div class="empty">Couldn't load the issue.<br><small>${esc(String(e))}</small><br><br><button class="btn" onclick="location.reload()">Try again</button></div></div>`;
   }
 }
 addEventListener("hashchange", route);
 
 // ───────── home ─────────
-function ring(frac) {
-  const c = 2 * Math.PI * 14, done = frac >= 1;
-  return `<svg class="ring" viewBox="0 0 34 34"><circle cx="17" cy="17" r="14" fill="none" stroke="var(--line)" stroke-width="3"/>
-    <circle cx="17" cy="17" r="14" fill="none" stroke="${done ? "var(--good)" : "var(--acc)"}" stroke-width="3" stroke-linecap="round"
-    stroke-dasharray="${c * frac} ${c}" transform="rotate(-90 17 17)"/>${done ? '<text x="17" y="22" text-anchor="middle" font-size="14" fill="var(--good)">✓</text>' : ""}</svg>`;
-}
+function greeting() { const h = new Date().getHours(); return h < 5 ? "Good evening" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening"; }
 
 async function renderHome(date) {
   if (!INDEX.length) await loadIndex();
   date ||= INDEX[0].date;
-  const iss = await issue(date);
-  const list = allStories(iss);
-  const lv = levelOf(S.xp), st = streak(), todayDone = S.days[todayKey()] || 0;
+  const iss = await issue(date), list = allStories(iss);
   const total = list.reduce((n, s) => n + s.minutes, 0);
-  const next = list.find(s => !S.progress[pkey(date, s)]?.done);
+  const next = list.find(s => !isRead(date, s));
   const started = list.some(s => S.progress[pkey(date, s)]);
-  const nice = date === "sample" ? "Sample issue" : new Date(date + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
-  app.innerHTML = `<div class="wrap">
-    <div class="top"><div class="brand">Read XP</div><a class="icon" href="#/settings" aria-label="Settings">⚙︎</a></div>
-    <div class="stats">
-      <div class="streak">🔥${st}<small>day<br>streak</small></div>
-      <div class="lvl">Level ${lv.l} · ${rankOf(lv.l)} <span>${lv.into}/${lv.next} XP</span></div>
-      <div class="bar"><i style="width:${(100 * lv.into / lv.next).toFixed(1)}%"></i></div>
-      <div class="goal">Today's goal <span class="dots">${Array.from({ length: DAILY_GOAL }, (_, i) => `<i class="${i < todayDone ? "on" : ""}"></i>`).join("")}</span>
-        ${todayDone >= DAILY_GOAL ? "done · +" + XP.goal + " XP" : `${DAILY_GOAL} stories`}</div>
-    </div>
-    <div class="date">${esc(nice)}</div>
-    <h1 class="issue">${date === "sample" ? "Your reader is almost ready" : "Today's read"}</h1>
-    <div class="sub">${list.length} stories · ~${total} min · ${iss.topics.length} topics</div>
-    ${next ? `<button class="start" data-go="#/read/${date}/${encodeURIComponent(next.id)}">${started ? "Continue" : "Start reading"} → ${esc(next.title)}</button>`
-           : `<div class="box" style="text-align:center">✓ You finished this issue. Tomorrow's arrives before 10:00.</div>`}
-    ${iss.topics.map(t => `<div class="tsec"><div class="thead">${t.emoji} ${esc(t.name)}<span class="count">${t.stories.filter(s => S.progress[pkey(date, s)]?.done).length}/${t.stories.length}</span></div>
-      ${t.stories.map(s => { const p = S.progress[pkey(date, s)]; const f = p ? (p.done ? 1 : (p.sec - 1) / s.sections.length) : 0;
-        return `<button class="scard ${p?.done ? "done" : ""}" data-go="#/read/${date}/${encodeURIComponent(s.id)}">${ring(f)}<div>
-          <div class="t">${esc(s.title)}</div><div class="m"><span class="kind ${s.kind}">${s.kind}</span>${s.minutes} min · ${esc(s.sources[0]?.source || "")}</div></div></button>`; }).join("")}</div>`).join("")}
-    ${INDEX.length > 1 ? `<div class="past"><h3>Earlier issues</h3>${INDEX.filter(e => e.date !== date).slice(0, 7).map(e =>
-      `<button data-go="#/day/${e.date}">${esc(e.headline)}<small>${e.date} · ${e.stories} stories · ${e.minutes} min</small></button>`).join("")}</div>` : ""}
-  </div>`;
+  const isToday = date === INDEX[0].date;
+  const nice = date === "sample" ? "A sample story while your first issue is written"
+    : new Date(date + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
+  app.innerHTML = `<div class="bar"><div class="in">${isToday ? `<div class="word">Read</div>` : `<a class="ib" href="#/" aria-label="Today">${I.back}</a>`}
+      <div class="mid"></div><a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
+    <div class="col">
+      <div class="hello"><h1>${isToday ? greeting() : "From the archive"}</h1>
+        <p>${esc(nice)}${date === "sample" ? "" : ` · ${list.length} ${list.length === 1 ? "story" : "stories"}${iss.partial ? " so far" : ""} · about ${total} minutes`}</p></div>
+      ${next ? `<button class="begin" data-go="#/read/${date}/${encodeURIComponent(next.id)}"><div>
+          <div class="lab">${started ? "Continue reading" : "Begin with"}</div><div class="t">${esc(next.title)}</div></div><div class="go">${I.right}</div></button>`
+             : `<div class="hello" style="padding:24px 0 34px"><p>You've read everything in this issue. The next one arrives before ten.</p></div>`}
+      ${iss.topics.map(t => `<section class="topic"><h2><span>${esc(t.name)}</span><span>${t.stories.length}</span></h2>
+        ${t.stories.map(s => `<button class="item ${isRead(date, s) ? "read" : ""}" data-go="#/read/${date}/${encodeURIComponent(s.id)}">
+          <div class="t">${esc(s.title)}</div>
+          <div class="m">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min<i class="dot"></i>${esc(outlets(s).slice(0, 2).join(", "))}</div></button>`).join("")}
+        ${t.pending ? `<div class="item pending"><div class="m typing">${t.pending === 1 ? "One more story" : t.pending + " more stories"} being written</div></div>` : ""}
+      </section>`).join("")}
+      ${iss.partial ? `<p class="writing typing">More topics are being written. They'll appear here as they're ready.</p>` : ""}
+      ${INDEX.length > 1 ? `<section class="topic past"><h2><span>Earlier issues</span></h2>${INDEX.filter(e => e.date !== date).slice(0, 10).map(e =>
+        `<button data-go="#/day/${e.date}"><span>${esc(e.headline)}</span><small>${new Date(e.date + "T12:00").toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })} · ${e.stories} stories</small></button>`).join("")}</section>` : ""}
+    </div>`;
 }
 
 // ───────── reader ─────────
-let R = null;   // current reading context
+let R = null;
+let attached = "";        // passage attached to the composer
 
 async function renderReader(date, id) {
-  const iss = await issue(date);
-  const list = allStories(iss);
+  const iss = await issue(date), list = allStories(iss);
   const i = list.findIndex(s => s.id === id);
   if (i < 0) { location.hash = "#/"; return; }
-  const s = list[i], p = prog(date, s);
+  const s = list[i];
+  const p = (S.progress[pkey(date, s)] ||= { sec: 1, done: false });
+  save();
   R = { date, iss, s, p, next: list[i + 1], key: pkey(date, s) };
+  attached = "";
   document.body.classList.add("reading"); wake(true);
-  app.innerHTML = `<div class="rbar"><a class="icon" href="#/day/${date}" aria-label="Back">←</a>
-      <div class="where">${s.topic.emoji} ${esc(s.topic.name)}</div><div class="left" id="left"></div>
-      <button class="icon" data-act="ask-story" aria-label="Ask">💬</button><div class="prog" id="prog"></div></div>
-    <div class="wrap"><article class="story" id="story">
+  app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/day/${date}" aria-label="Back">${I.back}</a>
+      <div class="mid">${esc(s.topic.name)}</div><div class="right" id="left"></div></div><div class="prog"><i id="prog"></i></div></div>
+    <article class="story">
+      <div class="kicker">${esc(s.topic.name)}</div>
       <h1>${esc(s.title)}</h1><p class="dek">${esc(s.dek)}</p>
-      <div class="meta"><span class="kind ${s.kind}">${s.kind}</span>${s.minutes} min · ${esc(s.sources.map(x => x.source).filter((v, k, a) => a.indexOf(v) === k).join(", "))}</div>
-      <div id="thread"></div><div id="end"></div>
-    </article></div>
-    <div class="next" id="nextbar"></div>`;
-  drawThread();
+      <div class="meta">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min read<i class="dot"></i>${esc(outlets(s).join(", "))}</div>
+      <div id="thread"></div><div id="end"></div><div class="after"></div>
+    </article>
+    <div class="dock"><div class="in"><div class="cont" id="cont"></div>
+      <form class="composer" id="composer"><div id="att"></div>
+        <div class="crow"><textarea id="q" rows="1" placeholder="Ask about this story" enterkeyhint="send"></textarea>
+        <button class="send" id="send" type="submit" aria-label="Send" disabled>${I.up}</button></div></form></div></div>`;
+  $("#thread").innerHTML = s.sections.slice(0, p.sec).map((_, k) => sectionHTML(k)).join("");
+  bindComposer();
+  drawBottom();
   setRulerTop();
 }
 
 function sectionHTML(k) {
   const sec = R.s.sections[k];
-  return `<section class="msg" data-sec="${k}"><h2>${esc(sec.heading)}</h2>${md(sec.body, { bionic: S.settings.bionic })}</section><div class="qa" data-qa="${k}">${qaHTML(k)}</div>`;
+  const lead = k === 0 ? "" : sec.cue ? `<div class="cue" data-cue="${k}">${esc(sec.cue)}</div>` : `<h3 data-cue="${k}">${esc(sec.heading)}</h3>`;
+  return `${lead}<section class="sec${k === 0 ? " first" : ""}" data-sec="${k}">${md(sec.body, { bionic: S.settings.bionic })}</section>
+    <div class="qa" data-qa="${k}">${(S.chats[R.key] || []).filter(c => c.sec === k).map(turnHTML).join("")}</div>`;
 }
-function qaHTML(k) {
-  return (S.chats[R.key] || []).filter(c => c.sec === k).map(c =>
-    `<div class="bub you">${c.quote ? `<q>${esc(c.quote.slice(0, 220))}</q>` : ""}${esc(c.q)}</div><div class="bub guide">${md(c.a)}</div>`).join("");
-}
-
-function drawThread() {
-  const { s, p } = R;
-  $("#thread").innerHTML = s.sections.slice(0, p.sec).map((_, k) => sectionHTML(k)).join("");
-  drawBottom();
-}
+const turnHTML = c => `<div class="turn-you">${c.quote ? `<span class="quote">${esc(c.quote.slice(0, 240))}</span>` : ""}${esc(c.q)}</div><div class="turn-ai">${md(c.a)}</div>`;
 
 function drawBottom() {
   const { s, p } = R;
   const left = s.sections.slice(p.sec).reduce((n, x) => n + x.body.split(/\s+/).length, 0);
-  $("#left").textContent = p.done ? "done" : `${Math.max(1, Math.round(left / WPM + .4))} min left`;
+  $("#left").textContent = p.done ? "Finished" : `${Math.max(1, Math.round(left / WPM + .4))} min left`;
   $("#prog").style.width = (100 * (p.done ? 1 : p.sec / (s.sections.length + 1))) + "%";
-  const nb = $("#nextbar");
+  const c = $("#cont");
   if (p.sec < s.sections.length) {
-    nb.innerHTML = `<button data-act="continue">Continue · ${p.sec + 1}/${s.sections.length}</button>`;
-    $("#end").innerHTML = "";
+    const nx = s.sections[p.sec];
+    c.innerHTML = nx.cue ? `<button class="say" data-act="continue"><span>${esc(nx.cue)}</span></button>`
+                         : `<button data-act="continue">${I.down}<span>Continue</span></button>`;
   } else if (!p.done) {
-    nb.innerHTML = `<button data-act="finish">Finish story ✓</button>`;
-    $("#end").innerHTML = "";
+    c.innerHTML = `<button class="say" data-act="finish"><span>Thanks, that was good.</span></button>`;
   } else {
     drawEnd();
-    nb.innerHTML = R.next ? `<button data-go="#/read/${R.date}/${encodeURIComponent(R.next.id)}">Next: ${esc(R.next.title.slice(0, 38))}${R.next.title.length > 38 ? "…" : ""} →</button>`
-                          : `<button data-go="#/day/${R.date}">Issue complete 🎉</button>`;
+    c.innerHTML = R.next ? `<button class="primary" data-go="#/read/${R.date}/${encodeURIComponent(R.next.id)}"><span>Next: ${esc(R.next.title)}</span>${I.right}</button>`
+                : R.iss.partial ? `<button disabled><span class="typing">The next story is being written</span></button>`
+                : `<button data-go="#/day/${R.date}"><span>That's the whole issue</span></button>`;
   }
 }
 
 function drawEnd() {
-  const { s, p } = R;
-  $("#end").innerHTML = `<div class="endcap">
-    ${s.takeaways?.length ? `<div class="box"><h3>Worth remembering</h3><ul>${s.takeaways.map(t => `<li>${md(t).replace(/^<p>|<\/p>$/g, "")}</li>`).join("")}</ul></div>` : ""}
-    ${s.quiz?.length ? `<div class="box quiz"><h3>Check yourself · +${XP.quiz} XP each</h3>${s.quiz.map((q, qi) => {
-      const ans = p.quiz[qi];
-      return `<div class="q">${esc(q.q)}</div><div class="opts">${q.options.map((o, oi) => {
-        const cls = ans === undefined ? "" : oi === q.answer ? "right" : oi === ans ? "wrong" : "";
-        return `<button class="${cls}" data-quiz="${qi}:${oi}" ${ans !== undefined ? "disabled" : ""}>${esc(o)}</button>`; }).join("")}</div>
-        ${ans !== undefined ? `<div class="why">${ans === q.answer ? "✓ " : "✗ "}${esc(q.why || "")}</div>` : ""}`; }).join("")}</div>` : ""}
-    ${s.terms?.length ? `<div class="box"><h3>Key terms</h3><dl class="terms">${s.terms.map(t => `<dt>${esc(t.term)}</dt><dd>${esc(t.meaning)}</dd>`).join("")}</dl></div>` : ""}
-    <div class="box"><h3>Go deeper</h3><div class="chipsrow">${(s.ask || []).map(q => `<button class="chip" data-askq="${esc(q)}">${esc(q)}</button>`).join("")}
-      <button class="chip" data-act="ask-story">Ask your own…</button></div></div>
-    <details class="box sources"><summary><b>Sources</b> (${s.sources.length}) — for checking facts</summary><br>
+  const s = R.s;
+  $("#end").innerHTML = `<div class="end">
+    ${s.terms?.length ? `<h4>Key terms</h4><dl class="terms">${s.terms.map(t => `<dt>${esc(t.term)}</dt><dd>${esc(t.meaning)}</dd>`).join("")}</dl>` : ""}
+    ${s.ask?.length ? `<h4>Questions to explore</h4><div class="chiprow">${s.ask.map(q => `<button class="chip" data-askq="${esc(q)}">${esc(q)}</button>`).join("")}</div>` : ""}
+    <details class="sources"><summary>Sources (${s.sources.length})</summary>
       ${s.sources.map(x => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}<small>${esc(x.source)} · ${esc(x.date)}</small></a>`).join("")}</details>
   </div>`;
 }
 
-function rulerTopPx() { return innerHeight * (S.settings.rulerPos || 0.34); }
+const rulerTopPx = () => innerHeight * (S.settings.rulerPos || 0.3);
 function setRulerTop() { document.documentElement.style.setProperty("--ruler-top", rulerTopPx() + "px"); }
 addEventListener("resize", setRulerTop);
-// tap a line to move the ruler there (like a finger under the line); scrolling then carries the text through it
-document.addEventListener("click", e => {
-  if (!S.settings.ruler || !document.body.classList.contains("reading") || !e.target.closest(".msg, .story h1, .dek")) return;
-  if (!getSelection().isCollapsed) return;
-  const lineH = S.settings.fs * 1.62;
-  S.settings.rulerPos = Math.min(0.7, Math.max(0.12, (e.clientY - lineH) / innerHeight));
-  save(); setRulerTop();
-});
-
 function scrollToEl(el) {
   const y = el.getBoundingClientRect().top + scrollY - rulerTopPx() + 4;
   scrollTo({ top: Math.max(0, y), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
+// tap a line to move the ruler there; scrolling then carries the text through it
+document.addEventListener("click", e => {
+  if (!S.settings.ruler || !R || !e.target.closest(".sec, .story h1, .dek") || !getSelection().isCollapsed) return;
+  S.settings.rulerPos = Math.min(0.7, Math.max(0.1, (e.clientY - S.settings.fs * 1.62) / innerHeight));
+  save(); setRulerTop();
+});
 
 function cont() {
   const { s, p } = R;
@@ -254,32 +227,11 @@ function cont() {
   const k = p.sec - 1;
   $("#thread").insertAdjacentHTML("beforeend", sectionHTML(k));
   drawBottom();
-  gain(XP.section, "section");
-  scrollToEl($(`[data-sec="${k}"] h2`));
+  scrollToEl($(`[data-cue="${k}"]`) || $(`[data-sec="${k}"]`));
 }
+function finish() { R.p.done = true; save(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
 
-function finish() {
-  const { p } = R;
-  if (p.done) return;
-  p.done = true;
-  const d = todayKey();
-  S.days[d] = (S.days[d] || 0) + 1;
-  save();
-  gain(XP.story, "story finished");
-  if (S.days[d] === DAILY_GOAL) setTimeout(() => { gain(XP.goal); toast(`Daily goal hit · +${XP.goal} XP 🔥 ${streak()}`, 2600); burst(); }, 1200);
-  drawBottom();
-  setTimeout(() => scrollToEl($("#end")), 50);
-}
-
-function answerQuiz(qi, oi) {
-  const q = R.s.quiz[qi];
-  if (R.p.quiz[qi] !== undefined) return;
-  R.p.quiz[qi] = oi; save();
-  if (oi === q.answer) gain(XP.quiz, "right"); else toast("Not quite — read why");
-  drawEnd();
-}
-
-// ───────── selection → ask ─────────
+// ───────── selection → attach to composer ─────────
 const pill = $("#askpill");
 let selQuote = "", selSec = 0;
 function hidePill() { pill.hidden = true; }
@@ -289,78 +241,71 @@ document.addEventListener("selectionchange", () => {
     const sel = getSelection();
     const text = sel && !sel.isCollapsed ? sel.toString().trim() : "";
     const node = sel?.anchorNode && (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement);
-    const sec = node?.closest?.(".msg");
+    const sec = node?.closest?.(".sec");
     if (!text || text.length < 3 || !sec || !R) return hidePill();
     selQuote = text; selSec = +sec.dataset.sec;
     const rc = sel.getRangeAt(0).getBoundingClientRect();
     pill.style.left = Math.min(innerWidth - 90, Math.max(90, rc.left + rc.width / 2)) + "px";
-    const below = rc.bottom + 56;                                // under the selection, clear of the phone's own copy menu
-    pill.style.top = (below < innerHeight - 90 ? below : Math.max(70, rc.top - 54)) + "px";
+    const below = rc.bottom + 52;                    // under the selection, clear of the phone's own copy menu
+    pill.style.top = (below < innerHeight - 200 ? below : Math.max(70, rc.top - 52)) + "px";
     pill.hidden = false;
   }, 250);
 });
-pill.addEventListener("pointerdown", e => e.preventDefault());       // keep the selection while tapping
-pill.addEventListener("click", () => { hidePill(); openSheet(selQuote, selSec); getSelection().removeAllRanges(); });
+pill.addEventListener("pointerdown", e => e.preventDefault());
+pill.addEventListener("click", () => { hidePill(); attach(selQuote, selSec); getSelection().removeAllRanges(); });
 
-// ───────── chat ─────────
-let chatCtx = null;
-function openSheet(quote = "", sec = null, ask = "") {
-  if (!R) return;
-  chatCtx = { quote, sec: sec ?? Math.max(0, R.p.sec - 1) };
-  const log = $("#chatlog");
-  const prev = (S.chats[R.key] || []);
-  log.innerHTML = prev.map(c => `<div class="bub you">${c.quote ? `<q>${esc(c.quote.slice(0, 220))}</q>` : ""}${esc(c.q)}</div><div class="bub guide">${md(c.a)}</div>`).join("")
-    + (quote ? `<div class="bub you" id="pending"><q>${esc(quote.slice(0, 300))}</q><span style="color:var(--dim)">Ask anything about this…</span></div>` : "");
-  const chips = quote ? ["Why?", "How does this work?", "Explain it simpler", "Give me an example", "What's the counter-argument?"]
-                      : (R.s.ask || []).concat(["Summarise the story in 5 lines", "What's the history behind this?"]);
-  $("#chips").innerHTML = chips.map(c => `<button class="chip" data-chip="${esc(c)}">${esc(c)}</button>`).join("");
-  $("#sheet").hidden = false;
-  log.scrollTop = log.scrollHeight;
-  if (ask) send(ask); else setTimeout(() => $("#chatin").focus(), 200);
+function attach(text, sec) {
+  attached = text; R.attSec = sec;
+  $("#att").innerHTML = text ? `<div class="attached"><span>${esc(text)}</span><button type="button" data-act="detach" aria-label="Remove">${I.x}</button></div>` : "";
+  $("#q").focus(); updateSend();
 }
-function closeSheet() { $("#sheet").hidden = true; chatCtx = null; }
+function updateSend() { $("#send").disabled = !$("#q").value.trim(); }
+function bindComposer() {
+  const q = $("#q");
+  q.addEventListener("input", () => { q.style.height = "auto"; q.style.height = Math.min(150, q.scrollHeight) + "px"; updateSend(); });
+  q.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); ask(q.value); } });
+  $("#composer").addEventListener("submit", e => { e.preventDefault(); ask(q.value); });
+}
 
-function storyText(s) { return `# ${s.title}\n${s.dek}\n\n` + s.sections.map(x => `## ${x.heading}\n${x.body}`).join("\n\n"); }
+// ───────── asking (Gemini, streamed, straight from this device) ─────────
+const storyText = s => `# ${s.title}\n${s.dek}\n\n` + s.sections.map(x => `## ${x.heading}\n${x.body}`).join("\n\n");
 
-async function send(q) {
-  q = q.trim(); if (!q || !chatCtx) return;
+async function ask(q) {
+  q = q.trim(); if (!q || !R) return;
+  const quote = attached, sec = attached ? R.attSec : Math.max(0, R.p.sec - 1);
+  attached = ""; $("#att").innerHTML = ""; $("#q").value = ""; $("#q").style.height = "auto"; $("#q").blur(); updateSend();
+  const qa = $(`[data-qa="${sec}"]`);
+  qa.insertAdjacentHTML("beforeend", `<div class="turn-you">${quote ? `<span class="quote">${esc(quote.slice(0, 240))}</span>` : ""}${esc(q)}</div>`);
+  const you = qa.lastElementChild;
+  const out = document.createElement("div"); out.className = "turn-ai typing"; qa.appendChild(out);
+  scrollToEl(you);
+
   const key = S.settings.key;
-  const log = $("#chatlog");
-  $("#pending")?.remove();
-  log.insertAdjacentHTML("beforeend", `<div class="bub you">${chatCtx.quote ? `<q>${esc(chatCtx.quote.slice(0, 220))}</q>` : ""}${esc(q)}</div>`);
-  if (!key) {
-    log.insertAdjacentHTML("beforeend", `<div class="bub guide">To chat, add your free Gemini key once in <a href="#/settings" data-act="close-sheet">Settings</a> (or open your setup link).</div>`);
-    return;
-  }
-  const out = document.createElement("div"); out.className = "bub guide typing"; log.appendChild(out); log.scrollTop = log.scrollHeight;
-  $("#chatin").value = ""; autosize();
+  if (!key) { out.className = "turn-ai"; out.innerHTML = `<p>To ask questions, add your Gemini key once in <a href="#/settings">Settings</a>, or open your setup link on this device.</p>`; return; }
 
-  const s = R.s, sec = s.sections[chatCtx.sec];
-  const sys = `You are the reader's patient, brilliant tutor inside Read XP. They are reading the article below and asked about it.
-Answer like a great teacher who loves stories: explain causes and mechanisms step by step, use a concrete example or analogy,
-and connect back to the article. Default to 120-250 words; go longer only if they ask for depth. Use **bold** for the key idea,
-short paragraphs, a list only for real steps. Facts about this news event must come from the article; you may add general
-background knowledge (say "In general," or "Historically,") but never invent specifics about the event. If unsure, say so.
+  const s = R.s, heading = s.sections[sec]?.heading || "";
+  const sys = `You are the storyteller who just told the reader the story below, and they've interrupted with a question.
+Answer in the same warm, spoken voice, like a great teacher who loves stories: explain causes and mechanisms step by step, use a concrete example or analogy,
+and tie it back to the article. Default to 120-250 words; go longer only when asked for depth. Use **bold** for the key idea,
+short paragraphs, and a list only for real steps. Facts about this event must come from the article; you may add general
+background knowledge (signal it, e.g. "In general," or "Historically,") but never invent specifics. If unsure, say so.
+No emojis.
 
 ARTICLE
 ${storyText(s)}
-
-${s.terms?.length ? "KEY TERMS: " + s.terms.map(t => t.term + " = " + t.meaning).join("; ") : ""}`;
+${s.terms?.length ? "\nKEY TERMS: " + s.terms.map(t => t.term + " = " + t.meaning).join("; ") : ""}`;
   const history = (S.chats[R.key] || []).slice(-4).flatMap(c => [
-    { role: "user", parts: [{ text: (c.quote ? `About: "${c.quote}"\n` : "") + c.q }] },
-    { role: "model", parts: [{ text: c.a }] }]);
-  const user = (chatCtx.quote ? `I'm in the section "${sec.heading}". About this passage: "${chatCtx.quote}"\n\n` : `I'm in the section "${sec?.heading || ""}".\n\n`) + q;
+    { role: "user", parts: [{ text: (c.quote ? `About: "${c.quote}"\n` : "") + c.q }] }, { role: "model", parts: [{ text: c.a }] }]);
+  const user = `(Section: "${heading}")\n` + (quote ? `About this passage: "${quote}"\n\n` : "") + q;
   const body = { systemInstruction: { parts: [{ text: sys }] }, contents: [...history, { role: "user", parts: [{ text: user }] }],
                  generationConfig: { temperature: 0.6, maxOutputTokens: 2048 } };
-
-  let text = "";
-  const models = [S.settings.model, R.iss.model, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"].filter((m, i, a) => m && a.indexOf(m) === i);
-  let ok = false, err = "";
+  const models = [S.settings.model, R.iss.model, "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-flash-latest"].filter((m, i, a) => m && a.indexOf(m) === i);
+  let text = "", err = "";
   for (const m of models) {
     try {
       const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse`,
         { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: JSON.stringify(body) });
-      if (!r.ok) { err = `${r.status} ${(await r.text()).slice(0, 160)}`; if (r.status === 400 && /API key/i.test(err)) break; continue; }
+      if (!r.ok) { err = `${r.status}: ${(await r.text()).slice(0, 160)}`; if (/API key/i.test(err)) break; continue; }
       const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
       for (;;) {
         const { value, done } = await rd.read(); if (done) break;
@@ -370,88 +315,71 @@ ${s.terms?.length ? "KEY TERMS: " + s.terms.map(t => t.term + " = " + t.meaning)
           const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
           if (!line.startsWith("data:")) continue;
           try { const j = JSON.parse(line.slice(5)); text += (j.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || "").join(""); } catch {}
-          out.innerHTML = md(text); log.scrollTop = log.scrollHeight;
+          out.innerHTML = md(text);
         }
       }
-      if (text) { ok = true; if (S.settings.model !== m) { S.settings.model = m; save(); } break; }
+      if (text) { if (S.settings.model !== m) { S.settings.model = m; save(); } break; }
     } catch (e) { err = String(e); }
   }
   out.classList.remove("typing");
-  if (!ok) { out.classList.add("err"); out.textContent = "Couldn't reach Gemini: " + (err || "no answer") + (navigator.onLine ? "" : " (you're offline)"); return; }
-  const entry = { sec: chatCtx.sec, quote: chatCtx.quote, q, a: text, at: Date.now() };
-  (S.chats[R.key] ||= []).push(entry);
-  chatCtx.quote = "";                                     // follow-ups continue the same thread
-  const n = (S.asked[R.key] || 0);
-  if (n < 3) { S.asked[R.key] = n + 1; save(); gain(XP.ask, "curiosity"); } else save();
-  const qa = document.querySelector(`[data-qa="${entry.sec}"]`); if (qa) qa.innerHTML = qaHTML(entry.sec);
+  if (!text) { out.classList.add("err"); out.textContent = navigator.onLine ? "Couldn't get an answer (" + (err || "empty reply") + ")." : "You're offline."; return; }
+  (S.chats[R.key] ||= []).push({ sec, quote, q, a: text, at: Date.now() });
+  save();
 }
-
-function autosize() { const t = $("#chatin"); t.style.height = "auto"; t.style.height = Math.min(140, t.scrollHeight) + "px"; }
-$("#chatin").addEventListener("input", autosize);
-$("#chatin").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !matchMedia("(pointer:coarse)").matches) { e.preventDefault(); send($("#chatin").value); } });
-$("#chatform").addEventListener("submit", e => { e.preventDefault(); send($("#chatin").value); });
-$("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });
 
 // ───────── settings ─────────
 function renderSettings() {
   const st = S.settings;
   const seg = (k, opts) => `<div class="seg">${opts.map(([v, l]) => `<button class="${st[k] === v ? "on" : ""}" data-set="${k}" data-val="${v}">${l}</button>`).join("")}</div>`;
   const sw = k => `<button class="switch ${st[k] ? "on" : ""}" data-toggle="${k}" aria-label="${k}"></button>`;
-  app.innerHTML = `<div class="wrap set">
-    <div class="top"><a class="icon" href="#/">←</a><div class="brand">Settings</div></div>
-    <h2>Reading</h2>
-    <div class="row"><label>Theme</label>${seg("theme", [["paper", "Paper"], ["sepia", "Sepia"], ["night", "Night"]])}</div>
-    <div class="row"><label>Typeface<small>Literata (book serif) or Atkinson (max legibility)</small></label>${seg("font", [["literata", "Literata"], ["atkinson", "Atkinson"]])}</div>
+  app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/" aria-label="Back">${I.back}</a><div class="mid"></div></div></div>
+  <div class="col set">
+    <h2>Settings</h2>
+    <h3>Reading</h3>
+    <div class="row"><label>Theme</label>${seg("theme", [["light", "Light"], ["sepia", "Sepia"], ["dark", "Dark"]])}</div>
+    <div class="row"><label>Typeface</label>${seg("font", [["source", "Serif"], ["literata", "Literata"], ["atkinson", "Atkinson"]])}</div>
     <div class="row"><label>Text size<small>${st.fs}px</small></label><div class="seg"><button data-fs="-1">A−</button><button data-fs="1">A+</button></div></div>
-    <div class="row"><label>Reading ruler<small>Clear band at eye level, the rest gently dimmed</small></label>${sw("ruler")}</div>
-    <div class="row"><label>Fixation bold<small>Bolds the start of each word. Evidence that it helps is weak — try it, keep it only if you like it.</small></label>${sw("bionic")}</div>
-    <div class="row"><label>Keep screen on while reading</label>${sw("awake")}</div>
-    <p class="story" style="margin-top:16px"><b>Preview:</b> When a central bank raises rates, borrowing gets dearer, so firms delay investment and households spend less.</p>
-    <h2 style="margin-top:28px">Chat</h2>
+    <div class="row"><label>Reading ruler<small>A clear band at eye level; tap any line to move it</small></label>${sw("ruler")}</div>
+    <div class="row"><label>Fixation bold<small>Bolds the start of each word. The evidence for it is weak; keep it only if you like it.</small></label>${sw("bionic")}</div>
+    <div class="row"><label>Keep the screen on while reading</label>${sw("awake")}</div>
+    <p class="preview">When a central bank raises rates, <b>borrowing gets dearer</b>, so firms delay investment and households spend less.</p>
+    <h3>Questions</h3>
     <div class="row" style="display:block"><label>Gemini API key<small>Free from Google AI Studio. Stored only on this device.</small></label>
-      <input class="field" id="key" type="password" autocomplete="off" placeholder="AIza…" value="${esc(st.key)}"></div>
-    <h2 style="margin-top:28px">10:00 reminder</h2>
-    ${st.ntfy ? `<p class="note">Install the free <b>ntfy</b> app (Play Store / F-Droid), then tap below to subscribe. The nudge arrives at 10:00 every day with what's in the issue; tapping it opens Read XP.</p>
+      <input class="field" id="key" type="password" autocomplete="off" placeholder="Paste your key" value="${esc(st.key)}"></div>
+    <h3>Ten o'clock reminder</h3>
+    ${st.ntfy ? `<p class="note">Install the free ntfy app, then subscribe below. Each morning at ten it tells you what's in the issue; tapping it opens Read.</p>
       <p><a class="btn" href="ntfy://ntfy.sh/${esc(st.ntfy)}">Subscribe in ntfy</a> <button class="btn" data-act="copy-topic">Copy topic</button></p>`
-      : `<p class="note">Open your setup link on this device to turn on the 10:00 reminder.</p>`}
-    <h2 style="margin-top:28px">You</h2>
-    <p class="note">Level ${levelOf(S.xp).l} · ${S.xp} XP · ${Object.values(S.progress).filter(p => p.done).length} stories read · ${streak()}-day streak. Everything stays on this device.</p>
-    <p><button class="btn" data-act="reset">Reset progress</button></p>
+      : `<p class="note">Open your setup link on this device to turn on the reminder.</p>`}
+    <h3>This device</h3>
+    <p class="note">${Object.values(S.progress).filter(p => p.done).length} stories read. Nothing here leaves this device.</p>
+    <p style="margin-bottom:60px"><button class="btn" data-act="reset">Clear reading history</button></p>
   </div>`;
   $("#key").addEventListener("change", e => { st.key = e.target.value.trim(); save(); toast(st.key ? "Key saved" : "Key removed"); });
 }
 
-// ───────── one click handler for everything ─────────
+// ───────── one click handler ─────────
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-go],[data-act],[data-quiz],[data-askq],[data-chip],[data-set],[data-toggle],[data-fs]");
+  const t = e.target.closest("[data-go],[data-act],[data-askq],[data-set],[data-toggle],[data-fs]");
   if (!t) return;
   const d = t.dataset;
   if (d.go) { location.hash = d.go; return; }
-  if (d.quiz) { const [q, o] = d.quiz.split(":").map(Number); return answerQuiz(q, o); }
-  if (d.askq) return openSheet("", R.p.sec - 1, d.askq);
-  if (d.chip) return send(d.chip);
+  if (d.askq) return ask(d.askq);
   if (d.set) { S.settings[d.set] = d.val; save(); applySettings(); return renderSettings(); }
   if (d.toggle) { S.settings[d.toggle] = !S.settings[d.toggle]; save(); applySettings(); return renderSettings(); }
   if (d.fs) { S.settings.fs = Math.min(26, Math.max(15, S.settings.fs + +d.fs)); save(); applySettings(); return renderSettings(); }
   switch (d.act) {
     case "continue": return cont();
     case "finish": return finish();
-    case "ask-story": return openSheet("", R?.p.sec - 1);
-    case "close-sheet": return closeSheet();
+    case "detach": attached = ""; $("#att").innerHTML = ""; return;
     case "copy-topic": navigator.clipboard?.writeText(S.settings.ntfy); return toast("Copied");
-    case "reset": if (confirm("Reset XP, streak, progress and chats on this device?")) { const keep = S.settings; S = structuredClone(DEF); S.settings = keep; save(); toast("Reset"); renderSettings(); } return;
+    case "reset": if (confirm("Clear what you've read and your questions on this device?")) { S.progress = {}; S.chats = {}; save(); toast("Cleared"); renderSettings(); } return;
   }
 });
-addEventListener("keydown", e => {   // laptop: Space / → continues, Esc closes the chat
-  if (!R || !document.body.classList.contains("reading") || !$("#sheet").hidden && e.key !== "Escape") return;
-  if (e.key === "Escape") return closeSheet();
-  if ((e.key === " " || e.key === "ArrowRight") && document.activeElement === document.body) {
-    e.preventDefault();
-    if (R.p.sec < R.s.sections.length) cont(); else if (!R.p.done) finish();
-  }
+addEventListener("keydown", e => {   // laptop: Space or → continues
+  if (!R || /TEXTAREA|INPUT/.test(document.activeElement?.tagName)) return;
+  if (e.key === " " || e.key === "ArrowRight") { e.preventDefault(); if (R.p.sec < R.s.sections.length) cont(); else if (!R.p.done) finish(); }
 });
 
-// ───────── start ─────────
 applySettings();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 loadIndex().then(route);

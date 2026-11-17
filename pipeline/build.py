@@ -1,4 +1,4 @@
-"""Builds today's issue of Read XP.
+"""Builds today's issue of Read.
 
   feeds  ->  candidates (recent, unseen)  ->  the LLM picks the most important stories per topic
          ->  full text of each story's sources  ->  the LLM writes a deep, story-driven piece
@@ -23,13 +23,22 @@ import feedparser
 import requests
 import trafilatura
 
+_env = Path(__file__).resolve().parent.parent / ".env"          # local runs: the key lives in .env
+if _env.exists():
+    for _l in _env.read_text("utf-8").splitlines():
+        if "=" in _l and not _l.lstrip().startswith("#"):
+            _k, _v = _l.split("=", 1)
+            if _v.strip():
+                os.environ.setdefault(_k.strip(), _v.strip())
+
 sys.path.insert(0, str(Path(__file__).parent))
 import llm  # noqa: E402
 from sources import MAX_AGE_DAYS, MAX_PER_FEED, TOPICS  # noqa: E402
 
 TZ = ZoneInfo(os.environ.get("READ_TZ", "Asia/Kolkata"))
 REMIND_AT = os.environ.get("REMIND_AT", "10:00")
-UA = {"User-Agent": "Mozilla/5.0 (compatible; ReadXP/1.0; personal RSS reader)"}
+UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36",
+      "Accept": "application/rss+xml, application/xml;q=0.9, text/html;q=0.8, */*;q=0.5"}
 WPM = 230   # adult silent reading speed for non-fiction
 
 
@@ -124,50 +133,58 @@ def pick(topic, cands, recent, n):
 
 # ───────────────────────── writing ─────────────────────────
 
-WRITE_SYSTEM = """You write for Read XP, a focused daily reader. Your reader is smart, curious and not a specialist.
-They want to UNDERSTAND the world, not skim it. You are a great explainer and storyteller, in the tradition of the
-best long-form magazine writers and patient teachers.
+WRITE_SYSTEM = """You are a storyteller sitting across from one curious listener, telling them what happened in the
+world and how it really works. Think of the best narrative podcast hosts and long-form magazine writers: warm, vivid,
+precise, never condescending. The listener is smart but not a specialist. They want to UNDERSTAND, and to enjoy it.
 
 Rules you never break:
-- Facts, numbers, names, dates and quotes come ONLY from the source texts given. Never invent a quote, figure or event.
+- Facts, numbers, names, dates and quotes come ONLY from the source texts given. Never invent a quote, a figure, a
+  scene detail or an event. You may set a scene only from what the sources describe.
 - You may add general background knowledge to explain how something works (e.g. how central-bank rates feed into
-  mortgages); keep it textbook-level and uncontroversial, and do not present it as news.
-- If the sources disagree or something is uncertain, say so plainly.
-- No hype, no clickbait, no moralising. Plain words; define jargon the first time it appears."""
+  mortgages); keep it textbook-level and uncontroversial, and never present it as news.
+- If the sources disagree or something is uncertain, say so plainly, in your own voice.
+- No hype, no clickbait, no moralising, no emojis. Plain words; explain jargon the moment you use it."""
 
 WRITE_PROMPT = """Topic: {topic}
-The question this piece answers: {angle}
+The question this story answers: {angle}
 Why it matters: {why}
 
 SOURCES
 {sources}
 
-Write the piece. It must be story-driven and deep:
-1. Open with a hook: a concrete moment, person, decision or surprising number — make the reader want to know more.
-2. Tell what happened as a story, in order: who did what, when, and WHY they did it (their incentives, constraints,
-   the options they had, the decision they took).
-3. Explain HOW it works: the mechanism, step by step, as a cause → effect chain a curious 16-year-old could follow.
-   For economics, trace the money and incentives. For politics, trace power, interests and rules. For research,
-   explain what was done, how (method, sample), what was found, and how strong the evidence is.
-   For ideas/philosophy, state the argument, the strongest objection, and the reply.
-4. Give the context that makes it make sense: history, comparisons, base rates, what usually happens.
-5. What is uncertain or disputed, and what the other side argues.
-6. What to watch next, and why it matters for an ordinary person.
+Tell this as a story, spoken to one listener, in beats. It is a conversation: after each beat the listener reacts,
+and the next beat answers that reaction.
 
-Length: {words} words in total across 5-8 sections of roughly 150-350 words each. Each section should end in a way
-that pulls the reader into the next. Use **bold** for the 1-3 key ideas or terms per section (so a skimming eye
-catches the spine of the argument), *italics* sparingly, short paragraphs (2-4 sentences), and a bullet or numbered list
-only where steps or comparisons are genuinely list-shaped. No headings inside section bodies. No links.
+Voice: talk TO the listener ("Picture a Thursday morning in March…", "Here's the part that surprised me…",
+"Now, you might think…, but…"). Use scenes, people, decisions and tension. Let the story breathe, then turn.
+Short paragraphs (1-4 sentences), varied rhythm, an occasional one-line paragraph for a turn or a punchline.
+
+Depth (non-negotiable; this is what makes it worth reading):
+- What happened, in order: who did what, when, and WHY: their incentives, constraints, the options they had and the
+  decision they took.
+- HOW it works: the mechanism step by step, a cause-and-effect chain a curious 16-year-old could follow.
+  Economics/finance: follow the money and the incentives. Business: the decisions, the bets and the trade-offs.
+  Politics: power, interests and rules. Research: what was done, how, what was found and how strong the evidence is.
+  Ideas: the argument, the best objection and the reply.
+- The context that makes it make sense: history, comparisons, base rates.
+- What's uncertain or disputed, and the other side's case.
+- Where it goes next, and what it means for an ordinary person.
+
+Length: {words} words in total across 6-9 beats of roughly 120-300 words each. End most beats with a small hook or
+open question that makes the listener want the next one. Use **bold** for the 1-2 key ideas in a beat (the spine of
+the story), *italics* for emphasis sparingly, and a list only when steps are genuinely list-shaped. No links.
+
+For every beat except the first, write the listener's "cue": the short, natural thing a curious listener would say
+right before it, in their own voice, as if leaning in. 2-9 words, e.g. "Wait, why would they do that?",
+"So how does that actually work?", "Okay, then what?", "Is anyone pushing back?", "And what does it mean for me?".
+Vary them; make each one fit the beat it leads into exactly.
 
 Return JSON:
-{{"title": "a clear, specific headline (not clickbait), max 12 words",
+{{"title": "a specific, intriguing headline, not clickbait, max 12 words",
  "dek": "one sentence that sets up the story's central question",
- "sections": [{{"heading": "short, intriguing section title", "body": "markdown"}}],
+ "beats": [{{"cue": "listener line (empty for the first beat)", "label": "2-4 word name for this beat", "body": "markdown"}}],
  "terms": [{{"term": "...", "meaning": "one-sentence plain definition"}}],   // 3-6 terms
- "takeaways": ["3-4 one-sentence things worth remembering"],
- "quiz": [{{"q": "question that tests understanding (why/how), not trivia", "options": ["4 options"],
-            "answer": 0, "why": "one-sentence explanation"}}],                // exactly 3
- "ask": ["3 thought-provoking follow-up questions the reader might ask"]}}"""
+ "ask": ["3 thought-provoking questions the listener might still want to ask"]}}"""
 
 
 def write(topic, story):
@@ -181,11 +198,10 @@ def write(topic, story):
     piece = llm.generate_json(WRITE_PROMPT.format(topic=topic["name"], angle=story["angle"], why=story["why"],
                                                   sources="\n\n".join(blocks), words=words),
                               system=WRITE_SYSTEM, temperature=0.75, max_tokens=12000)
-    secs = [s for s in piece.get("sections", []) if s.get("body")]
+    secs = [s for s in piece.get("beats", piece.get("sections", [])) if s.get("body")]
     if len(secs) < 3:
         raise ValueError("too short")
     n_words = sum(len(s["body"].split()) for s in secs)
-    quiz = [q for q in piece.get("quiz", []) if isinstance(q.get("answer"), int) and len(q.get("options", [])) >= 2]
     return {
         "id": re.sub(r"[^a-z0-9]+", "-", piece.get("title", "story").lower()).strip("-")[:60],
         "title": piece.get("title", items[0]["title"]),
@@ -194,10 +210,9 @@ def write(topic, story):
         "why": story["why"],
         "minutes": max(2, round(n_words / WPM)),
         "words": n_words,
-        "sections": [{"heading": s.get("heading", ""), "body": s["body"]} for s in secs],
+        "sections": [{"heading": s.get("label") or s.get("heading", ""), "cue": (s.get("cue") or "").strip() if k else "",
+                      "body": s["body"]} for k, s in enumerate(secs)],
         "terms": piece.get("terms", [])[:6],
-        "takeaways": piece.get("takeaways", [])[:4],
-        "quiz": quiz[:3],
         "ask": piece.get("ask", [])[:3],
         "sources": [{"title": it["title"], "url": it["url"], "source": it["source"], "date": it["date"]} for it in items],
     }
@@ -223,7 +238,7 @@ def remind(issue, site_url):
         body = f"{len(stories)} stories · ~{mins} min. First up: {stories[0]['title']}"
     else:
         body = "Today's issue is lighter than usual — open the app to keep your streak."
-    headers = {"Title": "Time to read 📖", "Tags": "books", "Priority": "high", "Click": site_url}
+    headers = {"Title": "Today's read is ready", "Tags": "books", "Priority": "high", "Click": site_url}
     if at > now + dt.timedelta(minutes=2):
         headers["At"] = str(int(at.timestamp()))
     r = requests.post(f"https://ntfy.sh/{topic}", data=body.encode(), headers=headers, timeout=20)
@@ -264,22 +279,44 @@ def main():
 
     wanted = set(filter(None, a.topics.split(",")))
     issue = {"date": date, "generated": dt.datetime.now(TZ).isoformat(timespec="minutes"),
-             "model": llm.models()[0], "topics": []}
+             "model": llm.models()[0], "partial": True, "topics": []}
+
+    def publish():
+        """Saves the issue as it stands, so the app can show each story the moment it is written."""
+        n = sum(len(t["stories"]) for t in issue["topics"])
+        if not n:
+            return
+        out = {**issue, "topics": [t for t in issue["topics"] if t["stories"] or t.get("pending")]}
+        (out_dir / f"{date}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), "utf-8")
+        seen_path.write_text(json.dumps(seen, indent=0), "utf-8")
+        first = next(s for t in issue["topics"] for s in t["stories"])
+        entry = {"date": date, "stories": n, "minutes": sum(s["minutes"] for t in issue["topics"] for s in t["stories"]),
+                 "headline": first["title"], "partial": issue["partial"]}
+        idx = [entry] + [e for e in index if e["date"] != date]
+        for e in idx[45:]:                                # older issues fall off
+            (out_dir / f"{e['date']}.json").unlink(missing_ok=True)
+        index_path.write_text(json.dumps(idx[:45], ensure_ascii=False, indent=1), "utf-8")
 
     for topic in TOPICS:
         if wanted and topic["id"] not in wanted:
             continue
-        print(f"\n== {topic['name']}")
+        print(f"\n== {topic['name']}", flush=True)
         with cf.ThreadPoolExecutor(10) as ex:
             cands = [c for batch in ex.map(read_feed, topic["feeds"]) for c in batch]
+        # newest first, then take turns across sources so every outlet gets a voice in the editor's list
+        cands.sort(key=lambda c: c["date"], reverse=True)
+        by_src = {}
+        for c in cands:
+            by_src.setdefault(c["source"], []).append(c)
+        cands = [c for rnd in range(MAX_PER_FEED) for lst in by_src.values() if rnd < len(lst) for c in [lst[rnd]]]
         dedup, titles = [], set()
         for c in cands:
             key = re.sub(r"\W+", "", c["title"].lower())[:60]
             if c["url"] not in seen and key not in titles:
                 titles.add(key)
                 dedup.append(c)
-        cands = dedup[:160]
-        print(f"  {len(cands)} candidates")
+        cands = dedup[:240]
+        print(f"  {len(cands)} candidates from {len(by_src)} sources", flush=True)
         if not cands:
             continue
         n = a.stories or topic["stories"]
@@ -288,37 +325,31 @@ def main():
         except Exception as e:
             print("  pick failed:", e)
             continue
-        stories = []
+        entry = {"id": topic["id"], "name": topic["name"], "stories": [], "pending": len(picks)}
+        issue["topics"].append(entry)
         for s in picks:
-            print("  ✎", s["items"][0]["title"][:90])
+            print("  writing:", s["items"][0]["title"][:90], flush=True)
             try:
                 story = write(topic, s)
+                entry["stories"].append(story)
+                for it in s["items"]:
+                    seen[it["url"]] = date
+                print(f"    done: {story['title']} ({story['words']} words)", flush=True)
             except Exception as e:
-                print("    write failed:", e)
-                continue
-            stories.append(story)
-            for it in s["items"]:
-                seen[it["url"]] = date
-        if stories:
-            issue["topics"].append({"id": topic["id"], "name": topic["name"], "emoji": topic["emoji"], "stories": stories})
+                print("    write failed:", e, flush=True)
+            entry["pending"] -= 1
+            publish()
 
+    issue["partial"] = False
+    for t in issue["topics"]:
+        t.pop("pending", None)
     n_stories = sum(len(t["stories"]) for t in issue["topics"])
     if not n_stories:
         print("no stories written; keeping yesterday's issue")
         remind({"topics": []}, site_url)
         sys.exit(1)
-
-    (out_dir / f"{date}.json").write_text(json.dumps(issue, ensure_ascii=False, indent=1), "utf-8")
-    seen_path.write_text(json.dumps(seen, indent=0), "utf-8")
-    first = issue["topics"][0]["stories"][0]
-    entry = {"date": date, "stories": n_stories, "minutes": sum(s["minutes"] for t in issue["topics"] for s in t["stories"]),
-             "headline": first["title"]}
-    index = [entry] + [e for e in index if e["date"] != date]
-    keep = index[:45]
-    for e in index[45:]:                                  # older issues fall off
-        (out_dir / f"{e['date']}.json").unlink(missing_ok=True)
-    index_path.write_text(json.dumps(keep, ensure_ascii=False, indent=1), "utf-8")
-    print(f"\nissue {date}: {n_stories} stories, ~{entry['minutes']} min")
+    publish()
+    print(f"\nissue {date}: {n_stories} stories", flush=True)
     remind(issue, site_url)
 
 

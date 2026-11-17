@@ -4,3 +4,4 @@ __pycache__/
 # private: your Gemini key and reminder topic
 setup.env
 setup-qr.png
+.env
