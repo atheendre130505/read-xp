@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f1e7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<title>Read XP</title>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- reading ruler: a clear band at eye height, the rest of the page gently dimmed -->
+<div id="ruler" aria-hidden="true"><div class="shade top"></div><div class="band"></div><div class="shade bot"></div></div>
+
+<!-- appears over selected text -->
+<button id="askpill" hidden>💬 Ask about this</button>
+
+<!-- chat sheet -->
+<div id="sheet" class="sheet" hidden>
+  <div class="sheet-card" role="dialog" aria-label="Ask">
+    <div class="sheet-head">
+      <span class="sheet-title">Ask</span>
+      <button class="icon" data-act="close-sheet" aria-label="Close">✕</button>
+    </div>
+    <div id="chatlog" class="chatlog"></div>
+    <div id="chips" class="chips"></div>
+    <form id="chatform" class="chatform">
+      <textarea id="chatin" rows="1" placeholder="Why? How? What if…?" enterkeyhint="send"></textarea>
+      <button type="submit" class="send" aria-label="Send">↑</button>
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="burst" aria-hidden="true"></div>
+<script src="md.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

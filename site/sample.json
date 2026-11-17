@@ -1,0 +1,52 @@
+{
+ "date": "sample",
+ "generated": "sample",
+ "model": "gemini-flash-latest",
+ "topics": [
+  {
+   "id": "econ", "name": "Economics & Finance", "emoji": "📈",
+   "stories": [
+    {
+     "id": "sample-svb",
+     "title": "How a 40-year-old bank died in 48 hours",
+     "dek": "Silicon Valley Bank did nothing exotic. So how did safe government bonds and a group chat bring it down?",
+     "kind": "analysis",
+     "why": "A sample story showing how Read XP explains a mechanism. Real issues arrive every morning before 10:00.",
+     "minutes": 6, "words": 1350,
+     "sections": [
+      {"heading": "A Thursday in March", "body": "On **Thursday 9 March 2023**, customers of Silicon Valley Bank asked to withdraw **$42 billion** in a single day — about a quarter of everything the bank held. By Friday morning the requests queued for that day were larger still, and California regulators shut the bank before it could open its doors.\n\nSVB was not a crypto lender or a reckless trading house. It was the 16th-largest bank in America, the bank of choice for half of US venture-backed start-ups, and most of what it owned was the safest paper in the world: **US government bonds**. To understand how it died, you have to follow the money from the boom backwards."},
+      {"heading": "Too much money, too fast", "body": "During 2020 and 2021, venture capitalists poured record sums into start-ups. Start-ups parked that cash at SVB, and the bank's **deposits roughly tripled** in two years, to nearly $190 billion.\n\nA bank makes money by putting deposits to work. Normally that means loans, but start-ups were flush and borrowing little. So SVB did what looked prudent: it bought long-dated Treasuries and government-backed mortgage bonds. In 2021 those paid under 2% a year — but with rates near zero, that beat the almost nothing SVB paid its depositors.\n\nThe catch was the word **long**. Many of those bonds wouldn't mature for ten years or more. The bank had borrowed short (deposits can leave any day) and lent long."},
+      {"heading": "Why 'safe' bonds lost value", "body": "Here is the mechanism at the heart of the story. A bond pays a fixed interest rate. Imagine you hold a bond paying **1.5%** and then the central bank raises rates so new bonds pay **4.5%**. Nobody will pay full price for your 1.5% bond when they can buy a fresh 4.5% one — so its market price must fall until the two offer the same return.\n\nThe longer the bond has left to run, the bigger the fall, because the buyer is stuck with the low rate for longer. In 2022 the Federal Reserve raised rates faster than at any time in four decades to fight inflation. By the end of the year SVB's bond portfolio was worth about **$15 billion less** than it had paid — roughly equal to the bank's entire capital cushion.\n\nAccounting rules let a bank ignore these losses on bonds it labels *held to maturity*, as long as it never has to sell. SVB's survival now depended on one thing: depositors not asking for their money all at once."},
+      {"heading": "The depositors who could run", "body": "Most bank customers are protected: US deposit insurance covers **$250,000** per depositor, per bank. But SVB's customers were companies holding payroll money in the millions. More than **90% of its deposits were uninsured**.\n\nThat changes the psychology completely. An insured depositor has no reason to run. An uninsured one has every reason to run *first* — if the bank fails, whoever withdraws early is paid in full, and whoever waits might not be. This is the classic **bank-run game**: each person's rational choice depends on what they expect everyone else to do.\n\nAnd SVB's depositors were unusually alike. They shared the same investors, the same WhatsApp groups and the same Twitter feeds. When a few big venture firms told their companies to pull cash, the message reached thousands of founders within hours."},
+      {"heading": "The announcement that lit the fuse", "body": "As 2022 wore on, start-ups stopped raising money and began burning through their deposits, so SVB had to sell some bonds to meet withdrawals. On **8 March 2023** the bank announced it had sold $21 billion of securities at a **$1.8 billion loss** and needed to raise about $2.25 billion of new capital.\n\nManagement meant it as a sensible repair job. Depositors read it as a confession: *the losses are real, and the bank needs money.* Within a day, $42 billion was requested — a run at the speed of a smartphone. A Federal Reserve review later noted that this run was far faster than any in history, and blamed both the bank's management and its supervisors, who had spotted interest-rate and liquidity problems but did not force a fix in time."},
+      {"heading": "The weekend rescue and the bill", "body": "On **Friday 10 March** the bank was closed and the FDIC took over. Over the weekend, officials feared runs on other regional banks with the same pattern of big uninsured deposits — Signature Bank failed that Sunday. So on **12 March** they declared a *systemic risk exception*: **all** SVB depositors, insured or not, would be paid in full. The Fed also opened a lending facility that let banks borrow against their bonds at full face value, removing the need for fire sales.\n\nShareholders and bondholders of SVB were wiped out; depositors were not. That trade-off is the lasting debate. Protecting everyone stopped the panic, but it also signals that big depositors may be rescued next time too — the problem economists call **moral hazard**."},
+      {"heading": "What it teaches", "body": "Strip the story down and you get three lessons that apply to any bank, anywhere:\n\n1. **Safe assets are not safe from interest-rate risk.** Credit risk (will I be repaid?) and rate risk (what is it worth today?) are different things.\n2. **Who your depositors are matters** as much as what you own. A concentrated, uninsured, well-connected base can vanish in hours.\n3. **Confidence is the real capital.** A bank holds a fraction of deposits in cash; it only works while customers believe it works.\n\nWhen you read about central banks raising or cutting rates, remember SVB: every rate move quietly changes the value of trillions of dollars of 'safe' bonds sitting on bank balance sheets."}
+     ],
+     "terms": [
+      {"term": "Duration risk", "meaning": "How much a bond's price falls when interest rates rise; longer bonds fall more."},
+      {"term": "Uninsured deposits", "meaning": "Money above the $250,000 insurance limit, which depositors could lose if a US bank fails."},
+      {"term": "Held to maturity", "meaning": "An accounting label that lets a bank ignore market-price losses on bonds it intends to keep until they pay out."},
+      {"term": "Bank run", "meaning": "Many depositors withdrawing at once because each fears the others will withdraw first."},
+      {"term": "Moral hazard", "meaning": "Taking more risk because someone else is expected to absorb the losses."}
+     ],
+     "takeaways": [
+      "SVB's bonds were safe from default but lost market value when rates rose quickly.",
+      "Over 90% uninsured, closely networked depositors made a run rational — and fast.",
+      "Announcing a loss-making bond sale turned a hidden weakness into a public one.",
+      "Guaranteeing all deposits stopped contagion but raised moral-hazard concerns."
+     ],
+     "quiz": [
+      {"q": "Why did SVB's government bonds lose value in 2022?", "options": ["The US government nearly defaulted", "New bonds paid higher rates, so older low-rate bonds became worth less", "SVB bought fake bonds", "The dollar collapsed"], "answer": 1, "why": "When rates rise, existing fixed-rate bonds must fall in price to compete with new, higher-paying bonds."},
+      {"q": "What made SVB's depositors especially likely to run?", "options": ["They were mostly small retail savers", "Their deposits were fully insured", "Most deposits were uninsured and depositors were tightly connected", "The bank had no branches"], "answer": 2, "why": "Uninsured depositors gain by withdrawing first, and shared networks spread the panic in hours."},
+      {"q": "Why is guaranteeing all deposits controversial?", "options": ["It is illegal", "It may encourage risky behaviour by signalling future rescues", "It costs taxpayers nothing", "It punishes depositors"], "answer": 1, "why": "That is moral hazard: expected rescues reduce the incentive to watch risk."}
+     ],
+     "ask": ["Could the same thing happen to a bank in India?", "Why didn't SVB hedge its interest-rate risk?", "How is a bank run like a coordination game?"],
+     "sources": [
+      {"title": "Review of the Federal Reserve's Supervision and Regulation of Silicon Valley Bank", "url": "https://www.federalreserve.gov/publications/review-of-the-federal-reserves-supervision-and-regulation-of-silicon-valley-bank.htm", "source": "Federal Reserve", "date": "2023-04-28"},
+      {"title": "FDIC's Supervision of Signature Bank and Options for Deposit Insurance Reform", "url": "https://www.fdic.gov/analysis/options-deposit-insurance-reforms", "source": "FDIC", "date": "2023-05-01"}
+     ]
+    }
+   ]
+  }
+ ]
+}

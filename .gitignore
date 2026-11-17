@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+.claude/
+# private: your Gemini key and reminder topic
+setup.env
+setup-qr.png
