@@ -15,7 +15,7 @@ const I = {   // line icons (no emoji anywhere)
 };
 
 // ───────── storage (device only) ─────────
-const DEF = { settings: { theme: "light", font: "source", fs: 19, ruler: true, bionic: false, hints: true, awake: true, key: "", ntfy: "", model: "", rulerPos: 0.3 },
+const DEF = { settings: { theme: "auto", font: "source", fs: 19, ruler: true, bionic: false, hints: true, awake: true, key: "", ntfy: "", model: "", rulerPos: 0.3 },
               progress: {}, chats: {} };
 let S;
 try { const raw = JSON.parse(localStorage.getItem("rxp") || "{}");
@@ -37,9 +37,18 @@ const save = () => { try { localStorage.setItem("rxp", JSON.stringify(S)); } cat
 })();
 
 // ───────── look ─────────
+// "auto": dark between 7 pm and 7 am, light in the day
+function effectiveTheme() {
+  if (S.settings.theme !== "auto") return S.settings.theme;
+  const h = new Date().getHours();
+  return h >= 19 || h < 7 ? "dark" : "light";
+}
+setInterval(() => { if (document.documentElement.dataset.theme !== effectiveTheme()) applySettings(); }, 60000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") applySettings(); });
+
 function applySettings() {
   const st = S.settings, r = document.documentElement;
-  r.dataset.theme = st.theme; r.dataset.font = st.font;
+  r.dataset.theme = effectiveTheme(); r.dataset.font = st.font;
   r.style.setProperty("--fs", st.fs + "px");
   document.body.classList.toggle("ruler-on", !!st.ruler);
   document.body.classList.toggle("hints", !!st.hints);
@@ -168,6 +177,8 @@ async function renderReader(date, id) {
   $("#thread").innerHTML = s.sections.slice(0, p.sec).map((_, k) => sectionHTML(k)).join("");
   bindComposer();
   drawBottom();
+  const firstP = $(".sec p");
+  rulerH = firstP ? parseFloat(getComputedStyle(firstP).lineHeight) : S.settings.fs * 1.7;
   setRulerTop();
 }
 
@@ -209,18 +220,44 @@ function drawEnd() {
   </div>`;
 }
 
-const rulerTopPx = () => innerHeight * (S.settings.rulerPos || 0.3);
-function setRulerTop() { document.documentElement.style.setProperty("--ruler-top", rulerTopPx() + "px"); }
+const barBottom = () => ($(".bar")?.getBoundingClientRect().bottom || 0);
+const rulerTopPx = () => Math.max(barBottom(), innerHeight * (S.settings.rulerPos ?? 0.3));
+let rulerH = 0;   // height of the line the ruler sits on (measured from the text)
+function setRulerTop(top = rulerTopPx(), h = rulerH) {
+  const r = document.documentElement.style;
+  r.setProperty("--ruler-top", top + "px");
+  if (h) r.setProperty("--ruler-h", h + "px");
+}
 addEventListener("resize", setRulerTop);
 function scrollToEl(el) {
   const y = el.getBoundingClientRect().top + scrollY - rulerTopPx() + 4;
   scrollTo({ top: Math.max(0, y), behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
-// tap a line to move the ruler there; scrolling then carries the text through it
+// tap a line to move the ruler onto exactly that line (anywhere on screen); scrolling then carries the text through it
+function lineRectAt(x, y) {
+  const range = document.caretRangeFromPoint?.(x, y) ||
+    (() => { const p = document.caretPositionFromPoint?.(x, y); if (!p) return null; const r = document.createRange(); r.setStart(p.offsetNode, p.offset); return r; })();
+  if (!range) return null;
+  const node = range.startContainer;
+  if (node.nodeType !== 3) return null;
+  const r = document.createRange();
+  const o = Math.min(range.startOffset, node.length - 1);
+  r.setStart(node, Math.max(0, o)); r.setEnd(node, Math.max(0, o) + 1);
+  const rects = [...r.getClientRects()].filter(q => q.height > 0);
+  if (!rects.length) return null;
+  const block = node.parentElement.closest("p, li, blockquote, h1, .dek") || node.parentElement;
+  const lh = parseFloat(getComputedStyle(block).lineHeight) || rects[0].height;
+  const mid = (rects[0].top + rects[0].bottom) / 2;
+  return { top: mid - lh / 2, h: lh };
+}
 document.addEventListener("click", e => {
   if (!S.settings.ruler || !R || !e.target.closest(".sec, .story h1, .dek") || !getSelection().isCollapsed) return;
-  S.settings.rulerPos = Math.min(0.7, Math.max(0.1, (e.clientY - S.settings.fs * 1.62) / innerHeight));
-  save(); setRulerTop();
+  const line = lineRectAt(e.clientX, e.clientY);
+  const lh = line?.h || S.settings.fs * 1.7;
+  const top = Math.max(barBottom(), line ? line.top : e.clientY - lh / 2);
+  rulerH = lh;
+  S.settings.rulerPos = top / innerHeight;
+  save(); setRulerTop(top, lh);
 });
 
 function cont() {
@@ -339,7 +376,7 @@ function renderSettings() {
   <div class="col set">
     <h2>Settings</h2>
     <h3>Reading</h3>
-    <div class="row"><label>Theme</label>${seg("theme", [["light", "Light"], ["sepia", "Sepia"], ["dark", "Dark"]])}</div>
+    <div class="row"><label>Theme<small>Auto turns dark from 7 pm to 7 am</small></label>${seg("theme", [["auto", "Auto"], ["light", "Light"], ["sepia", "Sepia"], ["dark", "Dark"]])}</div>
     <div class="row"><label>Typeface</label>${seg("font", [["source", "Serif"], ["literata", "Literata"], ["atkinson", "Atkinson"]])}</div>
     <div class="row"><label>Text size<small>${st.fs}px</small></label><div class="seg"><button data-fs="-1">A−</button><button data-fs="1">A+</button></div></div>
     <div class="row"><label>Reading ruler<small>A clear band at eye level; tap any line to move it</small></label>${sw("ruler")}</div>

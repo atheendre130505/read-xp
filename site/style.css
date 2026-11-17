@@ -5,16 +5,16 @@
 :root {
   --bg: #faf9f5; --surface: #ffffff; --sunk: #f0eee6; --fg: #1f1e1b; --text: #3d3929; --dim: #73726c; --faint: #a3a19a;
   --line: #e8e6dc; --acc: #c96442; --acc-ink: #ffffff; --acc-soft: rgba(201, 100, 66, .09);
-  --shade: rgba(250, 249, 245, .62); --band: rgba(201, 100, 66, .06); --band-edge: rgba(201, 100, 66, .22);
+  --shade: rgba(250, 249, 245, .45); --band: rgba(201, 100, 66, .06); --band-edge: rgba(201, 100, 66, .22);
   --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 20px rgba(0,0,0,.05);
   --fs: 19px; --lh: 1.62; --measure: 65ch;
   --font: "Source Serif 4", "Tiempos Text", Georgia, serif;
   --ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 :root[data-theme="sepia"] { --bg:#f1e8d6; --surface:#f8f1e3; --sunk:#e7dcc5; --fg:#2e2518; --text:#3e3322; --dim:#7a6a52; --faint:#a8987d;
-  --line:#ddd0b6; --shade:rgba(241,232,214,.64); }
+  --line:#ddd0b6; --shade:rgba(241,232,214,.46); }
 :root[data-theme="dark"] { --bg:#262624; --surface:#30302e; --sunk:#1f1e1d; --fg:#faf9f5; --text:#d6d4cb; --dim:#9a988f; --faint:#6d6b65;
-  --line:#3b3a37; --acc:#d97757; --acc-soft:rgba(217,119,87,.12); --shade:rgba(38,38,36,.64); --band:rgba(217,119,87,.07);
+  --line:#3b3a37; --acc:#d97757; --acc-soft:rgba(217,119,87,.12); --shade:rgba(38,38,36,.42); --band:rgba(217,119,87,.07);
   --band-edge:rgba(217,119,87,.25); --shadow:0 1px 2px rgba(0,0,0,.25), 0 4px 20px rgba(0,0,0,.25); }
 :root[data-font="literata"] { --font: "Literata", Georgia, serif; }
 :root[data-font="atkinson"] { --font: "Atkinson Hyperlegible", system-ui, sans-serif; }
@@ -137,8 +137,8 @@ body.reading .after { padding-bottom:62vh; }   /* room for any line to be scroll
 #ruler { position:fixed; inset:0; z-index:4; pointer-events:none; display:none; flex-direction:column; }
 body.ruler-on.reading #ruler { display:flex; }
 #ruler .shade { background:var(--shade); }
-#ruler .shade.top { height:var(--ruler-top, 30%); transition:height .2s; }
-#ruler .band { height:calc(var(--fs) * var(--lh) * 3 + 10px); background:var(--band); border-top:1px solid var(--band-edge); border-bottom:1px solid var(--band-edge); }
+#ruler .shade.top { height:var(--ruler-top, 30%); transition:height .15s; }
+#ruler .band { height:var(--ruler-h, calc(var(--fs) * var(--lh))); background:var(--band); border-top:1px solid var(--band-edge); border-bottom:1px solid var(--band-edge); }
 #ruler .shade.bot { flex:1; }
 
 /* ── ask pill ── */
