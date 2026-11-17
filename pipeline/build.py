@@ -356,7 +356,9 @@ def main():
             continue
         n = a.stories or topic["stories"]
         try:
-            picks = pick(topic, cands, recent_heads.get(topic["id"], []), n)
+            # also avoid anything another topic already covered in this edition (e.g. Nvidia under both Econ and Business)
+            covered = [st["title"] for t in issue["topics"] for st in t["stories"]]
+            picks = pick(topic, cands, recent_heads.get(topic["id"], []) + covered, n)
         except Exception as e:
             print("  pick failed:", e)
             continue
