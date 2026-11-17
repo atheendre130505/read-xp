@@ -284,6 +284,7 @@ def main():
     ap.add_argument("--stories", type=int, default=0, help="override stories per topic (testing)")
     ap.add_argument("--remind-only", action="store_true")
     ap.add_argument("--edition", choices=["morning", "evening"], help="default: by the time of day")
+    ap.add_argument("--add", action="store_true", help="keep this edition's stories and add the topics it lacks")
     a = ap.parse_args()
 
     site = Path(a.site)
@@ -315,13 +316,21 @@ def main():
     wanted = set(filter(None, a.topics.split(",")))
     issue = {"date": date, "day": day, "edition": edition, "generated": dt.datetime.now(TZ).isoformat(timespec="minutes"),
              "model": llm.models()[0], "partial": True, "topics": []}
+    existing = out_dir / f"{date}.json"
+    if a.add and existing.exists():                        # top up this edition with more topics
+        issue["topics"] = json.loads(existing.read_text("utf-8"))["topics"]
+        have = {t["id"] for t in issue["topics"]}
+        wanted = (wanted or {t["id"] for t in TOPICS}) - have
+        print("adding topics:", sorted(wanted), flush=True)
 
     def publish():
         """Saves the issue as it stands, so the app can show each story the moment it is written."""
         n = sum(len(t["stories"]) for t in issue["topics"])
         if not n:
             return
-        out = {**issue, "topics": [t for t in issue["topics"] if t["stories"] or t.get("pending")]}
+        order = {t["id"]: i for i, t in enumerate(TOPICS)}
+        out = {**issue, "topics": sorted([t for t in issue["topics"] if t["stories"] or t.get("pending")],
+                                         key=lambda t: order.get(t["id"], 99))}
         (out_dir / f"{date}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), "utf-8")
         seen_path.write_text(json.dumps(seen, indent=0), "utf-8")
         first = next(s for t in issue["topics"] for s in t["stories"])

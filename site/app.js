@@ -163,7 +163,8 @@ async function renderReader(date, id) {
   attached = "";
   document.body.classList.add("reading"); wake(true);
   app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/day/${date}" aria-label="Back">${I.back}</a>
-      <div class="mid">${esc(s.topic.name)}</div><div class="right" id="left"></div></div><div class="prog"><i id="prog"></i></div></div>
+      <div class="mid">${esc(s.topic.name)}</div><div class="right" id="left"></div>
+      ${list[i + 1] ? `<a class="ib" href="#/read/${date}/${encodeURIComponent(list[i + 1].id)}" aria-label="Next story" title="Next story">${I.right}</a>` : ""}</div><div class="prog"><i id="prog"></i></div></div>
     <article class="story">
       <div class="kicker">${esc(s.topic.name)}</div>
       <h1>${esc(s.title)}</h1><p class="dek">${esc(s.dek)}</p>
@@ -245,13 +246,13 @@ function lineRectAt(x, y) {
   r.setStart(node, Math.max(0, o)); r.setEnd(node, Math.max(0, o) + 1);
   const rects = [...r.getClientRects()].filter(q => q.height > 0);
   if (!rects.length) return null;
-  const block = node.parentElement.closest("p, li, blockquote, h1, .dek") || node.parentElement;
+  const block = node.parentElement.closest("p, li, blockquote, h1, dt, dd, .kicker, .meta, .cue, .turn-you") || node.parentElement;
   const lh = parseFloat(getComputedStyle(block).lineHeight) || rects[0].height;
   const mid = (rects[0].top + rects[0].bottom) / 2;
   return { top: mid - lh / 2, h: lh };
 }
 document.addEventListener("click", e => {
-  if (!S.settings.ruler || !R || !e.target.closest(".sec, .story h1, .dek") || !getSelection().isCollapsed) return;
+  if (!S.settings.ruler || !R || !e.target.closest(".story") || e.target.closest("button, a, summary") || !getSelection().isCollapsed) return;
   const line = lineRectAt(e.clientX, e.clientY);
   const lh = line?.h || S.settings.fs * 1.7;
   const top = Math.max(barBottom(), line ? line.top : e.clientY - lh / 2);

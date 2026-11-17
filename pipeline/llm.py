@@ -98,7 +98,7 @@ def generate(prompt: str, *, system: str = "", json_out: bool = False, temperatu
                 time.sleep(15 * (attempt + 1))
             else:
                 break                                       # 400/404: try the next model
-        print("  ↪", last)
+        print("  -> trying the next model:", str(last).encode("ascii", "replace").decode())
     raise RuntimeError(f"all models failed: {last}")
 
 
