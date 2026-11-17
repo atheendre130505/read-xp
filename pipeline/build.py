@@ -133,58 +133,89 @@ def pick(topic, cands, recent, n):
 
 # ───────────────────────── writing ─────────────────────────
 
-WRITE_SYSTEM = """You are a storyteller sitting across from one curious listener, telling them what happened in the
-world and how it really works. Think of the best narrative podcast hosts and long-form magazine writers: warm, vivid,
-precise, never condescending. The listener is smart but not a specialist. They want to UNDERSTAND, and to enjoy it.
+WRITE_SYSTEM = """You are a knowledgeable, level-headed friend helping one reader through today's reporting.
+You are NOT the reporter. The journalists and researchers did the reporting; your job is to relay what they found,
+faithfully, and to help the reader understand it: the background, the mechanism, why it matters.
 
 Rules you never break:
-- Facts, numbers, names, dates and quotes come ONLY from the source texts given. Never invent a quote, a figure, a
-  scene detail or an event. You may set a scene only from what the sources describe.
-- You may add general background knowledge to explain how something works (e.g. how central-bank rates feed into
-  mortgages); keep it textbook-level and uncontroversial, and never present it as news.
-- If the sources disagree or something is uncertain, say so plainly, in your own voice.
-- No hype, no clickbait, no moralising, no emojis. Plain words; explain jargon the moment you use it."""
+- Every fact about this event (names, numbers, dates, quotes, what happened) comes ONLY from the source texts, and you
+  say who reported it: "The Financial Times reports…", "According to Reuters…", "A new NBER paper finds…".
+  Where only one outlet reports something, or it rests on anonymous sources, say so.
+- Never invent scenes, dialogue, feelings, motives or details. Do not dramatise. No "Picture this", no cliffhangers,
+  no breathless adjectives. A calm, warm, plain-spoken tone, like a good teacher explaining the news over coffee.
+- To explain HOW something works, use real examples and case studies from history or other countries (e.g. the 2008
+  crisis, Japan's lost decade, India's 1991 reforms), clearly presented as background, not as part of today's news.
+  Keep them accurate and well known; if you're not sure of a detail, leave it out.
+- If the sources disagree or something is uncertain, say so plainly.
+- No emojis. Explain jargon in plain words the first time you use it."""
 
 WRITE_PROMPT = """Topic: {topic}
-The question this story answers: {angle}
+The question this piece answers: {angle}
 Why it matters: {why}
 
 SOURCES
 {sources}
 
-Tell this as a story, spoken to one listener, in beats. It is a conversation: after each beat the listener reacts,
-and the next beat answers that reaction.
+Walk the reader through this story as a conversation, in beats. After each beat the reader asks the natural next
+question, and the next beat answers it.
 
-Voice: talk TO the listener ("Picture a Thursday morning in March…", "Here's the part that surprised me…",
-"Now, you might think…, but…"). Use scenes, people, decisions and tension. Let the story breathe, then turn.
-Short paragraphs (1-4 sentences), varied rhythm, an occasional one-line paragraph for a turn or a punchline.
-
-Depth (non-negotiable; this is what makes it worth reading):
-- What happened, in order: who did what, when, and WHY: their incentives, constraints, the options they had and the
-  decision they took.
+Cover, in a natural order:
+- What was reported, in order: who did what, when, and the reasons given (the incentives, constraints and options
+  involved, as reported or as clearly explained background).
 - HOW it works: the mechanism step by step, a cause-and-effect chain a curious 16-year-old could follow.
-  Economics/finance: follow the money and the incentives. Business: the decisions, the bets and the trade-offs.
-  Politics: power, interests and rules. Research: what was done, how, what was found and how strong the evidence is.
+  Economics/finance: follow the money and the incentives. Business: the decisions, bets and trade-offs.
+  Politics: power, interests and rules. Research: what was done, how, what was found, how strong the evidence is.
   Ideas: the argument, the best objection and the reply.
-- The context that makes it make sense: history, comparisons, base rates.
+- A real example or case study that makes the mechanism click, if one genuinely helps.
+- Context: history, comparisons, base rates.
 - What's uncertain or disputed, and the other side's case.
-- Where it goes next, and what it means for an ordinary person.
+- What to watch next, and what it means for an ordinary person.
 
-Length: {words} words in total across 6-9 beats of roughly 120-300 words each. End most beats with a small hook or
-open question that makes the listener want the next one. Use **bold** for the 1-2 key ideas in a beat (the spine of
-the story), *italics* for emphasis sparingly, and a list only when steps are genuinely list-shaped. No links.
+Length: {words} words across 6-9 beats of roughly 120-280 words each. Short paragraphs (1-4 sentences). Use **bold**
+for the 1-2 key ideas in a beat, a list only when steps are genuinely list-shaped. No links.
 
-For every beat except the first, write the listener's "cue": the short, natural thing a curious listener would say
-right before it, in their own voice, as if leaning in. 2-9 words, e.g. "Wait, why would they do that?",
-"So how does that actually work?", "Okay, then what?", "Is anyone pushing back?", "And what does it mean for me?".
-Vary them; make each one fit the beat it leads into exactly.
+For every beat except the first, write the reader's "cue": the short, natural question they'd ask right before it,
+2-9 words, e.g. "Why would they do that?", "How does that actually work?", "Has this happened before?",
+"Who disagrees?", "What does this mean for me?". Each must fit the beat it leads into.
+
+"glossary": the harder words and phrases in your text that an educated reader whose first language isn't English
+might not know (e.g. "extramarital", "linchpin", "fiscal deficit", "repo rate", "hawkish"), each with a 1-4 word
+plain hint shown above the word as they read, like Kindle's Word Wise ("outside marriage", "key part",
+"govt spends more than it earns"). 8-20 entries; the word must appear exactly in the text.
 
 Return JSON:
-{{"title": "a specific, intriguing headline, not clickbait, max 12 words",
- "dek": "one sentence that sets up the story's central question",
- "beats": [{{"cue": "listener line (empty for the first beat)", "label": "2-4 word name for this beat", "body": "markdown"}}],
- "terms": [{{"term": "...", "meaning": "one-sentence plain definition"}}],   // 3-6 terms
- "ask": ["3 thought-provoking questions the listener might still want to ask"]}}"""
+{{"title": "a plain, specific headline, max 12 words",
+ "dek": "one sentence on what this piece explains",
+ "beats": [{{"cue": "reader's question (empty for the first beat)", "label": "2-4 word name for this beat", "body": "markdown"}}],
+ "glossary": [{{"word": "...", "hint": "1-4 words"}}],
+ "terms": [{{"term": "...", "meaning": "one-sentence plain definition"}}],   // 3-6 key concepts
+ "ask": ["3 good questions the reader might still want to ask"]}}"""
+
+GLOSS_PROMPT = """Below is an article. List the harder words and phrases in it that an educated reader whose first
+language isn't English might not know, each with a 1-4 word plain hint to show above the word, like Kindle's Word Wise
+(e.g. "extramarital" -> "outside marriage", "linchpin" -> "key part"). 8-20 entries. Each word must appear exactly
+in the text. Return JSON: {{"glossary": [{{"word": "...", "hint": "..."}}]}}
+
+ARTICLE
+{text}"""
+
+
+def clean_gloss(g, text):
+    out, seen = [], set()
+    for e in g or []:
+        w, h = (e.get("word") or "").strip(), (e.get("hint") or "").strip()
+        if w and h and w.lower() not in seen and w.lower() in text.lower() and len(h.split()) <= 6:
+            seen.add(w.lower())
+            out.append({"word": w, "hint": h})
+    return out[:24]
+
+
+def add_glossary(story):
+    """Backfills Word Wise hints for a story written without them."""
+    text = "\n\n".join(s["body"] for s in story["sections"])
+    g = llm.generate_json(GLOSS_PROMPT.format(text=text), temperature=0.2).get("glossary", [])
+    story["glossary"] = clean_gloss(g, text)
+    return story
 
 
 def write(topic, story):
@@ -212,6 +243,7 @@ def write(topic, story):
         "words": n_words,
         "sections": [{"heading": s.get("label") or s.get("heading", ""), "cue": (s.get("cue") or "").strip() if k else "",
                       "body": s["body"]} for k, s in enumerate(secs)],
+        "glossary": clean_gloss(piece.get("glossary"), " ".join(x["body"] for x in secs)),
         "terms": piece.get("terms", [])[:6],
         "ask": piece.get("ask", [])[:3],
         "sources": [{"title": it["title"], "url": it["url"], "source": it["source"], "date": it["date"]} for it in items],

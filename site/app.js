@@ -15,7 +15,7 @@ const I = {   // line icons (no emoji anywhere)
 };
 
 // ───────── storage (device only) ─────────
-const DEF = { settings: { theme: "light", font: "source", fs: 19, ruler: true, bionic: false, awake: true, key: "", ntfy: "", model: "", rulerPos: 0.3 },
+const DEF = { settings: { theme: "light", font: "source", fs: 19, ruler: true, bionic: false, hints: true, awake: true, key: "", ntfy: "", model: "", rulerPos: 0.3 },
               progress: {}, chats: {} };
 let S;
 try { const raw = JSON.parse(localStorage.getItem("rxp") || "{}");
@@ -42,6 +42,7 @@ function applySettings() {
   r.dataset.theme = st.theme; r.dataset.font = st.font;
   r.style.setProperty("--fs", st.fs + "px");
   document.body.classList.toggle("ruler-on", !!st.ruler);
+  document.body.classList.toggle("hints", !!st.hints);
   $('meta[name="theme-color"]').setAttribute("content", getComputedStyle(r).getPropertyValue("--bg").trim() || "#faf9f5");
   setRulerTop();
 }
@@ -111,6 +112,7 @@ async function renderHome(date) {
   date ||= INDEX[0].date;
   const iss = await issue(date), list = allStories(iss);
   const total = list.reduce((n, s) => n + s.minutes, 0);
+  const nRead = list.filter(s => isRead(date, s)).length;
   const next = list.find(s => !isRead(date, s));
   const started = list.some(s => S.progress[pkey(date, s)]);
   const isToday = date === INDEX[0].date;
@@ -120,11 +122,11 @@ async function renderHome(date) {
       <div class="mid"></div><a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
     <div class="col">
       <div class="hello"><h1>${isToday ? greeting() : "From the archive"}</h1>
-        <p>${esc(nice)}${date === "sample" ? "" : ` · ${list.length} ${list.length === 1 ? "story" : "stories"}${iss.partial ? " so far" : ""} · about ${total} minutes`}</p></div>
+        <p>${esc(nice)}</p>${date === "sample" ? "" : `<p class="count"><b>${nRead}</b> of ${list.length}${iss.partial ? "+" : ""} read<i class="dot"></i>about ${list.filter(s => !isRead(date, s)).reduce((n, s) => n + s.minutes, 0)} min left</p>`}</div>
       ${next ? `<button class="begin" data-go="#/read/${date}/${encodeURIComponent(next.id)}"><div>
           <div class="lab">${started ? "Continue reading" : "Begin with"}</div><div class="t">${esc(next.title)}</div></div><div class="go">${I.right}</div></button>`
              : `<div class="hello" style="padding:24px 0 34px"><p>You've read everything in this issue. The next one arrives before ten.</p></div>`}
-      ${iss.topics.map(t => `<section class="topic"><h2><span>${esc(t.name)}</span><span>${t.stories.length}</span></h2>
+      ${iss.topics.map(t => `<section class="topic"><h2><span>${esc(t.name)}</span><span>${t.stories.filter(s => isRead(date, s)).length} of ${t.stories.length}${t.pending ? "+" : ""}</span></h2>
         ${t.stories.map(s => `<button class="item ${isRead(date, s) ? "read" : ""}" data-go="#/read/${date}/${encodeURIComponent(s.id)}">
           <div class="t">${esc(s.title)}</div>
           <div class="m">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min<i class="dot"></i>${esc(outlets(s).slice(0, 2).join(", "))}</div></button>`).join("")}
@@ -147,7 +149,7 @@ async function renderReader(date, id) {
   const s = list[i];
   const p = (S.progress[pkey(date, s)] ||= { sec: 1, done: false });
   save();
-  R = { date, iss, s, p, next: list[i + 1], key: pkey(date, s) };
+  R = { date, iss, s, p, next: list[i + 1], key: pkey(date, s), pos: i + 1, total: list.length, used: new Set() };
   attached = "";
   document.body.classList.add("reading"); wake(true);
   app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/day/${date}" aria-label="Back">${I.back}</a>
@@ -171,7 +173,7 @@ async function renderReader(date, id) {
 function sectionHTML(k) {
   const sec = R.s.sections[k];
   const lead = k === 0 ? "" : sec.cue ? `<div class="cue" data-cue="${k}">${esc(sec.cue)}</div>` : `<h3 data-cue="${k}">${esc(sec.heading)}</h3>`;
-  return `${lead}<section class="sec${k === 0 ? " first" : ""}" data-sec="${k}">${md(sec.body, { bionic: S.settings.bionic })}</section>
+  return `${lead}<section class="sec${k === 0 ? " first" : ""}" data-sec="${k}">${md(sec.body, { bionic: S.settings.bionic, gloss: S.settings.hints ? R.s.glossary : null, used: R.used })}</section>
     <div class="qa" data-qa="${k}">${(S.chats[R.key] || []).filter(c => c.sec === k).map(turnHTML).join("")}</div>`;
 }
 const turnHTML = c => `<div class="turn-you">${c.quote ? `<span class="quote">${esc(c.quote.slice(0, 240))}</span>` : ""}${esc(c.q)}</div><div class="turn-ai">${md(c.a)}</div>`;
@@ -179,7 +181,7 @@ const turnHTML = c => `<div class="turn-you">${c.quote ? `<span class="quote">${
 function drawBottom() {
   const { s, p } = R;
   const left = s.sections.slice(p.sec).reduce((n, x) => n + x.body.split(/\s+/).length, 0);
-  $("#left").textContent = p.done ? "Finished" : `${Math.max(1, Math.round(left / WPM + .4))} min left`;
+  $("#left").textContent = `${R.pos} of ${R.total}${R.iss.partial ? "+" : ""} · ` + (p.done ? "finished" : `${Math.max(1, Math.round(left / WPM + .4))} min left`);
   $("#prog").style.width = (100 * (p.done ? 1 : p.sec / (s.sections.length + 1))) + "%";
   const c = $("#cont");
   if (p.sec < s.sections.length) {
@@ -284,8 +286,8 @@ async function ask(q) {
   if (!key) { out.className = "turn-ai"; out.innerHTML = `<p>To ask questions, add your Gemini key once in <a href="#/settings">Settings</a>, or open your setup link on this device.</p>`; return; }
 
   const s = R.s, heading = s.sections[sec]?.heading || "";
-  const sys = `You are the storyteller who just told the reader the story below, and they've interrupted with a question.
-Answer in the same warm, spoken voice, like a great teacher who loves stories: explain causes and mechanisms step by step, use a concrete example or analogy,
+  const sys = `You are a knowledgeable, level-headed helper. The reader is going through the article below (your summary of
+other outlets' reporting) and has a question. You are not the reporter. Answer calmly and plainly, like a good teacher: explain causes and mechanisms step by step, use a concrete example or analogy,
 and tie it back to the article. Default to 120-250 words; go longer only when asked for depth. Use **bold** for the key idea,
 short paragraphs, and a list only for real steps. Facts about this event must come from the article; you may add general
 background knowledge (signal it, e.g. "In general," or "Historically,") but never invent specifics. If unsure, say so.
@@ -340,9 +342,10 @@ function renderSettings() {
     <div class="row"><label>Typeface</label>${seg("font", [["source", "Serif"], ["literata", "Literata"], ["atkinson", "Atkinson"]])}</div>
     <div class="row"><label>Text size<small>${st.fs}px</small></label><div class="seg"><button data-fs="-1">A−</button><button data-fs="1">A+</button></div></div>
     <div class="row"><label>Reading ruler<small>A clear band at eye level; tap any line to move it</small></label>${sw("ruler")}</div>
+    <div class="row"><label>Word hints<small>Short meanings above harder words, like Kindle's Word Wise</small></label>${sw("hints")}</div>
     <div class="row"><label>Fixation bold<small>Bolds the start of each word. The evidence for it is weak; keep it only if you like it.</small></label>${sw("bionic")}</div>
     <div class="row"><label>Keep the screen on while reading</label>${sw("awake")}</div>
-    <p class="preview">When a central bank raises rates, <b>borrowing gets dearer</b>, so firms delay investment and households spend less.</p>
+    <p class="preview">${md("When a central bank turns **hawkish** and raises rates, borrowing gets dearer, so firms delay investment.", { gloss: st.hints ? [{ word: "hawkish", hint: "keen to fight inflation" }] : null })}</p>
     <h3>Questions</h3>
     <div class="row" style="display:block"><label>Gemini API key<small>Free from Google AI Studio. Stored only on this device.</small></label>
       <input class="field" id="key" type="password" autocomplete="off" placeholder="Paste your key" value="${esc(st.key)}"></div>

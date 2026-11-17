@@ -171,3 +171,11 @@ body.ruler-on.reading #ruler { display:flex; }
 @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
 .cont button.say span { white-space:normal; text-align:left; }
 .cont:has(.say) { justify-content:flex-end; }
+
+/* Word Wise: a small meaning above the harder words */
+ruby { ruby-position:over; ruby-align:center; }
+rt { font:500 .56em/1.1 var(--ui); color:var(--acc); letter-spacing:0; text-transform:none; font-style:normal; }
+body.hints .story { --lh:1.9; }
+.hello .count { margin-top:8px; color:var(--text); font-size:15px; display:flex; justify-content:center; align-items:center; gap:8px; }
+.hello .count b { color:var(--acc); font-weight:600; }
+.preview p { margin:0; }

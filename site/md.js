@@ -1,27 +1,51 @@
 // Tiny, safe Markdown → HTML for the subset the writer uses: paragraphs, **bold**, *italic*,
 // bullet / numbered lists, > quotes. Everything is escaped first, so nothing in a story can inject HTML.
+// Optional extras: Word Wise hints (a short gloss shown above a hard word, first use only) and fixation bold.
 (function () {
-  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-  function inline(s, bionic) {
+  // walk the text between tags, skipping anything already inside a <ruby> (word + its hint)
+  function eachText(html, fn) {
+    let inRuby = 0;
+    return html.split(/(<[^>]+>)/g).map(part => {
+      if (part.startsWith("<")) { if (/^<ruby/.test(part)) inRuby++; else if (/^<\/ruby/.test(part)) inRuby--; return part; }
+      return inRuby ? part : fn(part);
+    }).join("");
+  }
+
+  function gloss(html, list, used) {
+    for (const g of list) {
+      const key = g.word.toLowerCase();
+      if (used.has(key)) continue;
+      const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${reEsc(esc(g.word))})(?![\\p{L}\\p{N}])`, "iu");
+      let done = false;
+      html = eachText(html, t => {
+        if (done) return t;
+        return t.replace(re, (m, pre, w) => { done = true; return `${pre}<ruby>${w}<rt>${esc(g.hint)}</rt></ruby>`; });
+      });
+      if (done) used.add(key);
+    }
+    return html;
+  }
+
+  function inline(s, o = {}) {
     s = esc(s);
     s = s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, "$1<i>$2</i>");
-    if (bionic) {
-      // bold the first ~40% of each word outside existing <b>…</b> and tags (fixation aid; off by default)
-      s = s.split(/(<b>.*?<\/b>|<[^>]+>)/g).map(part => {
-        if (part.startsWith("<")) return part;
-        return part.replace(/[A-Za-zÀ-ÿ]{4,}/g, w => { const k = Math.ceil(w.length * 0.4); return `<span class="fx">${w.slice(0, k)}</span>${w.slice(k)}`; });
-      }).join("");
+    if (o.gloss?.length) s = gloss(s, o.gloss, o.used || new Set());
+    if (o.bionic) {   // bold the first ~40% of each word (fixation aid; off by default)
+      s = eachText(s, t => t.replace(/[A-Za-zÀ-ÿ]{4,}/g, w => { const k = Math.ceil(w.length * 0.4); return `<span class="fx">${w.slice(0, k)}</span>${w.slice(k)}`; }));
     }
     return s;
   }
 
   function md(src, opts = {}) {
+    const o = { ...opts, gloss: (opts.gloss || []).slice().sort((a, b) => b.word.length - a.word.length) };
     const lines = String(src || "").replace(/\r/g, "").split("\n");
     const out = [];
     let para = [], list = null;
-    const flushPara = () => { if (para.length) { out.push(`<p>${inline(para.join(" "), opts.bionic)}</p>`); para = []; } };
-    const flushList = () => { if (list) { out.push(`<${list.tag}>${list.items.map(i => `<li>${inline(i, opts.bionic)}</li>`).join("")}</${list.tag}>`); list = null; } };
+    const flushPara = () => { if (para.length) { out.push(`<p>${inline(para.join(" "), o)}</p>`); para = []; } };
+    const flushList = () => { if (list) { out.push(`<${list.tag}>${list.items.map(i => `<li>${inline(i, o)}</li>`).join("")}</${list.tag}>`); list = null; } };
     for (const raw of lines) {
       const line = raw.trim();
       let m;
@@ -33,7 +57,7 @@
         list.items.push(m[1]);
         continue;
       }
-      if ((m = line.match(/^>\s?(.*)/))) { flushPara(); flushList(); out.push(`<blockquote>${inline(m[1], opts.bionic)}</blockquote>`); continue; }
+      if ((m = line.match(/^>\s?(.*)/))) { flushPara(); flushList(); out.push(`<blockquote>${inline(m[1], o)}</blockquote>`); continue; }
       if ((m = line.match(/^#{1,6}\s+(.*)/))) { flushPara(); flushList(); out.push(`<p><b>${inline(m[1])}</b></p>`); continue; }
       flushList();
       para.push(line);

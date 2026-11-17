@@ -92,6 +92,36 @@
        "source": "FDIC",
        "date": "2023-05-01"
       }
+     ],
+     "glossary": [
+      {
+       "word": "venture-backed",
+       "hint": "funded by investors"
+      },
+      {
+       "word": "uninsured",
+       "hint": "not protected"
+      },
+      {
+       "word": "capital cushion",
+       "hint": "safety buffer"
+      },
+      {
+       "word": "contagion",
+       "hint": "spreading panic"
+      },
+      {
+       "word": "moral hazard",
+       "hint": "risk-taking if rescued"
+      },
+      {
+       "word": "fire sales",
+       "hint": "forced cheap selling"
+      },
+      {
+       "word": "wiped out",
+       "hint": "lost everything"
+      }
      ]
     }
    ]
