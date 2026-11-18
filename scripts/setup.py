@@ -16,6 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO = "atheendre130505/read-xp"
+SYNC_REPO = "atheendre130505/read-xp-sync"
 SITE = "https://atheendre130505.github.io/read-xp/"
 
 
@@ -30,6 +31,7 @@ def main():
     found = dict(l.split("=", 1) for l in dot.read_text().splitlines() if "=" in l and not l.startswith("#")) if dot.exists() else {}
     key = found.get("GEMINI_API_KEY", "").strip() or old.get("GEMINI_API_KEY", "")
     groq = found.get("GROQ_API_KEY", "").strip() or old.get("GROQ_API_KEY", "")
+    sync = found.get("SYNC_TOKEN", "").strip() or old.get("SYNC_TOKEN", "")   # GitHub token for read-xp-sync only
     if not key and not groq:
         sys.exit("Put a key in .env first: GROQ_API_KEY=... and/or GEMINI_API_KEY=...")
     topic = old.get("NTFY_TOPIC") or "readxp-" + secrets.token_urlsafe(12).replace("_", "").replace("-", "")[:16].lower()
@@ -41,7 +43,7 @@ def main():
     gh("secret", "set", "NTFY_TOPIC", "--repo", REPO, input_text=topic)
     print("✓ GitHub secrets set")
 
-    blob = base64.urlsafe_b64encode(json.dumps({"k": key, "g": groq, "t": topic}).encode()).decode().rstrip("=")
+    blob = base64.urlsafe_b64encode(json.dumps({"k": key, "g": groq, "t": topic, "s": sync, "r": SYNC_REPO}).encode()).decode().rstrip("=")
     link = f"{SITE}#setup={blob}"
     env_path.write_text(f"# private — git-ignored\nGEMINI_API_KEY={key}\nGROQ_API_KEY={groq}\nNTFY_TOPIC={topic}\nSETUP_LINK={link}\n")
     try:

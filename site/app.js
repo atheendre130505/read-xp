@@ -15,7 +15,7 @@ const I = {   // line icons (no emoji anywhere)
 };
 
 // ───────── storage (device only) ─────────
-const DEF = { settings: { theme: "auto", font: "source", fs: 19, ruler: true, bionic: false, hints: true, awake: true, key: "", groq: "", ntfy: "", model: "", rulerPos: 0.3 },
+const DEF = { settings: { theme: "auto", font: "source", fs: 19, ruler: true, bionic: false, hints: true, awake: true, key: "", groq: "", ntfy: "", sync: "", syncRepo: "atheendre130505/read-xp-sync", model: "", rulerPos: 0.3 },
               progress: {}, chats: {} };
 let S;
 try { const raw = JSON.parse(localStorage.getItem("rxp") || "{}");
@@ -30,44 +30,93 @@ S.rr ||= {};                                               // stories read on yo
   for (const [h, at] of Object.entries(S.rr)) if (Date.now() - at > 14 * 864e5) delete S.rr[h];
 })();
 
-// What you've read syncs between your phone and laptop through your private ntfy topic (+"-sync", so it never
-// notifies). Each message is a snapshot of short hashes of the stories read in the last few days.
 const h36 = k => { let h = 5381; for (let i = 0; i < k.length; i++) h = (h * 33 ^ k.charCodeAt(i)) >>> 0; return h.toString(36); };
+
+// Phone and laptop stay in step through one small file in your private GitHub repo (read-xp-sync/state.json):
+// for every story, how far you've got, exactly where you are, and whether you've read it. Each device sends its
+// changes within a few seconds and checks for the other's every 15 s while open, and at once when you come back to it.
+// For each story the newer place wins; "read" never gets undone.
+const b64e = s => btoa(unescape(encodeURIComponent(s)));
+const b64d = s => decodeURIComponent(escape(atob(s.replace(/\s/g, ""))));
+const touch = p => { p.t = Date.now(); sync.soon(); };
 const sync = {
-  url: () => S.settings.ntfy ? `https://ntfy.sh/${S.settings.ntfy}-sync` : null,
-  snapshot() {
-    const now = Date.now(), out = {};
-    for (const [k, p] of Object.entries(S.progress)) if (p.done && now - (p.at || now) < 3 * 864e5) out[h36(k)] = p.at || now;
-    for (const [h, at] of Object.entries(S.rr)) if (now - at < 3 * 864e5) out[h] = at;
+  sha: null, etag: null, dirty: false, busy: null, timer: null, last: 0, err: "",
+  on: () => !!(S.settings.sync && S.settings.syncRepo),
+  url: () => `https://api.github.com/repos/${S.settings.syncRepo}/contents/state.json`,
+  hdr: () => ({ Authorization: `Bearer ${S.settings.sync}`, Accept: "application/vnd.github+json" }),
+  mine() {
+    const out = {};
+    for (const [k, p] of Object.entries(S.progress)) if (/^\d{4}-\d\d-\d\d/.test(k))
+      out[k] = { sec: p.sec || 1, done: !!p.done, at: p.at || 0, place: p.place || null, t: p.t || 0 };
     return out;
   },
-  async push() {                       // if ntfy refuses (e.g. its free daily limit), keep it and retry later
-    const u = this.url(); if (!u) return;
-    try { const r = await fetch(u, { method: "POST", body: JSON.stringify({ r: this.snapshot() }) }); S.syncPending = !r.ok; }
-    catch { S.syncPending = true; }
-    save();
-  },
-  merge(text) {
-    try {
-      const r = JSON.parse(text).r || {};
-      let changed = false;
-      for (const [h, at] of Object.entries(r)) if (!S.rr[h]) { S.rr[h] = at; changed = true; }
-      if (changed) { save(); if (!R && !location.hash.startsWith("#/settings")) route(); }
-    } catch {}
+  merge(remote) {                       // returns the story keys that changed here
+    const cut = new Date(Date.now() - 14 * 864e5).toLocaleDateString("en-CA"), changed = new Set();
+    for (const [k, r] of Object.entries(remote || {})) {
+      if (k.slice(0, 10) < cut) continue;
+      const l = S.progress[k];
+      if (!l) { S.progress[k] = { ...r }; changed.add(k); continue; }
+      if ((r.t || 0) > (l.t || 0)) {
+        if (r.sec > (l.sec || 1) || JSON.stringify(r.place) !== JSON.stringify(l.place)) changed.add(k);
+        l.place = r.place; l.t = r.t;
+      }
+      if (r.sec > (l.sec || 1)) { l.sec = r.sec; changed.add(k); }
+      if (r.done && !l.done) { l.done = true; l.at = r.at; changed.add(k); }
+    }
+    if (changed.size) save();
+    return changed;
   },
   async pull() {
-    const u = this.url(); if (!u) return;
-    try {
-      const t = await (await fetch(u + "/json?poll=1&since=12h")).text();
-      for (const line of t.split("\n")) { if (!line) continue; const j = JSON.parse(line); if (j.event === "message") this.merge(j.message); }
-    } catch {}
+    if (!this.on()) return new Set();
+    if (this.busy) await this.busy.catch(() => {});
+    return this.fetchState();
   },
-  live() {
-    const u = this.url(); if (!u || this.es || !window.EventSource) return;
-    this.es = new EventSource(u + "/sse");
-    this.es.onmessage = e => { try { const j = JSON.parse(e.data); if (j.event === "message") this.merge(j.message); } catch {} };
+  async fetchState() {
+    const r = await fetch(this.url(), { cache: "no-store", headers: { ...this.hdr(), ...(this.etag ? { "If-None-Match": this.etag } : {}) } });
+    if (r.status === 304) { this.last = Date.now(); this.err = ""; return new Set(); }
+    if (!r.ok) { this.err = r.status === 401 || r.status === 403 || r.status === 404 ? "key" : "net"; throw new Error(r.status); }
+    const j = await r.json();
+    this.sha = j.sha; this.etag = r.headers.get("ETag"); this.last = Date.now(); this.err = "";
+    const remote = JSON.parse(b64d(j.content)).progress || {};
+    const changed = this.merge(remote);
+    const same = (a, b) => !!b && a.sec === (b.sec || 1) && a.done === !!b.done && a.t === (b.t || 0);
+    if (Object.entries(this.mine()).some(([k, v]) => !same(v, remote[k]))) this.soon();       // we know something it doesn't
+    return changed;
+  },
+  soon(ms = 3000) { this.dirty = true; clearTimeout(this.timer); this.timer = setTimeout(() => this.push(), ms); },
+  push(final = false) {
+    if (!this.on() || !this.dirty) return Promise.resolve();
+    clearTimeout(this.timer);
+    const run = async () => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (!this.sha) await this.fetchState().catch(() => {});
+        this.dirty = false;
+        const r = await fetch(this.url(), { method: "PUT", keepalive: final, headers: this.hdr(),
+          body: JSON.stringify({ message: "sync", content: b64e(JSON.stringify({ progress: this.mine() })), sha: this.sha || undefined }) });
+        if (r.ok) { this.sha = (await r.json()).content.sha; this.etag = null; this.last = Date.now(); this.err = ""; return; }
+        this.dirty = true;
+        if (r.status === 409 || r.status === 422) { this.sha = null; this.etag = null; continue; }   // the other device wrote first: merge, retry
+        this.err = r.status === 401 || r.status === 403 || r.status === 404 ? "key" : "net";
+        break;
+      }
+      this.timer = setTimeout(() => this.push(), 30000);              // offline or refused: keep it and try again
+    };
+    return (this.busy = run().catch(() => { this.dirty = true; this.err = "net"; this.timer = setTimeout(() => this.push(), 30000); })
+      .finally(() => { this.busy = null; }));
+  },
+  async check() {                       // look for the other device's changes and show them
+    if (!this.on() || document.visibilityState !== "visible") return;
+    let changed;
+    try { changed = await this.pull(); } catch { return; }
+    if (!changed.size) return;
+    if (location.hash.startsWith("#/settings")) return;
+    if (!R) return route();
+    if ($("#q")?.value.trim() || $("#askpill:not([hidden])")) return;               // don't pull the page from under you
+    if (changed.has(R.key)) return R.p.done ? (location.hash = "#/") : route();     // read elsewhere: on to the next
+    R.togo = (await readingQueue()).length; drawBottom();
   },
 };
+setInterval(() => sync.check(), 15000);
 
 // setup link: #setup=<base64 {k: gemini key, t: ntfy topic}>. The fragment never reaches any server.
 (function setupFromLink() {
@@ -78,6 +127,8 @@ const sync = {
     if (cfg.k) S.settings.key = cfg.k;
     if (cfg.g) S.settings.groq = cfg.g;
     if (cfg.t) S.settings.ntfy = cfg.t;
+    if (cfg.s) S.settings.sync = cfg.s;
+    if (cfg.r) S.settings.syncRepo = cfg.r;
     save(); setTimeout(() => toast("Set up on this device"), 400);
   } catch { setTimeout(() => toast("That setup link didn't work"), 400); }
   history.replaceState(null, "", location.pathname + "#/");
@@ -344,13 +395,21 @@ let placeT;
 addEventListener("scroll", () => {
   if (!R) return;
   clearTimeout(placeT);
-  placeT = setTimeout(() => { if (R) { R.p.place = placeNow(); save(); } }, 400);
+  placeT = setTimeout(setPlace, 400);
 }, { passive: true });
-const savePlace = () => { if (R && document.body.classList.contains("reading")) { R.p.place = placeNow(); save(); } };
-addEventListener("pagehide", savePlace);
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") savePlace(); });
+// a real move (not the jump that puts you back in place) is remembered and sent to your other device
+function setPlace() {
+  if (!R || !document.body.classList.contains("reading") || Date.now() < (R.settle || 0)) return;
+  const pl = placeNow(), old = R.p.place;
+  if (old && old.k === pl.k && Math.abs(old.f - pl.f) < 0.02) return;
+  R.p.place = pl; save(); touch(R.p);
+}
+const leaving = () => { setPlace(); sync.push(true); };
+addEventListener("pagehide", leaving);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") leaving(); else sync.check(); });
 function restorePlace() {
   const pl = R.p.place;
+  R.settle = Date.now() + 1500;
   if (!pl || pl.k < 0) return;
   const sec = $(`[data-sec="${pl.k}"]`);
   if (!sec) return;
@@ -367,11 +426,11 @@ function cont() {
   $("#thread").insertAdjacentHTML("beforeend", sectionHTML(k));
   drawBottom();
   scrollToEl($(`[data-cue="${k}"]`) || $(`[data-sec="${k}"]`));
-  R.p.place = { k, f: 0 }; save();                       // a new beat: reopening starts you at its first line
+  R.p.place = { k, f: 0 }; R.settle = Date.now() + 1200; save(); touch(R.p);   // a new beat: reopening starts you at its first line
 }
 function markRead(key) {
   const p = (S.progress[key] ||= { sec: 1 });
-  if (!p.done) { p.done = true; p.at = Date.now(); save(); sync.push(); }
+  if (!p.done) { p.done = true; p.at = Date.now(); save(); touch(p); sync.soon(300); }
 }
 async function finish() { markRead(R.key); R.next = await nextUp(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
 async function markAndNext() {
@@ -547,12 +606,25 @@ function renderSettings() {
       : `<div class="row"><label>Install Read on this device<small>Its own window and icon, on Windows (Start menu, taskbar) and on your phone.</small></label>
          <button class="btn" data-act="install">Install</button></div>
          ${installEvt ? "" : `<p class="note">If the button does nothing, open the browser menu and choose "Install Read" (Brave, Chrome, Edge).</p>`}`}
-    <h3>This device</h3>
-    <p class="note">${Object.values(S.progress).filter(p => p.done).length} stories read. Nothing here leaves this device.</p>
+    <h3>Phone and laptop</h3>
+    <p class="note" id="syncnote">${!sync.on() ? "Not linked yet. Open your setup link on this device (or paste the sync key below) and your place and what you've read follow you between devices."
+      : sync.err === "key" ? "The sync key isn't working (expired or deleted). Make a new one and paste it below."
+      : sync.err ? "Offline right now; changes will be sent when you're back online."
+      : sync.last ? `In step with your other device (checked ${Math.max(0, Math.round((Date.now() - sync.last) / 1000))} s ago).` : "Linked."}</p>
+    <div class="row" style="display:block"><label>Sync key<small>A GitHub token that can only touch your private read-xp-sync repo.</small></label>
+      <input class="field" id="synckey" type="password" autocomplete="off" placeholder="github_pat_…" value="${esc(st.sync || "")}"></div>
+    <h3>History</h3>
+    <p class="note">${Object.values(S.progress).filter(p => p.done).length} stories read in the last two weeks.</p>
     <p style="margin-bottom:60px"><button class="btn" data-act="reset">Clear reading history</button></p>
   </div>`;
   $("#key").addEventListener("change", e => { st.key = e.target.value.trim(); save(); toast(st.key ? "Key saved" : "Key removed"); });
   $("#groq").addEventListener("change", e => { st.groq = e.target.value.trim(); save(); toast(st.groq ? "Groq key saved" : "Groq key removed"); });
+  $("#synckey").addEventListener("change", async e => {
+    st.sync = e.target.value.trim(); save(); sync.sha = sync.etag = null;
+    if (!st.sync) return toast("Sync key removed");
+    try { await sync.pull(); sync.soon(100); toast("Linked"); } catch { toast(sync.err === "key" ? "That key didn't work" : "Couldn't reach GitHub"); }
+    renderSettings();
+  });
 }
 
 // ───────── one click handler ─────────
@@ -594,6 +666,6 @@ async function install() {
 }
 
 applySettings();
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { sync.pull(); if (S.syncPending) sync.push(); } });
-setInterval(() => { if (S.syncPending) sync.push(); }, 5 * 60000); navigator.serviceWorker.register("sw.js").catch(() => {});
-sync.pull().finally(() => { loadIndex().then(route); sync.live(); if (Object.keys(sync.snapshot()).length) sync.push(); });
+navigator.serviceWorker.register("sw.js").catch(() => {});
+// open where you actually are: get the other device's latest first (but never wait more than a few seconds)
+Promise.race([sync.pull().catch(() => {}), new Promise(r => setTimeout(r, 4000))]).finally(() => loadIndex().then(route));
