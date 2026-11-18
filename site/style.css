@@ -172,9 +172,13 @@ body.ruler-on.reading #ruler { display:flex; }
 .cont button.say span { white-space:normal; text-align:left; }
 .cont:has(.say) { justify-content:flex-end; }
 
-/* Word Wise: a small meaning above the harder words */
-ruby { ruby-position:over; ruby-align:center; }
-rt { font:500 .56em/1.1 var(--ui); color:var(--acc); letter-spacing:0; text-transform:none; font-style:normal; }
+/* Word Wise: a small meaning centred above the harder word. It floats over the line gap, so it never pushes
+   words apart or shifts the line; extra line height makes room for it. */
+x-w { position:relative; display:inline; }
+x-w::before { content:attr(data-h); position:absolute; left:50%; bottom:100%; transform:translateX(-50%);
+  margin-bottom:-.15em; font:500 .56em/1.15 var(--ui); color:var(--acc); white-space:nowrap; letter-spacing:0;
+  pointer-events:none; user-select:none; font-style:normal; text-transform:none; }
+.turn-ai x-w::before { display:none; }
 body.hints .story { --lh:1.9; }
 .hello .count { margin-top:8px; color:var(--text); font-size:15px; display:flex; justify-content:center; align-items:center; gap:8px; }
 .hello .count b { color:var(--acc); font-weight:600; }

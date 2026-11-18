@@ -5,24 +5,34 @@
   const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-  // walk the text between tags, skipping anything already inside a <ruby> (word + its hint)
+  // walk the text between tags, skipping anything already inside a hinted word (<x-w>)
   function eachText(html, fn) {
     let inRuby = 0;
     return html.split(/(<[^>]+>)/g).map(part => {
-      if (part.startsWith("<")) { if (/^<ruby/.test(part)) inRuby++; else if (/^<\/ruby/.test(part)) inRuby--; return part; }
+      if (part.startsWith("<")) { if (/^<x-w/.test(part)) inRuby++; else if (/^<\/x-w/.test(part)) inRuby--; return part; }
       return inRuby ? part : fn(part);
     }).join("");
   }
 
+  // A hint is shown once per story, on the first use of the word, and never when it would say the same thing twice:
+  // the hint repeats the word, or the text right after the word already explains it ("deficit (the gap…)").
+  const EXPLAINED = /^\W{0,3}(\(|—|–| - |, (which|meaning|or|i\.e\.|that is)\b|: )/i;
   function gloss(html, list, used) {
     for (const g of list) {
       const key = g.word.toLowerCase();
       if (used.has(key)) continue;
+      if (g.hint.toLowerCase().includes(key)) { used.add(key); continue; }
+      if ([...used].some(u => u.includes(key) || key.includes(u))) continue;   // overlaps a hinted phrase
       const re = new RegExp(`(^|[^\\p{L}\\p{N}])(${reEsc(esc(g.word))})(?![\\p{L}\\p{N}])`, "iu");
       let done = false;
       html = eachText(html, t => {
         if (done) return t;
-        return t.replace(re, (m, pre, w) => { done = true; return `${pre}<ruby>${w}<rt>${esc(g.hint)}</rt></ruby>`; });
+        return t.replace(re, (m, pre, w, off, str) => {
+          done = true;
+          const after = str.slice(off + m.length, off + m.length + 60);
+          if (EXPLAINED.test(after)) return m;                                   // already explained in the text
+          return `${pre}<x-w data-h="${esc(g.hint)}">${w}</x-w>`;
+        });
       });
       if (done) used.add(key);
     }
@@ -40,7 +50,7 @@
     s = s.replace(/<rt>[\s\S]*?<\/rt>/gi, "");             // hint text never shows inline
     s = s.replace(/<\/?[a-z][^>]*>/gi, "");                // any other stray tag
     s = esc(s);
-    s = s.replace(MARK, (m, i) => o.gloss ? `<ruby>${esc(hints[i][0])}<rt>${esc(hints[i][1])}</rt></ruby>` : esc(hints[i][0]));
+    s = s.replace(MARK, (m, i) => o.gloss ? `<x-w data-h="${esc(hints[i][1])}">${esc(hints[i][0])}</x-w>` : esc(hints[i][0]));
     s = s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, "$1<i>$2</i>");
     if (o.gloss?.length) s = gloss(s, o.gloss, o.used || new Set());
     if (o.bionic) {   // bold the first ~40% of each word (fixation aid; off by default)

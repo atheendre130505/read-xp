@@ -115,6 +115,12 @@ Return JSON: {{"stories": [{{"ids": [ids of every item about this story, best fi
 ordered most important first."""
 
 
+def as_id(x):
+    """Models return ids as 12, "12" or "[12]"; accept all of them."""
+    m = re.search(r"\d+", str(x))
+    return int(m.group(0)) if m else None
+
+
 def pick(topic, cands, recent, n):
     items = "\n".join(f"[{i}] ({c['source']} · {c['kind']} · {c['date']}) {c['title']} — {clean(c['summary'], 220)}"
                       for i, c in enumerate(cands))
@@ -124,11 +130,60 @@ def pick(topic, cands, recent, n):
     stories = out.get("stories", out) if isinstance(out, dict) else out
     picked, used = [], set()
     for s in stories:
-        ids = [i for i in s.get("ids", []) if isinstance(i, int) and 0 <= i < len(cands) and i not in used][:4]
+        ids = [i for i in map(as_id, s.get("ids", [])) if i is not None and 0 <= i < len(cands) and i not in used][:4]
         if ids:
             used.update(ids)
             picked.append({"items": [cands[i] for i in ids], "angle": s.get("angle", ""), "why": s.get("why", "")})
     return picked[:n]
+
+
+# How many stories a day: few and deep to start, more once reading is a habit.
+START = dt.date.fromisoformat(os.environ.get("READ_START", "2026-11-18"))
+RAMP = [(21, 5), (42, 8)]          # first 21 days: 5 a day; next 21: 8 a day; after that: 10 a day
+
+
+def stories_for(day: str, edition: str) -> int:
+    if os.environ.get("STORIES_PER_DAY"):
+        per_day = int(os.environ["STORIES_PER_DAY"])
+    else:
+        n_days = (dt.date.fromisoformat(day) - START).days
+        per_day = next((n for upto, n in RAMP if n_days < upto), 10)
+    morning = -(-per_day * 3 // 5)                  # 5 -> 3 + 2, 8 -> 5 + 3, 10 -> 6 + 4
+    return morning if edition == "morning" else per_day - morning
+
+
+CHOOSE_PROMPT = """You are the chief editor of a small daily reader for one serious, curious person. Each topic editor
+has shortlisted stories. Choose the {n} that matter most today, across all topics.
+
+Judge by consequence (how many people, how much money, power or knowledge it changes, and for how long), by how much
+there is to understand (a real mechanism, decision or idea), and by novelty (not a repeat of what was covered recently).
+Prefer variety: no more than two from one topic, and never two about the same event.
+
+Recently covered:
+{recent}
+
+SHORTLIST
+{items}
+
+Return JSON: {{"order": [ids of the chosen stories, most important first]}}"""
+
+
+def choose(shortlist, n, recent):
+    if len(shortlist) <= n:
+        return shortlist
+    items = "\n".join(f"[{i}] ({s['topic']['name']}) {s['items'][0]['title']} | angle: {s['angle']} | why: {s['why']}"
+                      for i, s in enumerate(shortlist))
+    try:
+        out = llm.generate_json(CHOOSE_PROMPT.format(n=n, items=items, recent="\n".join(f"- {h}" for h in recent[:40]) or "- (none)"),
+                                temperature=0.2, tier="best")
+        order = [i for i in map(as_id, out.get("order", [])) if i is not None and 0 <= i < len(shortlist)]
+        order = list(dict.fromkeys(order))[:n]
+        if order:
+            return [shortlist[i] for i in order]
+    except Exception as e:
+        print("  choose failed, taking each topic's first pick:", e, flush=True)
+    firsts = [s for k, s in enumerate(shortlist) if k == 0 or shortlist[k - 1]["topic"] is not s["topic"]]
+    return (firsts + [s for s in shortlist if s not in firsts])[:n]
 
 
 # ───────────────────────── writing ─────────────────────────
@@ -171,35 +226,55 @@ Cover, in a natural order:
 - What's uncertain or disputed, and the other side's case.
 - What to watch next, and what it means for an ordinary person.
 
-Length: {words} words across 6-9 beats of roughly 120-280 words each. Short paragraphs (1-4 sentences). Use **bold**
-for the 1-2 key ideas in a beat, a list only when steps are genuinely list-shaped. No links. Plain markdown text
-only: never any HTML or tags (no <ruby>, <hint>, <span>), and never put word meanings in the text; meanings go
-ONLY in "glossary".
+Length: {words} words across 7-10 beats of roughly 150-300 words each. Depth matters more than breadth: every beat
+should teach something specific (a number in context, a step in the mechanism, a reason someone acted). Short
+paragraphs (1-4 sentences). Use **bold** for the 1-2 key ideas in a beat, a list only when steps are genuinely
+list-shaped. No links. Plain markdown text only: never any HTML or tags (no <ruby>, <hint>, <span>), and never add
+word meanings in brackets for hard words; a separate step shows short meanings above them.
 
 For every beat except the first, write the reader's "cue": the short, natural question they'd ask right before it,
 2-9 words, e.g. "Why would they do that?", "How does that actually work?", "Has this happened before?",
 "Who disagrees?", "What does this mean for me?". Each must fit the beat it leads into.
 
-"glossary": the harder words and phrases in your text that an educated reader whose first language isn't English
-might not know (e.g. "extramarital", "linchpin", "fiscal deficit", "repo rate", "hawkish"), each with a 1-4 word
-plain hint shown above the word as they read, like Kindle's Word Wise ("outside marriage", "key part",
-"govt spends more than it earns"). 8-20 entries; the word must appear exactly in the text.
-
 Return JSON:
 {{"title": "a plain, specific headline, max 12 words",
  "dek": "one sentence on what this piece explains",
  "beats": [{{"cue": "reader's question (empty for the first beat)", "label": "2-4 word name for this beat", "body": "markdown"}}],
- "glossary": [{{"word": "...", "hint": "1-4 words"}}],
  "terms": [{{"term": "...", "meaning": "one-sentence plain definition"}}],   // 3-6 key concepts
  "ask": ["3 good questions the reader might still want to ask"]}}"""
 
-GLOSS_PROMPT = """Below is an article. List the harder words and phrases in it that an educated reader whose first
-language isn't English might not know, each with a 1-4 word plain hint to show above the word, like Kindle's Word Wise
-(e.g. "extramarital" -> "outside marriage", "linchpin" -> "key part"). 8-20 entries. Each word must appear exactly
-in the text. Return JSON: {{"glossary": [{{"word": "...", "hint": "..."}}]}}
+GLOSS_PROMPT = """Below is an article. Like Kindle's Word Wise, pick the hard words a reader might stop on, and give
+each a tiny plain meaning that will be shown in small type directly above the word.
+
+Rules:
+- Only genuinely hard or uncommon words and short jargon phrases (e.g. "linchpin", "hawkish", "repo rate",
+  "extramarital", "fiscal deficit"). Not names, not everyday words, not words the article already explains in the
+  same or the next sentence.
+- The hint is 1-3 plain words that could replace the word in the sentence ("key part", "keen to raise rates").
+  It must not repeat the word itself.
+- "word" must be copied exactly as it appears in the text (same spelling), and each word only once.
+- 5-12 entries.
+
+Return JSON: {{"glossary": [{{"word": "...", "hint": "..."}}]}}
 
 ARTICLE
 {text}"""
+
+EDIT_PROMPT = """You are the editor. Below are the source texts and a draft piece written from them (JSON).
+Improve the draft and return it in exactly the same JSON shape.
+
+- Accuracy first: remove or correct any fact, number, name or quote that the sources don't support, and make sure
+  each reported fact says who reported it. Background explanations may stay if they are well known and accurate.
+- Make it clearer and deeper: where a step in the explanation is skipped, add it; cut repetition and filler.
+- Keep the calm, plain voice, the beats and the reader's cues (adjust a cue if the beat changed). Keep the length
+  about the same or longer; never shorten it by more than a tenth.
+- Plain markdown only, no HTML or tags, no word meanings in brackets.
+
+SOURCES
+{sources}
+
+DRAFT
+{draft}"""
 
 
 INLINE_HINT = re.compile(r'<(hint|span|abbr|gloss)\b[^>]*?"([^"]*)"[^>]*>(.*?)</\1>', re.I | re.S)
@@ -232,14 +307,32 @@ def clean_body(text):
     return text, gloss
 
 
+EXPLAINED = re.compile(r"^\W{0,3}(\(|—|–| - |, (which|meaning|or|i\.e\.|that is)\b|: )", re.I)
+
+
 def clean_gloss(g, text):
+    """Keeps only hints that will read well above the word: the word appears exactly, the hint is short, doesn't
+    repeat the word, isn't already explained right after it in the text, and isn't part of a longer hinted phrase."""
     out, seen = [], set()
-    for e in g or []:
-        w, h = (e.get("word") or "").strip(), (e.get("hint") or "").strip()
-        if w and h and w.lower() not in seen and w.lower() in text.lower() and len(h.split()) <= 6:
-            seen.add(w.lower())
-            out.append({"word": w, "hint": h})
-    return out[:24]
+    low = text.lower()
+    for e in sorted(g or [], key=lambda e: -len((e.get("word") or ""))):     # longer phrases win
+        w, h = (e.get("word") or "").strip(), (e.get("hint") or "").strip().strip(".")
+        wl = w.lower()
+        if not w or not h or wl in seen or len(h.split()) > 4 or len(h) > 32:
+            continue
+        m = re.search(r"(?<![\w-])" + re.escape(wl) + r"(?![\w-])", low)
+        if not m:
+            continue
+        if wl in h.lower() or h.lower() == wl:                                  # hint repeats the word
+            continue
+        after = low[m.end():m.end() + 60]
+        if EXPLAINED.search(after) or any(x in after for x in h.lower().split() if len(x) > 4):
+            continue                                                            # the text already explains it
+        if any(wl in s or s in wl for s in seen):                               # overlaps a hinted phrase
+            continue
+        seen.add(wl)
+        out.append({"word": w, "hint": h})
+    return out[:14]
 
 
 def add_glossary(story):
@@ -257,10 +350,21 @@ def write(topic, story, tier="best"):
     blocks = [f"[{i + 1}] {it['source']} ({it['kind']}, {it['date']}): {it['title']}\n{t}"
               for i, (it, t) in enumerate(zip(items, texts))]
     depth = sum(len(t) for t in texts)
-    words = "1300-1800" if depth > 6000 else "1000-1400"
+    words = "1600-2200" if depth > 6000 else "1300-1700"
+    sources = "\n\n".join(blocks)
     piece = llm.generate_json(WRITE_PROMPT.format(topic=topic["name"], angle=story["angle"], why=story["why"],
-                                                  sources="\n\n".join(blocks), words=words),
-                              system=WRITE_SYSTEM, temperature=0.75, max_tokens=12000, tier=tier)
+                                                  sources=sources, words=words),
+                              system=WRITE_SYSTEM, temperature=0.7, max_tokens=14000, tier=tier)
+    # second pass: an editor checks it against the sources and makes it clearer and deeper
+    try:
+        edited = llm.generate_json(EDIT_PROMPT.format(sources=sources, draft=json.dumps(piece, ensure_ascii=False)),
+                                   system=WRITE_SYSTEM, temperature=0.4, max_tokens=14000, tier=tier)
+        old_n = sum(len(b.get("body", "").split()) for b in piece.get("beats", []))
+        new_n = sum(len(b.get("body", "").split()) for b in edited.get("beats", []))
+        if new_n >= 0.85 * old_n and len(edited.get("beats", [])) >= 3:
+            piece = {**piece, **edited}
+    except Exception as e:
+        print("    edit pass skipped:", e, flush=True)
     secs = [s for s in piece.get("beats", piece.get("sections", [])) if s.get("body")]
     if len(secs) < 3:
         raise ValueError("too short")
@@ -268,7 +372,12 @@ def write(topic, story, tier="best"):
     for sec in secs:
         sec["body"], g = clean_body(sec["body"])
         inline += g
-    piece["glossary"] = (piece.get("glossary") or []) + inline
+    text = "\n\n".join(s["body"] for s in secs)
+    try:                                                    # word hints: their own careful pass
+        g = llm.generate_json(GLOSS_PROMPT.format(text=text), temperature=0.2, tier="light").get("glossary", [])
+    except Exception:
+        g = []
+    piece["glossary"] = g + inline
     n_words = sum(len(s["body"].split()) for s in secs)
     return {
         "id": re.sub(r"[^a-z0-9]+", "-", piece.get("title", "story").lower()).strip("-")[:60],
@@ -344,10 +453,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--site", default=str(Path(__file__).parent.parent / "site"))
     ap.add_argument("--topics", default="")
-    ap.add_argument("--stories", type=int, default=0, help="override stories per topic (testing)")
+    ap.add_argument("--stories", type=int, default=0, help="override the number of stories in this edition")
     ap.add_argument("--remind-only", action="store_true")
     ap.add_argument("--edition", choices=["morning", "evening"], help="default: by the time of day")
-    ap.add_argument("--add", action="store_true", help="keep this edition's stories and add the topics it lacks")
     a = ap.parse_args()
 
     site = Path(a.site)
@@ -369,31 +477,26 @@ def main():
 
     index_path = out_dir / "index.json"
     index = json.loads(index_path.read_text("utf-8")) if index_path.exists() else []
-    recent_heads = {}
-    for entry in index[:4]:
+    recent_heads, all_recent = {}, []
+    for entry in index[:6]:
         p = out_dir / f"{entry['date']}.json"
         if p.exists() and entry["date"] != date:
             for t in json.loads(p.read_text("utf-8"))["topics"]:
                 recent_heads.setdefault(t["id"], []).extend(s["title"] for s in t["stories"])
+                all_recent.extend(s["title"] for s in t["stories"])
 
     wanted = set(filter(None, a.topics.split(",")))
     issue = {"date": date, "day": day, "edition": edition, "generated": dt.datetime.now(TZ).isoformat(timespec="minutes"),
              "model": llm.models()[0], "partial": True, "topics": []}
-    existing = out_dir / f"{date}.json"
-    if a.add and existing.exists():                        # top up this edition with more topics
-        issue["topics"] = json.loads(existing.read_text("utf-8"))["topics"]
-        have = {t["id"] for t in issue["topics"]}
-        wanted = (wanted or {t["id"] for t in TOPICS}) - have
-        print("adding topics:", sorted(wanted), flush=True)
+    n_total = a.stories or stories_for(day, edition)
+    print(f"{edition} edition: {n_total} stories", flush=True)
 
     def publish():
         """Saves the issue as it stands, so the app can show each story the moment it is written."""
         n = sum(len(t["stories"]) for t in issue["topics"])
         if not n:
             return
-        order = {t["id"]: i for i, t in enumerate(TOPICS)}
-        out = {**issue, "topics": sorted([t for t in issue["topics"] if t["stories"] or t.get("pending")],
-                                         key=lambda t: order.get(t["id"], 99))}
+        out = {**issue, "topics": [t for t in issue["topics"] if t["stories"] or t.get("pending")]}
         (out_dir / f"{date}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), "utf-8")
         seen_path.write_text(json.dumps(seen, indent=0), "utf-8")
         first = next(s for t in issue["topics"] for s in t["stories"])
@@ -404,6 +507,8 @@ def main():
             (out_dir / f"{e['date']}.json").unlink(missing_ok=True)
         index_path.write_text(json.dumps(idx[:90], ensure_ascii=False, indent=1), "utf-8")
 
+    # 1. each topic's editor shortlists its two strongest stories (light model)
+    shortlist = []
     for topic in TOPICS:
         if wanted and topic["id"] not in wanted:
             continue
@@ -426,28 +531,32 @@ def main():
         print(f"  {len(cands)} candidates from {len(by_src)} sources", flush=True)
         if not cands:
             continue
-        n = a.stories or topic["stories"]
         try:
-            # also avoid anything another topic already covered in this edition (e.g. Nvidia under both Econ and Business)
-            covered = [st["title"] for t in issue["topics"] for st in t["stories"]]
-            picks = pick(topic, cands, recent_heads.get(topic["id"], []) + covered, n)
+            for s in pick(topic, cands, recent_heads.get(topic["id"], []) + all_recent, 2):
+                shortlist.append({**s, "topic": topic})
         except Exception as e:
-            print("  pick failed:", e)
-            continue
-        entry = {"id": topic["id"], "name": topic["name"], "stories": [], "pending": len(picks)}
+            print("  pick failed:", e, flush=True)
+
+    # 2. the chief editor picks the day's most important stories across all topics
+    chosen = choose(shortlist, n_total, all_recent)
+    print("\nchosen:", [f"{s['topic']['id']}: {s['items'][0]['title'][:60]}" for s in chosen], flush=True)
+
+    # 3. each one is written by the best model, edited, and given word hints; published one by one
+    for s in chosen:
+        topic = s["topic"]
+        entry = {"id": topic["id"], "name": topic["name"], "stories": [], "pending": 1}
         issue["topics"].append(entry)
-        for rank, s in enumerate(picks):
-            print("  writing:", s["items"][0]["title"][:90], flush=True)
-            try:
-                story = write(topic, s, tier="best" if rank == 0 else "light")   # the lead story gets the best model
-                entry["stories"].append(story)
-                for it in s["items"]:
-                    seen[it["url"]] = date
-                print(f"    done: {story['title']} ({story['words']} words)", flush=True)
-            except Exception as e:
-                print("    write failed:", e, flush=True)
-            entry["pending"] -= 1
-            publish()
+        print("  writing:", s["items"][0]["title"][:90], flush=True)
+        try:
+            story = write(topic, s, tier="best")
+            entry["stories"].append(story)
+            for it in s["items"]:
+                seen[it["url"]] = date
+            print(f"    done: {story['title']} ({story['words']} words)", flush=True)
+        except Exception as e:
+            print("    write failed:", e, flush=True)
+        entry["pending"] = 0
+        publish()
 
     issue["partial"] = False
     for t in issue["topics"]:

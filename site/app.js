@@ -144,7 +144,8 @@ const allStories = iss => iss.topics.flatMap(t => t.stories.map(s => ({ ...s, to
 async function readingQueue() {
   if (!INDEX.length) await loadIndex();
   const out = [];
-  for (const e of INDEX.slice(0, 14).reverse()) {
+  const when = e => (e.day || e.date) + (e.edition === "evening" ? "-2" : "-1");   // morning before evening
+  for (const e of INDEX.slice(0, 14).sort((a, b) => when(a).localeCompare(when(b)))) {
     const iss = await issue(e.date).catch(() => null);
     if (!iss) continue;
     for (const x of allStories(iss)) if (!isRead(e.date, x)) out.push({ date: e.date, s: x, iss });
@@ -433,19 +434,13 @@ async function ask(q) {
   if (!groqKey && !key) { out.className = "turn-ai"; out.innerHTML = `<p>To ask questions, add a free Groq key once in <a href="#/settings">Settings</a> (from console.groq.com), or open your setup link on this device.</p>`; return; }
 
   const s = R.s, heading = s.sections[sec]?.heading || "";
-  const sys = `You are a knowledgeable, level-headed helper. The reader is going through the article below (your summary of
-other outlets' reporting) and has a question. You are not the reporter. Answer calmly and plainly, like a good teacher: explain causes and mechanisms step by step, use a concrete example or analogy,
-and tie it back to the article. Default to 120-250 words; go longer only when asked for depth. Use **bold** for the key idea,
-short paragraphs, and a list only for real steps. Facts about this event must come from the article; you may add general
-background knowledge (signal it, e.g. "In general," or "Historically,") but never invent specifics. If unsure, say so.
-No emojis.
+  // the only instruction: here's what I'm reading; answer in simple words
+  const sys = `I'm reading this report. Answer my questions in simple words.
 
-ARTICLE
-${storyText(s)}
-${s.terms?.length ? "\nKEY TERMS: " + s.terms.map(t => t.term + " = " + t.meaning).join("; ") : ""}`;
+${storyText(s)}`;
   const history = (S.chats[R.key] || []).slice(-4).flatMap(c => [
-    { role: "user", parts: [{ text: (c.quote ? `About: "${c.quote}"\n` : "") + c.q }] }, { role: "model", parts: [{ text: c.a }] }]);
-  const user = `(Section: "${heading}")\n` + (quote ? `About this passage: "${quote}"\n\n` : "") + q;
+    { role: "user", parts: [{ text: (c.quote ? `"${c.quote}"\n\n` : "") + c.q }] }, { role: "model", parts: [{ text: c.a }] }]);
+  const user = (quote ? `"${quote}"\n\n` : "") + q;
   const body = { systemInstruction: { parts: [{ text: sys }] }, contents: [...history, { role: "user", parts: [{ text: user }] }],
                  generationConfig: { temperature: 0.6, maxOutputTokens: 2048 } };
   // Groq first when you've added a key (fast, generous free tier), then Gemini
@@ -455,7 +450,7 @@ ${s.terms?.length ? "\nKEY TERMS: " + s.terms.map(t => t.term + " = " + t.meanin
     .filter((m, i, a) => m && a.indexOf(m) === i)) tries.push(["gemini", m]);
   const groqBody = m => JSON.stringify({ model: m, stream: true, temperature: 0.6, max_completion_tokens: 2048,
     messages: [{ role: "system", content: sys },
-      ...(S.chats[R.key] || []).slice(-4).flatMap(c => [{ role: "user", content: (c.quote ? `About: "${c.quote}"\n` : "") + c.q }, { role: "assistant", content: c.a }]),
+      ...(S.chats[R.key] || []).slice(-4).flatMap(c => [{ role: "user", content: (c.quote ? `"${c.quote}"\n\n` : "") + c.q }, { role: "assistant", content: c.a }]),
       { role: "user", content: user }] });
   let text = "", err = "";
   const keyTrouble = {};                                  // provider -> "quota" | "invalid"
