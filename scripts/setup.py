@@ -29,17 +29,21 @@ def main():
     dot = ROOT / ".env"
     found = dict(l.split("=", 1) for l in dot.read_text().splitlines() if "=" in l and not l.startswith("#")) if dot.exists() else {}
     key = found.get("GEMINI_API_KEY", "").strip() or old.get("GEMINI_API_KEY", "")
-    if not key:
-        sys.exit("Put your Gemini key in .env first: GEMINI_API_KEY=...")
+    groq = found.get("GROQ_API_KEY", "").strip() or old.get("GROQ_API_KEY", "")
+    if not key and not groq:
+        sys.exit("Put a key in .env first: GROQ_API_KEY=... and/or GEMINI_API_KEY=...")
     topic = old.get("NTFY_TOPIC") or "readxp-" + secrets.token_urlsafe(12).replace("_", "").replace("-", "")[:16].lower()
 
-    gh("secret", "set", "GEMINI_API_KEY", "--repo", REPO, input_text=key)
+    if key:
+        gh("secret", "set", "GEMINI_API_KEY", "--repo", REPO, input_text=key)
+    if groq:
+        gh("secret", "set", "GROQ_API_KEY", "--repo", REPO, input_text=groq)
     gh("secret", "set", "NTFY_TOPIC", "--repo", REPO, input_text=topic)
     print("✓ GitHub secrets set")
 
-    blob = base64.urlsafe_b64encode(json.dumps({"k": key, "t": topic}).encode()).decode().rstrip("=")
+    blob = base64.urlsafe_b64encode(json.dumps({"k": key, "g": groq, "t": topic}).encode()).decode().rstrip("=")
     link = f"{SITE}#setup={blob}"
-    env_path.write_text(f"# private — git-ignored\nGEMINI_API_KEY={key}\nNTFY_TOPIC={topic}\nSETUP_LINK={link}\n")
+    env_path.write_text(f"# private — git-ignored\nGEMINI_API_KEY={key}\nGROQ_API_KEY={groq}\nNTFY_TOPIC={topic}\nSETUP_LINK={link}\n")
     try:
         import qrcode
         qrcode.make(link).save(ROOT / "setup-qr.png")

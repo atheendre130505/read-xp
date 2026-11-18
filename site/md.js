@@ -37,6 +37,7 @@
   function inline(s, o = {}) {
     const hints = [];
     s = String(s).replace(INLINE_HINT, (m, tag, hint, word) => { hints.push([word, hint]); return `${hints.length - 1}`; });
+    s = s.replace(/<rt>[\s\S]*?<\/rt>/gi, "");             // hint text never shows inline
     s = s.replace(/<\/?[a-z][^>]*>/gi, "");                // any other stray tag
     s = esc(s);
     s = s.replace(MARK, (m, i) => o.gloss ? `<ruby>${esc(hints[i][0])}<rt>${esc(hints[i][1])}</rt></ruby>` : esc(hints[i][0]));

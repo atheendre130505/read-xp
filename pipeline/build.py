@@ -83,7 +83,7 @@ def full_text(item) -> str:
     text = (text or "").strip()
     if len(text) < 400:                                       # paywall / blocked: the feed's own summary
         text = item["summary"]
-    return text[:12000]
+    return text[:8000]                                     # keeps each story within the free per-minute limits
 
 
 # ───────────────────────── choosing ─────────────────────────
@@ -120,7 +120,7 @@ def pick(topic, cands, recent, n):
                       for i, c in enumerate(cands))
     out = llm.generate_json(PICK_PROMPT.format(topic=topic["name"], today=today_str(), items=items,
                                                recent="\n".join(f"- {h}" for h in recent) or "- (none)", n=n),
-                            system=PICK_SYSTEM, temperature=0.3)
+                            system=PICK_SYSTEM, temperature=0.3, tier="light")
     stories = out.get("stories", out) if isinstance(out, dict) else out
     picked, used = [], set()
     for s in stories:
@@ -172,7 +172,9 @@ Cover, in a natural order:
 - What to watch next, and what it means for an ordinary person.
 
 Length: {words} words across 6-9 beats of roughly 120-280 words each. Short paragraphs (1-4 sentences). Use **bold**
-for the 1-2 key ideas in a beat, a list only when steps are genuinely list-shaped. No links.
+for the 1-2 key ideas in a beat, a list only when steps are genuinely list-shaped. No links. Plain markdown text
+only: never any HTML or tags (no <ruby>, <hint>, <span>), and never put word meanings in the text; meanings go
+ONLY in "glossary".
 
 For every beat except the first, write the reader's "cue": the short, natural question they'd ask right before it,
 2-9 words, e.g. "Why would they do that?", "How does that actually work?", "Has this happened before?",
@@ -201,6 +203,33 @@ ARTICLE
 
 
 INLINE_HINT = re.compile(r'<(hint|span|abbr|gloss)\b[^>]*?"([^"]*)"[^>]*>(.*?)</\1>', re.I | re.S)
+RUBY = re.compile(r"<ruby>\s*(.*?)\s*<rt>\s*(.*?)\s*</rt>\s*</ruby>(\s*)(\w[\w'-]*)?", re.I | re.S)
+
+
+def clean_body(text):
+    """The writer sometimes puts markup in the text despite being told not to: <hint="key part">linchpin</hint>,
+    <span title=...>, or <ruby>price increases<rt>inflation</rt></ruby> inflation. Turn each into a glossary
+    entry, keep exactly one copy of the word, and drop every other tag. Returns (clean text, glossary entries)."""
+    gloss = []
+
+    def ruby(m):
+        a, b, gap, nxt = m.group(1), m.group(2), m.group(3), m.group(4) or ""
+        for word, hint in ((a, b), (b, a)):
+            if nxt and word.lower() == nxt.lower():          # "<ruby>X<rt>Y</rt></ruby> Y": keep the following word
+                gloss.append({"word": word, "hint": hint})
+                return nxt
+        gloss.append({"word": a, "hint": b})
+        return a + gap + nxt
+
+    def hint(m):
+        gloss.append({"word": m.group(3).strip(), "hint": m.group(2).strip()})
+        return m.group(3)
+
+    text = RUBY.sub(ruby, text)
+    text = INLINE_HINT.sub(hint, text)
+    text = re.sub(r"<rt>.*?</rt>", "", text, flags=re.I | re.S)  # any stray hint text never enters the prose
+    text = re.sub(r"</?[a-zA-Z][^>]*>", "", text)
+    return text, gloss
 
 
 def clean_gloss(g, text):
@@ -216,12 +245,12 @@ def clean_gloss(g, text):
 def add_glossary(story):
     """Backfills Word Wise hints for a story written without them."""
     text = "\n\n".join(s["body"] for s in story["sections"])
-    g = llm.generate_json(GLOSS_PROMPT.format(text=text), temperature=0.2).get("glossary", [])
+    g = llm.generate_json(GLOSS_PROMPT.format(text=text), temperature=0.2, tier="light").get("glossary", [])
     story["glossary"] = clean_gloss(g, text)
     return story
 
 
-def write(topic, story):
+def write(topic, story, tier="best"):
     items = story["items"]
     with cf.ThreadPoolExecutor(4) as ex:
         texts = list(ex.map(full_text, items))
@@ -231,19 +260,14 @@ def write(topic, story):
     words = "1300-1800" if depth > 6000 else "1000-1400"
     piece = llm.generate_json(WRITE_PROMPT.format(topic=topic["name"], angle=story["angle"], why=story["why"],
                                                   sources="\n\n".join(blocks), words=words),
-                              system=WRITE_SYSTEM, temperature=0.75, max_tokens=12000)
+                              system=WRITE_SYSTEM, temperature=0.75, max_tokens=12000, tier=tier)
     secs = [s for s in piece.get("beats", piece.get("sections", [])) if s.get("body")]
     if len(secs) < 3:
         raise ValueError("too short")
-    # the model sometimes writes hints inline (<hint style="key part">linchpin</hint>, <span title=..>):
-    # move them into the glossary and keep the text clean
     inline = []
     for sec in secs:
-        def take(m):
-            inline.append({"word": m.group(3).strip(), "hint": m.group(2).strip()})
-            return m.group(3)
-        sec["body"] = INLINE_HINT.sub(take, sec["body"])
-        sec["body"] = re.sub(r"</?[a-zA-Z][^>]*>", "", sec["body"])
+        sec["body"], g = clean_body(sec["body"])
+        inline += g
     piece["glossary"] = (piece.get("glossary") or []) + inline
     n_words = sum(len(s["body"].split()) for s in secs)
     return {
@@ -386,10 +410,10 @@ def main():
             continue
         entry = {"id": topic["id"], "name": topic["name"], "stories": [], "pending": len(picks)}
         issue["topics"].append(entry)
-        for s in picks:
+        for rank, s in enumerate(picks):
             print("  writing:", s["items"][0]["title"][:90], flush=True)
             try:
-                story = write(topic, s)
+                story = write(topic, s, tier="best" if rank == 0 else "light")   # the lead story gets the best model
                 entry["stories"].append(story)
                 for it in s["items"]:
                     seen[it["url"]] = date

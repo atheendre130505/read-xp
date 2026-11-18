@@ -15,7 +15,7 @@ const I = {   // line icons (no emoji anywhere)
 };
 
 // ───────── storage (device only) ─────────
-const DEF = { settings: { theme: "auto", font: "source", fs: 19, ruler: true, bionic: false, hints: true, awake: true, key: "", ntfy: "", model: "", rulerPos: 0.3 },
+const DEF = { settings: { theme: "auto", font: "source", fs: 19, ruler: true, bionic: false, hints: true, awake: true, key: "", groq: "", ntfy: "", model: "", rulerPos: 0.3 },
               progress: {}, chats: {} };
 let S;
 try { const raw = JSON.parse(localStorage.getItem("rxp") || "{}");
@@ -76,6 +76,7 @@ const sync = {
   try {
     const cfg = JSON.parse(atob(decodeURIComponent(m[1]).replace(/-/g, "+").replace(/_/g, "/")));
     if (cfg.k) S.settings.key = cfg.k;
+    if (cfg.g) S.settings.groq = cfg.g;
     if (cfg.t) S.settings.ntfy = cfg.t;
     save(); setTimeout(() => toast("Set up on this device"), 400);
   } catch { setTimeout(() => toast("That setup link didn't work"), 400); }
@@ -428,8 +429,8 @@ async function ask(q) {
   const out = document.createElement("div"); out.className = "turn-ai typing"; qa.appendChild(out);
   scrollToEl(you);
 
-  const key = S.settings.key;
-  if (!key) { out.className = "turn-ai"; out.innerHTML = `<p>To ask questions, add your Gemini key once in <a href="#/settings">Settings</a>, or open your setup link on this device.</p>`; return; }
+  const groqKey = S.settings.groq, key = S.settings.key;
+  if (!groqKey && !key) { out.className = "turn-ai"; out.innerHTML = `<p>To ask questions, add a free Groq key once in <a href="#/settings">Settings</a> (from console.groq.com), or open your setup link on this device.</p>`; return; }
 
   const s = R.s, heading = s.sections[sec]?.heading || "";
   const sys = `You are a knowledgeable, level-headed helper. The reader is going through the article below (your summary of
@@ -447,13 +448,23 @@ ${s.terms?.length ? "\nKEY TERMS: " + s.terms.map(t => t.term + " = " + t.meanin
   const user = `(Section: "${heading}")\n` + (quote ? `About this passage: "${quote}"\n\n` : "") + q;
   const body = { systemInstruction: { parts: [{ text: sys }] }, contents: [...history, { role: "user", parts: [{ text: user }] }],
                  generationConfig: { temperature: 0.6, maxOutputTokens: 2048 } };
-  const models = [S.settings.model, R.iss.model, "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-flash-latest"].filter((m, i, a) => m && a.indexOf(m) === i);
+  // Groq first when you've added a key (fast, generous free tier), then Gemini
+  const tries = [];
+  if (groqKey) for (const m of ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "openai/gpt-oss-20b"]) tries.push(["groq", m]);
+  if (key) for (const m of [S.settings.model, R.iss.model, "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-flash-latest"]
+    .filter((m, i, a) => m && a.indexOf(m) === i)) tries.push(["gemini", m]);
+  const groqBody = m => JSON.stringify({ model: m, stream: true, temperature: 0.6, max_completion_tokens: 2048,
+    messages: [{ role: "system", content: sys },
+      ...(S.chats[R.key] || []).slice(-4).flatMap(c => [{ role: "user", content: (c.quote ? `About: "${c.quote}"\n` : "") + c.q }, { role: "assistant", content: c.a }]),
+      { role: "user", content: user }] });
   let text = "", err = "";
-  for (const m of models) {
+  for (const [prov, m] of tries) {
     try {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse`,
-        { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: JSON.stringify(body) });
-      if (!r.ok) { err = `${r.status}: ${(await r.text()).slice(0, 160)}`; if (/API key/i.test(err)) break; continue; }
+      const r = prov === "groq"
+        ? await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${groqKey}` }, body: groqBody(m) })
+        : await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse`,
+            { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: JSON.stringify(body) });
+      if (!r.ok) { err = `${r.status}: ${(await r.text()).slice(0, 160)}`; continue; }
       const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
       for (;;) {
         const { value, done } = await rd.read(); if (done) break;
@@ -461,12 +472,16 @@ ${s.terms?.length ? "\nKEY TERMS: " + s.terms.map(t => t.term + " = " + t.meanin
         let i;
         while ((i = buf.indexOf("\n")) >= 0) {
           const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
-          if (!line.startsWith("data:")) continue;
-          try { const j = JSON.parse(line.slice(5)); text += (j.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || "").join(""); } catch {}
+          if (!line.startsWith("data:") || line === "data: [DONE]") continue;
+          try {
+            const j = JSON.parse(line.slice(5));
+            text += prov === "groq" ? (j.choices?.[0]?.delta?.content || "")
+                                    : (j.candidates?.[0]?.content?.parts || []).filter(p => !p.thought).map(p => p.text || "").join("");
+          } catch {}
           out.innerHTML = md(text);
         }
       }
-      if (text) { if (S.settings.model !== m) { S.settings.model = m; save(); } break; }
+      if (text) { if (prov === "gemini" && S.settings.model !== m) { S.settings.model = m; save(); } break; }
     } catch (e) { err = String(e); }
   }
   out.classList.remove("typing");
@@ -493,8 +508,10 @@ function renderSettings() {
     <div class="row"><label>Keep the screen on while reading</label>${sw("awake")}</div>
     <p class="preview">${md("When a central bank turns **hawkish** and raises rates, borrowing gets dearer, so firms delay investment.", { gloss: st.hints ? [{ word: "hawkish", hint: "keen to fight inflation" }] : null })}</p>
     <h3>Questions</h3>
-    <div class="row" style="display:block"><label>Gemini API key<small>Free from Google AI Studio. Stored only on this device.</small></label>
-      <input class="field" id="key" type="password" autocomplete="off" placeholder="Paste your key" value="${esc(st.key)}"></div>
+    <div class="row" style="display:block"><label>Groq API key<small>Free from console.groq.com → API Keys. Stored only on this device.</small></label>
+      <input class="field" id="groq" type="password" autocomplete="off" placeholder="gsk_…" value="${esc(st.groq || "")}"></div>
+    <div class="row" style="display:block"><label>Gemini API key (optional backup)<small>Free from Google AI Studio.</small></label>
+      <input class="field" id="key" type="password" autocomplete="off" placeholder="AIza…" value="${esc(st.key)}"></div>
     <h3>Ten o'clock reminder</h3>
     ${st.ntfy ? `<p class="note">Install the free ntfy app, then subscribe below. Each morning at ten it tells you what's in the issue; tapping it opens Read.</p>
       <p><a class="btn" href="ntfy://ntfy.sh/${esc(st.ntfy)}">Subscribe in ntfy</a> <button class="btn" data-act="copy-topic">Copy topic</button></p>`
@@ -509,6 +526,7 @@ function renderSettings() {
     <p style="margin-bottom:60px"><button class="btn" data-act="reset">Clear reading history</button></p>
   </div>`;
   $("#key").addEventListener("change", e => { st.key = e.target.value.trim(); save(); toast(st.key ? "Key saved" : "Key removed"); });
+  $("#groq").addEventListener("change", e => { st.groq = e.target.value.trim(); save(); toast(st.groq ? "Groq key saved" : "Groq key removed"); });
 }
 
 // ───────── one click handler ─────────
