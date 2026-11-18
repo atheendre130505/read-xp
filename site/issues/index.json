@@ -1,20 +1,20 @@
 [
  {
+  "date": "2026-11-18-morning",
+  "day": "2026-11-18",
+  "edition": "morning",
+  "stories": 19,
+  "minutes": 86,
+  "headline": "Nvidia’s AI Dominance Faces Crisis Over Leadership and Export Evasion Probes",
+  "partial": false
+ },
+ {
   "date": "2026-11-18-evening",
   "day": "2026-11-18",
   "edition": "evening",
   "stories": 14,
   "minutes": 71,
   "headline": "What US Chip Rules Mean for the Shenzhen Summit and Asia",
-  "partial": false
- },
- {
-  "date": "2026-11-18-morning",
-  "day": "2026-11-18",
-  "edition": "morning",
-  "stories": 13,
-  "minutes": 62,
-  "headline": "Nvidia’s AI Dominance Faces Crisis Over Leadership and Export Evasion Probes",
   "partial": false
  }
 ]
