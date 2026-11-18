@@ -23,6 +23,7 @@ GROQ_PREFERRED = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "moonshotai/
 
 _pool: dict | None = None
 _dead: set = set()          # (provider, model) whose daily quota ran out
+problems: dict = {}         # provider -> "quota" | "invalid": what to warn you about at the end of a run
 
 
 def _version(name: str) -> float:
@@ -145,8 +146,17 @@ def generate(prompt: str, *, tier: str = "best", system: str = "", json_out: boo
                 last = RuntimeError(f"empty answer from {model}")
                 continue
             last = RuntimeError(f"{provider}/{model} {r.status_code}: {r.text[:200]}")
+            if r.status_code in (401, 403) or (r.status_code == 400 and "api key" in r.text.lower()):
+                for pm in pool()["best"]:
+                    if pm[0] == provider:
+                        _dead.add(pm)
+                problems[provider] = "invalid"
+                print(f"  {provider}: key rejected ({r.status_code}), switching", flush=True)
+                break
             if _daily_quota_gone(r):
                 _dead.add((provider, model))
+                if all(pm in _dead for pm in pool()["best"] if pm[0] == provider):
+                    problems.setdefault(provider, "quota")
                 print(f"  {provider}/{model}: daily quota used up, switching", flush=True)
                 break
             if r.status_code == 429:

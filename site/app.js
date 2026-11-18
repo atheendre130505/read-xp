@@ -458,13 +458,20 @@ ${s.terms?.length ? "\nKEY TERMS: " + s.terms.map(t => t.term + " = " + t.meanin
       ...(S.chats[R.key] || []).slice(-4).flatMap(c => [{ role: "user", content: (c.quote ? `About: "${c.quote}"\n` : "") + c.q }, { role: "assistant", content: c.a }]),
       { role: "user", content: user }] });
   let text = "", err = "";
+  const keyTrouble = {};                                  // provider -> "quota" | "invalid"
   for (const [prov, m] of tries) {
     try {
       const r = prov === "groq"
         ? await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${groqKey}` }, body: groqBody(m) })
         : await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse`,
             { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: JSON.stringify(body) });
-      if (!r.ok) { err = `${r.status}: ${(await r.text()).slice(0, 160)}`; continue; }
+      if (!r.ok) {
+        const t = await r.text();
+        err = `${r.status}: ${t.slice(0, 160)}`;
+        if (r.status === 401 || r.status === 403 || /api key not valid|invalid api key|API_KEY_INVALID/i.test(t)) keyTrouble[prov] = "invalid";
+        else if (r.status === 429) keyTrouble[prov] ||= "quota";
+        continue;
+      }
       const rd = r.body.getReader(), dec = new TextDecoder(); let buf = "";
       for (;;) {
         const { value, done } = await rd.read(); if (done) break;
@@ -485,9 +492,33 @@ ${s.terms?.length ? "\nKEY TERMS: " + s.terms.map(t => t.term + " = " + t.meanin
     } catch (e) { err = String(e); }
   }
   out.classList.remove("typing");
-  if (!text) { out.classList.add("err"); out.textContent = navigator.onLine ? "Couldn't get an answer (" + (err || "empty reply") + ")." : "You're offline."; return; }
+  if (text && Object.keys(keyTrouble).length) keyNotice(keyTrouble);   // answered by the backup: still tell you once
+  if (!text) {
+    out.classList.add("err");
+    if (!navigator.onLine) { out.textContent = "You're offline."; return; }
+    const msg = keyMessages(keyTrouble);
+    out.innerHTML = msg.length ? msg.map(m => `<p>${m}</p>`).join("") : `<p>Couldn't get an answer (${esc(err || "empty reply")}).</p>`;
+    return;
+  }
   (S.chats[R.key] ||= []).push({ sec, quote, q, a: text, at: Date.now() });
   save();
+}
+
+// When a key runs out or stops working, say so plainly (once a day per key in a toast; always in a failed answer).
+function keyMessages(trouble) {
+  const where = { groq: "console.groq.com/keys", gemini: "aistudio.google.com/apikey" }, name = { groq: "Groq", gemini: "Gemini" };
+  return Object.entries(trouble).map(([p, w]) => w === "quota"
+    ? `Your ${name[p]} key has used up today's free limit. It resets within a day.`
+    : `Your ${name[p]} key no longer works (expired or deleted). Make a new one at ${where[p]} and paste it in <a href="#/settings">Settings</a>.`);
+}
+function keyNotice(trouble) {
+  const day = todayKey();
+  for (const [p, w] of Object.entries(trouble)) {
+    const k = `keywarn-${p}-${w}`;
+    if (S[k] === day) continue;
+    S[k] = day; save();
+    toast(w === "quota" ? `${p === "groq" ? "Groq" : "Gemini"} key: today's free limit used up` : `${p === "groq" ? "Groq" : "Gemini"} key no longer works; see Settings`, 4000);
+  }
 }
 
 // ───────── settings ─────────

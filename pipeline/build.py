@@ -293,6 +293,32 @@ def today_str():
     return dt.datetime.now(TZ).strftime("%Y-%m-%d")
 
 
+KEY_NAMES = {"gemini": ("Gemini", "aistudio.google.com/apikey"), "groq": ("Groq", "console.groq.com/keys")}
+
+
+def alert_keys(site_url, failed=False):
+    """Phone notification when a key's free quota ran out or a key stopped working (once per run)."""
+    topic = os.environ.get("NTFY_TOPIC")
+    lines = []
+    for prov, what in llm.problems.items():
+        name, where = KEY_NAMES[prov]
+        lines.append(f"{name}: free daily limit used up. It resets within a day; nothing to do unless it keeps happening."
+                     if what == "quota" else f"{name}: key rejected (expired or deleted). Make a new one at {where} and "
+                     f"replace {prov.upper()}_API_KEY in GitHub secrets and in Read's settings.")
+    if failed and not lines:
+        lines.append("The issue couldn't be written. Check the run on GitHub Actions.")
+    if not lines:
+        return
+    print("key alert:", " | ".join(lines), flush=True)
+    if topic:
+        try:
+            requests.post(f"https://ntfy.sh/{topic}", data="\n".join(lines).encode(), timeout=20,
+                          headers={"Title": "Read: an API key needs attention" if llm.problems else "Read: today's issue failed",
+                                   "Tags": "warning", "Priority": "high", "Click": site_url})
+        except requests.RequestException:
+            pass
+
+
 def remind(issue, site_url):
     """Schedules the daily nudge on ntfy for REMIND_AT local time (exact delivery, no server of our own)."""
     topic = os.environ.get("NTFY_TOPIC")
@@ -429,10 +455,12 @@ def main():
     n_stories = sum(len(t["stories"]) for t in issue["topics"])
     if not n_stories:
         print("no stories written; keeping yesterday's issue")
+        alert_keys(site_url, failed=True)
         remind({"topics": []}, site_url)
         sys.exit(1)
     publish()
     print(f"\nissue {date}: {n_stories} stories", flush=True)
+    alert_keys(site_url)
     if edition == "morning":                              # the 10:00 nudge comes with the morning edition
         remind(issue, site_url)
 
