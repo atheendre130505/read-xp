@@ -21,7 +21,23 @@ let S;
 try { const raw = JSON.parse(localStorage.getItem("rxp") || "{}");
       S = { ...structuredClone(DEF), progress: raw.progress || {}, chats: raw.chats || {}, settings: { ...DEF.settings, ...(raw.settings || {}) } }; }
 catch { S = structuredClone(DEF); }
-const save = () => { try { localStorage.setItem("rxp", JSON.stringify(S)); } catch {} };
+// Two Read windows on one device share this storage: never let one window's save wipe what the other set up
+// (keys, sync link) or read. Adopt the other window's keys and reads before writing.
+function adoptStored() {
+  try {
+    const o = JSON.parse(localStorage.getItem("rxp") || "{}");
+    for (const k of ["sync", "syncRepo", "key", "groq", "ntfy"]) if (o.settings?.[k] && !S.settings[k]) S.settings[k] = o.settings[k];
+    const cut = new Date(Date.now() - 14 * 864e5).toLocaleDateString("en-CA");
+    for (const [k, p] of Object.entries(o.progress || {})) {
+      if (k.slice(0, 10) < cut) continue;
+      const l = S.progress[k];
+      if (!l) S.progress[k] = p;
+      else { if (p.done && !l.done) { l.done = true; l.at = p.at; } if ((p.t || 0) > (l.t || 0)) { l.place = p.place; l.t = p.t; } l.sec = Math.max(l.sec || 1, p.sec || 1); }
+    }
+  } catch {}
+}
+const save = () => { adoptStored(); try { localStorage.setItem("rxp", JSON.stringify(S)); } catch {} };
+addEventListener("storage", e => { if (e.key === "rxp") adoptStored(); });
 const todayKey = () => new Date().toLocaleDateString("en-CA");
 S.rr ||= {};                                               // stories read on your other devices (short hashes)
 (function prune() {                                        // forget stories older than two weeks
@@ -280,7 +296,7 @@ async function renderReader(date, id) {
   attached = "";
   document.body.classList.add("reading"); wake(true);
   app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a>
-      <div class="mid">${esc(s.topic.name)}</div><div class="right" id="left"></div>
+      <div class="mid">${esc(s.topic.name)}</div>${sync.on() && sync.err !== "key" ? "" : `<a class="nosync" href="#/settings">Not syncing</a>`}<div class="right" id="left"></div>
       ${p.done ? "" : `<button class="installbtn" data-act="mark">Mark as read</button>`}</div><div class="prog"><i id="prog"></i></div></div>
     <article class="story">
       <div class="kicker">${esc(s.topic.name)}</div>
@@ -432,11 +448,12 @@ function markRead(key) {
   const p = (S.progress[key] ||= { sec: 1 });
   if (!p.done) { p.done = true; p.at = Date.now(); save(); touch(p); sync.soon(300); }
 }
-async function finish() { markRead(R.key); R.next = await nextUp(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
+async function finish() { markRead(R.key); await sync.push(); R.next = await nextUp(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
 async function markAndNext() {
   markRead(R.key);
+  await sync.push();                                         // send it now, so your other device drops it too
   const n = await nextUp();
-  toast("Marked as read");
+  toast(!sync.on() ? "Marked as read on this device only (not syncing)" : sync.dirty ? "Marked as read; will sync when online" : "Marked as read");
   location.hash = n ? `#/read/${n.date}/${encodeURIComponent(n.s.id)}` : "#/";
 }
 
@@ -644,7 +661,7 @@ document.addEventListener("click", e => {
     case "mark": return markAndNext();
     case "detach": attached = ""; $("#att").innerHTML = ""; return;
     case "copy-topic": navigator.clipboard?.writeText(S.settings.ntfy); return toast("Copied");
-    case "reset": if (confirm("Clear what you've read and your questions on this device?")) { S.progress = {}; S.chats = {}; save(); toast("Cleared"); renderSettings(); } return;
+    case "reset": if (confirm("Clear what you've read and your questions on this device?")) { S.progress = {}; S.chats = {}; try { localStorage.setItem("rxp", JSON.stringify(S)); } catch {} toast("Cleared"); renderSettings(); } return;
   }
 });
 addEventListener("keydown", e => {   // laptop: Space or → continues
