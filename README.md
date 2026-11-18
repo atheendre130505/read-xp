@@ -4,9 +4,9 @@ One finite issue a day, written to be read with pleasure. Each story is told in 
 the decisions people took and why. The aim is that you understand it, not skim it.
 
 **Open it:** https://atheendre130505.github.io/read-xp/
-- **Phone (Brave):** open the link, then ⋮ → "Install app" / "Add to Home screen". It opens full screen from its own
-  icon, with no tabs and no address bar.
-- **Laptop:** the "Read XP" Desktop shortcut opens it in its own window.
+It's a plain web page, not an installed app, so every visit gets the latest version.
+- **Phone (Brave):** open the link, then ⋮ → "Add to Home screen". That icon is just a shortcut to the page.
+- **Laptop:** the "Read" Desktop shortcut opens it in Brave.
 
 ## Twice a day
 1. **09:00 and 21:00 IST** (a morning and an evening edition): GitHub Actions reads about 110 sources, listed in `pipeline/sources.py`:

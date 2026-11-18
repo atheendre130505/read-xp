@@ -260,7 +260,7 @@ async function renderHome() {
   const nice = INDEX[0].date === "sample" ? "A sample story while your first issue is written"
     : new Date((latest.day || INDEX[0].date) + "T12:00").toLocaleDateString(undefined, { weekday: "long", day: "numeric", month: "long" });
   app.innerHTML = `<div class="bar"><div class="in"><div class="word">Read</div>
-      <div class="mid"></div>${installEvt && !installed() ? `<button class="installbtn" data-act="install">Install app</button>` : ""}<a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
+      <div class="mid"></div><a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a></div></div>
     <div class="col">
       <div class="hello"><h1>${greeting()}</h1><p>${esc(nice)}</p>
         <p class="count"><b>${readToday}</b> read today<i class="dot"></i>${q.length}${writing ? "+" : ""} to go<i class="dot"></i>about ${q.reduce((n, x) => n + x.s.minutes, 0)} min</p></div>
@@ -618,11 +618,6 @@ function renderSettings() {
     ${st.ntfy ? `<p class="note">Install the free ntfy app, then subscribe below. Each morning at ten it tells you what's in the issue; tapping it opens Read.</p>
       <p><a class="btn" href="ntfy://ntfy.sh/${esc(st.ntfy)}">Subscribe in ntfy</a> <button class="btn" data-act="copy-topic">Copy topic</button></p>`
       : `<p class="note">Open your setup link on this device to turn on the reminder.</p>`}
-    <h3>App</h3>
-    ${installed() ? `<p class="note">Installed. Read opens in its own window from the Start menu or your home screen.</p>`
-      : `<div class="row"><label>Install Read on this device<small>Its own window and icon, on Windows (Start menu, taskbar) and on your phone.</small></label>
-         <button class="btn" data-act="install">Install</button></div>
-         ${installEvt ? "" : `<p class="note">If the button does nothing, open the browser menu and choose "Install Read" (Brave, Chrome, Edge).</p>`}`}
     <h3>Phone and laptop</h3>
     <p class="note" id="syncnote">${!sync.on() ? "Not linked yet. Open your setup link on this device (or paste the sync key below) and your place and what you've read follow you between devices."
       : sync.err === "key" ? "The sync key isn't working (expired or deleted). Make a new one and paste it below."
@@ -655,7 +650,6 @@ document.addEventListener("click", e => {
   if (d.toggle) { S.settings[d.toggle] = !S.settings[d.toggle]; save(); applySettings(); return renderSettings(); }
   if (d.fs) { S.settings.fs = Math.min(26, Math.max(15, S.settings.fs + +d.fs)); save(); applySettings(); return renderSettings(); }
   switch (d.act) {
-    case "install": return install();
     case "continue": return cont();
     case "finish": return finish();
     case "mark": return markAndNext();
@@ -669,20 +663,9 @@ addEventListener("keydown", e => {   // laptop: Space or → continues
   if (e.key === " " || e.key === "ArrowRight") { e.preventDefault(); if (R.p.sec < R.s.sections.length) cont(); else if (!R.p.done) finish(); }
 });
 
-// "Install app": Brave / Chrome / Edge offer this on Windows and Android; we keep the offer and show our own button
-let installEvt = null;
-const installed = () => matchMedia("(display-mode: standalone), (display-mode: fullscreen), (display-mode: window-controls-overlay)").matches;
-addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; if (!R) route(); });
-addEventListener("appinstalled", () => { installEvt = null; toast("Installed"); if (!R) route(); });
-async function install() {
-  if (!installEvt) return toast("Use the browser menu: Install app");
-  installEvt.prompt();
-  await installEvt.userChoice.catch(() => {});
-  installEvt = null;
-  if (!R) route();
-}
-
 applySettings();
-navigator.serviceWorker.register("sw.js").catch(() => {});
+// Read is a plain web page now (no installed app): drop the old offline copy so every visit gets the latest version
+navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
+window.caches?.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
 // open where you actually are: get the other device's latest first (but never wait more than a few seconds)
 Promise.race([sync.pull().catch(() => {}), new Promise(r => setTimeout(r, 4000))]).finally(() => loadIndex().then(route));
