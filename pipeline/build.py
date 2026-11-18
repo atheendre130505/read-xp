@@ -102,17 +102,21 @@ Below are recent items from reputable sources (news, analysis and new research),
 Recently covered (do not repeat unless there is a materially new development):
 {recent}
 
-Pick the {n} most important stories for this topic. Judge importance by:
+Shortlist up to {n} of the most important stories for this topic. Judge importance by:
 - consequence: how many people, how much money/power/knowledge it changes, and for how long;
 - explanatory value: there is a mechanism, a decision, or an idea worth understanding in depth;
 - signal: several outlets cover it, or it is genuinely new research / a new theory;
 - novelty for this reader: not a repeat of the recently covered list.
-Skip: celebrity, sport, routine crime, market-tick noise, listicles, product reviews, press-release fluff.
-Include at least one research or analysis item when a strong one exists. Merge items about the same story.
+Only definitive, newly reported developments: something actually happened, was decided, announced, published or
+measured. Skip rumours, speculation, previews of things that haven't happened, opinion without news, and follow-ups
+that add nothing new. Also skip: celebrity, sport, routine crime, market-tick noise, listicles, product reviews,
+press-release fluff. Merge items about the same story.
+
+If nothing in this list is both important and definitive, return an empty list. That is a good answer.
 
 Return JSON: {{"stories": [{{"ids": [ids of every item about this story, best first, max 4],
-"angle": "the specific question this piece should answer", "why": "one line on why it matters"}}]}}
-ordered most important first."""
+"angle": "the specific question this piece should answer", "why": "one line on why it matters",
+"importance": 1-10}}]}} ordered most important first."""
 
 
 def as_id(x):
@@ -122,18 +126,29 @@ def as_id(x):
 
 
 def pick(topic, cands, recent, n):
-    items = "\n".join(f"[{i}] ({c['source']} · {c['kind']} · {c['date']}) {c['title']} — {clean(c['summary'], 220)}"
-                      for i, c in enumerate(cands))
-    out = llm.generate_json(PICK_PROMPT.format(topic=topic["name"], today=today_str(), items=items,
-                                               recent="\n".join(f"- {h}" for h in recent) or "- (none)", n=n),
-                            system=PICK_SYSTEM, temperature=0.3, tier="light")
+    def prompt(k=len(cands), summary=220, n_recent=40):
+        items = "\n".join(f"[{i}] ({c['source']} · {c['kind']} · {c['date']}) {c['title']}"
+                          + (f" — {clean(c['summary'], summary)}" if summary else "") for i, c in enumerate(cands[:k]))
+        return PICK_PROMPT.format(topic=topic["name"], today=today_str(), items=items, n=n,
+                                  recent="\n".join(f"- {h}" for h in recent[:n_recent]) or "- (none)")
+
+    def shrink(max_chars):              # small-request models: fewer candidates (sources take turns, so all stay in)
+        for k, summary, nr in [(120, 120, 25), (90, 80, 20), (70, 0, 15), (50, 0, 10), (35, 0, 8)]:
+            p = prompt(min(k, len(cands)), summary, nr)
+            if len(p) <= max_chars:
+                return p
+        return None
+
+    out = llm.generate_json(prompt(), system=PICK_SYSTEM, temperature=0.3, tier="light", shrink=shrink, max_tokens=2000)
     stories = out.get("stories", out) if isinstance(out, dict) else out
     picked, used = [], set()
     for s in stories:
         ids = [i for i in map(as_id, s.get("ids", [])) if i is not None and 0 <= i < len(cands) and i not in used][:4]
         if ids:
             used.update(ids)
-            picked.append({"items": [cands[i] for i in ids], "angle": s.get("angle", ""), "why": s.get("why", "")})
+            imp = as_id(s.get("importance")) or 5
+            picked.append({"items": [cands[i] for i in ids], "angle": s.get("angle", ""), "why": s.get("why", ""),
+                           "importance": min(10, imp)})
     return picked[:n]
 
 
@@ -152,12 +167,20 @@ def stories_for(day: str, edition: str) -> int:
     return morning if edition == "morning" else per_day - morning
 
 
-CHOOSE_PROMPT = """You are the chief editor of a small daily reader for one serious, curious person. Each topic editor
-has shortlisted stories. Choose the {n} that matter most today, across all topics.
+FIELDS = ["Economics & Finance", "Business & Companies", "Politics & World", "Psychology & Mind",
+          "Science & Technology", "Philosophy & Ideas"]
 
-Judge by consequence (how many people, how much money, power or knowledge it changes, and for how long), by how much
-there is to understand (a real mechanism, decision or idea), and by novelty (not a repeat of what was covered recently).
-Prefer variety: no more than two from one topic, and never two about the same event.
+CHOOSE_PROMPT = """You are the chief editor of a small daily reader for one serious, curious person. The field editors
+have shortlisted stories. Choose the {n} that matter most today, purely by importance.
+
+- Importance: consequence (how many people, how much money, power or knowledge it changes, and for how long), how much
+  there is to understand (a real mechanism, decision or idea), and whether it is definitive, newly reported news.
+- No quotas: several from one field and none from another is fine if that is where the important news is.
+- Never two about the same event. If two shortlisted items are the same event seen from different fields (e.g. a
+  company scandal that is also a geopolitical story), choose it once and merge the other into it.
+- Label each chosen story with every field it genuinely belongs to (1-3), from: {fields}.
+- Skip anything that repeats what was covered recently without a materially new development.
+- If fewer than {n} are genuinely important, choose fewer.
 
 Recently covered:
 {recent}
@@ -165,25 +188,41 @@ Recently covered:
 SHORTLIST
 {items}
 
-Return JSON: {{"order": [ids of the chosen stories, most important first]}}"""
+Return JSON: {{"chosen": [{{"id": shortlist id, "merge": [ids of other items about the same event], "fields": ["..."]}}]}}
+most important first."""
 
 
 def choose(shortlist, n, recent):
-    if len(shortlist) <= n:
-        return shortlist
-    items = "\n".join(f"[{i}] ({s['topic']['name']}) {s['items'][0]['title']} | angle: {s['angle']} | why: {s['why']}"
+    if not shortlist:
+        return []
+    items = "\n".join(f"[{i}] ({s['topic']['name']}, field editor's importance {s.get('importance', 5)}/10) "
+                      f"{s['items'][0]['title']} | angle: {s['angle']} | why: {s['why']}"
                       for i, s in enumerate(shortlist))
     try:
-        out = llm.generate_json(CHOOSE_PROMPT.format(n=n, items=items, recent="\n".join(f"- {h}" for h in recent[:40]) or "- (none)"),
-                                temperature=0.2, tier="best")
-        order = [i for i in map(as_id, out.get("order", [])) if i is not None and 0 <= i < len(shortlist)]
-        order = list(dict.fromkeys(order))[:n]
-        if order:
-            return [shortlist[i] for i in order]
+        out = llm.generate_json(CHOOSE_PROMPT.format(n=n, items=items, fields=", ".join(FIELDS),
+                                                     recent="\n".join(f"- {h}" for h in recent[:40]) or "- (none)"),
+                                temperature=0.2, tier="best", max_tokens=1500)
+        chosen, used = [], set()
+        for c in out.get("chosen", []):
+            i = as_id(c.get("id")) if isinstance(c, dict) else as_id(c)
+            if i is None or not 0 <= i < len(shortlist) or i in used:
+                continue
+            used.add(i)
+            s = dict(shortlist[i])
+            for j in map(as_id, (c.get("merge") or []) if isinstance(c, dict) else []):
+                if j is not None and 0 <= j < len(shortlist) and j not in used:      # same event from another field
+                    used.add(j)
+                    s["items"] = (s["items"] + [x for x in shortlist[j]["items"] if x not in s["items"]])[:4]
+            fields = [f for f in (c.get("fields") or []) if f in FIELDS] if isinstance(c, dict) else []
+            s["fields"] = fields or [s["topic"]["name"]]
+            chosen.append(s)
+            if len(chosen) == n:
+                break
+        if chosen:
+            return chosen
     except Exception as e:
-        print("  choose failed, taking each topic's first pick:", e, flush=True)
-    firsts = [s for k, s in enumerate(shortlist) if k == 0 or shortlist[k - 1]["topic"] is not s["topic"]]
-    return (firsts + [s for s in shortlist if s not in firsts])[:n]
+        print("  choose failed, ranking by the field editors' scores:", e, flush=True)
+    return sorted(shortlist, key=lambda s: -s.get("importance", 5))[:n]
 
 
 # ───────────────────────── writing ─────────────────────────
@@ -352,13 +391,26 @@ def write(topic, story, tier="best"):
     depth = sum(len(t) for t in texts)
     words = "1600-2200" if depth > 6000 else "1300-1700"
     sources = "\n\n".join(blocks)
-    piece = llm.generate_json(WRITE_PROMPT.format(topic=topic["name"], angle=story["angle"], why=story["why"],
-                                                  sources=sources, words=words),
-                              system=WRITE_SYSTEM, temperature=0.7, max_tokens=14000, tier=tier)
+    def write_prompt(src, w=words):
+        return WRITE_PROMPT.format(topic=topic["name"], angle=story["angle"], why=story["why"], sources=src, words=w)
+
+    def trimmed(max_chars, make):
+        """For small-request models: the same sources, each cut to fit (the opening of an article carries the most)."""
+        overhead = len(make(""))
+        room = max_chars - overhead
+        if room < 2500:
+            return None
+        per = room // len(blocks)
+        return make("\n\n".join(b[:per] for b in blocks))
+
+    piece = llm.generate_json(write_prompt(sources), system=WRITE_SYSTEM, temperature=0.7, max_tokens=14000, tier=tier,
+                              shrink=lambda mc: trimmed(mc, lambda s: write_prompt(s, "1200-1600")))
     # second pass: an editor checks it against the sources and makes it clearer and deeper
     try:
-        edited = llm.generate_json(EDIT_PROMPT.format(sources=sources, draft=json.dumps(piece, ensure_ascii=False)),
-                                   system=WRITE_SYSTEM, temperature=0.4, max_tokens=14000, tier=tier)
+        draft = json.dumps(piece, ensure_ascii=False)
+        edited = llm.generate_json(EDIT_PROMPT.format(sources=sources, draft=draft),
+                                   system=WRITE_SYSTEM, temperature=0.4, max_tokens=14000, tier=tier,
+                                   shrink=lambda mc: trimmed(mc, lambda s: EDIT_PROMPT.format(sources=s, draft=draft)))
         old_n = sum(len(b.get("body", "").split()) for b in piece.get("beats", []))
         new_n = sum(len(b.get("body", "").split()) for b in edited.get("beats", []))
         if new_n >= 0.85 * old_n and len(edited.get("beats", [])) >= 3:
@@ -374,7 +426,7 @@ def write(topic, story, tier="best"):
         inline += g
     text = "\n\n".join(s["body"] for s in secs)
     try:                                                    # word hints: their own careful pass
-        g = llm.generate_json(GLOSS_PROMPT.format(text=text), temperature=0.2, tier="light").get("glossary", [])
+        g = llm.generate_json(GLOSS_PROMPT.format(text=text), temperature=0.2, tier="light", max_tokens=1200).get("glossary", [])
     except Exception:
         g = []
     piece["glossary"] = g + inline
@@ -532,7 +584,9 @@ def main():
         if not cands:
             continue
         try:
-            for s in pick(topic, cands, recent_heads.get(topic["id"], []) + all_recent, 2):
+            got = pick(topic, cands, recent_heads.get(topic["id"], []) + all_recent, 3)
+            print(f"  shortlisted {len(got)}" + ("" if got else " (nothing new and definitive)"), flush=True)
+            for s in got:
                 shortlist.append({**s, "topic": topic})
         except Exception as e:
             print("  pick failed:", e, flush=True)
@@ -544,7 +598,7 @@ def main():
     # 3. each one is written by the best model, edited, and given word hints; published one by one
     for s in chosen:
         topic = s["topic"]
-        entry = {"id": topic["id"], "name": topic["name"], "stories": [], "pending": 1}
+        entry = {"id": topic["id"], "name": " · ".join(s.get("fields") or [topic["name"]]), "stories": [], "pending": 1}
         issue["topics"].append(entry)
         print("  writing:", s["items"][0]["title"][:90], flush=True)
         try:

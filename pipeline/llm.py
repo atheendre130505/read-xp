@@ -18,8 +18,39 @@ GEMINI = "https://generativelanguage.googleapis.com/v1beta"
 GROQ = "https://api.groq.com/openai/v1"
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY", "")
 GROQ_KEY = os.environ.get("GROQ_API_KEY", "")
-GROQ_PREFERRED = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "moonshotai/kimi-k2-instruct", "qwen/qwen3-32b",
-                  "openai/gpt-oss-20b"]
+GROQ_PREFERRED = ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "qwen/qwen3.8-27b", "moonshotai/kimi-k2-instruct",
+                  "qwen/qwen3-32b", "openai/gpt-oss-20b"]
+GROQ_TPM = int(os.environ.get("GROQ_TPM", "8000"))      # free tier: request + reply must fit in this, per minute
+CHARS_PER_TOKEN = 3.6
+
+
+def _fit_groq(prompt, system, max_tokens, shrink):
+    """Groq's free tier counts the request and the reply against 8,000 tokens a minute. Cap the reply and, if the
+    request is still too big, ask the caller to rebuild it smaller (fewer candidates, shorter source extracts).
+    Returns (prompt, max_tokens), or None if it can't fit."""
+    out = min(max_tokens, 4200)
+    room = GROQ_TPM - out - 400
+    need = (len(prompt) + len(system)) / CHARS_PER_TOKEN
+    if need <= room:
+        return prompt, out
+    if shrink:
+        smaller = shrink(int(room * CHARS_PER_TOKEN) - len(system))
+        if smaller and (len(smaller) + len(system)) / CHARS_PER_TOKEN <= room:
+            return smaller, out
+    return None
+
+
+def _wait_for_groq(r):
+    """After a Groq call, wait for the per-minute token allowance to refill if it's low."""
+    try:
+        left = int(r.headers.get("x-ratelimit-remaining-tokens", GROQ_TPM))
+        reset = r.headers.get("x-ratelimit-reset-tokens", "0s")
+        secs = sum(float(v) * {"h": 3600, "m": 60, "s": 1, "ms": .001}[u]
+                   for v, u in re.findall(r"([\d.]+)(ms|h|m|s)", reset))
+        if left < GROQ_TPM * 0.9:
+            time.sleep(min(65, secs + 1))
+    except Exception:
+        time.sleep(20)
 
 _pool: dict | None = None
 _dead: set = set()          # (provider, model) whose daily quota ran out
@@ -112,6 +143,8 @@ def _call(provider, model, prompt, system, json_out, temperature, max_tokens):
         return "".join(p.get("text", "") for p in parts if not p.get("thought")), r
     msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
     body = {"model": model, "messages": msgs, "temperature": temperature, "max_completion_tokens": max_tokens}
+    if "gpt-oss" in model:
+        body["reasoning_effort"] = "low"                   # thinking tokens count against the same small budget
     if json_out:
         body["response_format"] = {"type": "json_object"}
     r = requests.post(f"{GROQ}/chat/completions", headers={"Authorization": f"Bearer {GROQ_KEY}"}, json=body, timeout=180)
@@ -127,20 +160,31 @@ def _daily_quota_gone(r) -> bool:
 
 
 def generate(prompt: str, *, tier: str = "best", system: str = "", json_out: bool = False,
-             temperature: float = 0.7, max_tokens: int = 8192) -> str:
+             temperature: float = 0.7, max_tokens: int = 8192, shrink=None) -> str:
+    """shrink(max_chars) -> a smaller version of the prompt, used when a model only takes small requests."""
     last = None
     for provider, model in pool()[tier]:
         if (provider, model) in _dead:
             continue
+        p, mt = prompt, max_tokens
+        if provider == "groq":
+            fit = _fit_groq(prompt, system, max_tokens, shrink)
+            if not fit:
+                last = RuntimeError(f"too large for {model}'s free per-minute limit")
+                continue
+            p, mt = fit
         for attempt in range(3):
             try:
-                text, r = _call(provider, model, prompt, system, json_out, temperature, max_tokens)
+                text, r = _call(provider, model, p, system, json_out, temperature, mt)
             except requests.RequestException as e:
                 last = e
                 time.sleep(10)
                 continue
+            if provider == "groq":
+                _wait_for_groq(r)
             if text and text.strip():
-                time.sleep(float(os.environ.get("LLM_PAUSE", "6")))   # stay under the free per-minute limits
+                if provider == "gemini":
+                    time.sleep(float(os.environ.get("LLM_PAUSE", "6")))   # stay under the free per-minute limits
                 return text
             if text is not None:
                 last = RuntimeError(f"empty answer from {model}")
