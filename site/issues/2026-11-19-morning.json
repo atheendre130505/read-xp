@@ -1,0 +1,444 @@
+{
+ "date": "2026-11-19-morning",
+ "day": "2026-11-19",
+ "edition": "morning",
+ "generated": "2026-11-19T04:10+05:30",
+ "model": "gemini-3.5-flash",
+ "partial": false,
+ "topics": [
+  {
+   "id": "politics",
+   "name": "Politics & World",
+   "stories": [
+    {
+     "id": "first-us-china-russia-summit-what-it-means",
+     "title": "First US‑China‑Russia Summit: What It Means",
+     "dek": "Explains what leaders did in Shenzhen, how the meeting could create leverage, and why it matters.",
+     "kind": "news",
+     "why": "A historic first-ever summit of the three nuclear superpowers shapes the architecture of global conflict, arms control, and great-power competition.",
+     "minutes": 3,
+     "words": 741,
+     "sections": [
+      {
+       "heading": "The meeting unfolds",
+       "cue": "",
+       "body": "**What happened:** On November 18, 2026, President Donald Trump arrived in Shenzhen for an Asia‑Pacific summit. The New York Times reports that he was greeted on the tarmac by Chinese President Xi Jinping, who hugged him, and later shook hands with Russian President Vladimir Putin. The three leaders are set to hold a trilateral meeting on Thursday, a fact confirmed by both the New York Times and the BBC. No formal agenda has been released, but the New York Times notes that officials mentioned Ukraine, Iran, nuclear proliferation, trade and artificial‑intelligence issues, while the Kremlin said the talks would last “no more than an hour.”"
+      },
+      {
+       "heading": "Incentives and constraints",
+       "cue": "Why bring these leaders together now?",
+       "body": "Each leader faces domestic and geopolitical pressures:\n- **Trump:** The New York Times reports he wants to revive his “peace‑through‑strength” brand and restart stalled nuclear‑arms talks that were a hallmark of his first term. A visible diplomatic success could also help his 2028 re‑election bid.\n- **Xi:** According to War on the Rocks, Beijing sees the summit as a way to portray China as a neutral broker that can convene rival powers, enhancing its claim to global arbiter status.\n- **Putin:** Isolated by the war in Ukraine and Western sanctions, he seeks a powerful ally to legitimize Russia’s great‑power ambitions, a goal highlighted by the BBC’s coverage of the summit.\nAll three must balance domestic audiences that demand toughness with the risk that any perceived concession could be portrayed as weakness at home."
+      },
+      {
+       "heading": "Trilateral nuclear mechanism",
+       "cue": "How could the summit affect nuclear arms control?",
+       "body": "War on the Rocks suggests the summit could create political leverage for arms‑control talks in three ways:\n1. **Agenda‑setting:** By putting nuclear issues on the table, the leaders signal that reductions are permissible, lowering the political cost of future negotiations.\n2. **Peer pressure:** If China publicly backs limits on either the U.S. or Russian arsenals, the other two may feel compelled to match those commitments.\n3. **Technical coordination:** Joint meetings could lay groundwork for shared verification methods, such as satellite‑based monitoring, which were central to the 2010 New START extension.\nEven without a treaty, the very discussion makes trilateral control “less remote,” as the War on the Rocks analysis notes."
+      },
+      {
+       "heading": "Money and trade incentives",
+       "cue": "What economic stakes are involved?",
+       "body": "Security and economics intersect for each side:\n- **United States:** Reducing the risk of nuclear escalation could ease pressure on the defense budget, freeing resources for domestic priorities, according to the New York Times.\n- **China:** A stable strategic environment encourages foreign investment in high‑tech sectors, including AI, which the BBC lists as a possible agenda item.\n- **Russia:** Any de‑escalation in Ukraine could lead to sanctions relief and the unlocking of frozen assets worth billions of dollars, a point noted by the BBC.\nThese calculations shape how far each leader is willing to compromise; a modest concession on arms could yield larger economic benefits."
+      },
+      {
+       "heading": "Historical parallels",
+       "cue": "Has anything like this happened before?",
+       "body": "The closest precedent is the 1972 Strategic Arms Limitation Talks (SALT I), where the United States and the Soviet Union negotiated with the United Kingdom acting as a facilitator. Those talks showed that symbolic multilateral engagement can create a framework for later bilateral agreements. A later example is the 1999 NATO‑Russia Council, which brought Russia into a Western security dialogue without an immediate treaty but helped build trust that led to the 2002 Moscow Treaty. Both cases illustrate how early, limited meetings can lay groundwork for substantive accords later."
+      },
+      {
+       "heading": "Points of contention",
+       "cue": "What are the disagreements or uncertainties?",
+       "body": "Sources differ on how far the agenda will go:\n- The New York Times editorially suggests the leaders are unlikely to settle “major issues” during the hour‑long session.\n- War on the Rocks argues that even a symbolic commitment to discuss nuclear arms could shift future negotiations.\n- The Kremlin, via spokesman Dmitry Peskov, says no substantive one‑on‑one meeting has occurred, implying limited progress.\nUncertainty remains about whether Ukraine or Iran will be discussed, and whether China will permit a direct U.S.–Russia cease‑fire dialogue without Kyiv’s participation, a concern raised by Ukrainian officials.\n"
+      },
+      {
+       "heading": "Looking ahead",
+       "cue": "What should we watch next?",
+       "body": "Key indicators will be:\n1. **Official communiqués** released after Thursday – language about “strategic stability” or “arms‑control dialogue” will signal intent.\n2. **Follow‑up meetings** – any scheduled bilateral talks between Trump and Putin or Trump and Xi in the coming weeks.\n3. **Sanctions or trade policy shifts** – early moves to ease sanctions on Russia or adjust tariffs on Chinese technology would suggest concrete economic leverage.\nFor ordinary citizens, the most immediate impact could be a modest reduction in defense‑budget pressure, potentially easing tax burdens or freeing spending for domestic programs. More broadly, a stable nuclear environment reduces the risk of accidental escalation, benefiting global security."
+      }
+     ],
+     "glossary": [
+      {
+       "word": "nuclear proliferation",
+       "hint": "spread of weapons"
+      },
+      {
+       "word": "geopolitical",
+       "hint": "global political"
+      },
+      {
+       "word": "verification",
+       "hint": "checking compliance"
+      },
+      {
+       "word": "multilateral",
+       "hint": "involving many nations"
+      },
+      {
+       "word": "substantive",
+       "hint": "meaningful and serious"
+      },
+      {
+       "word": "communiqués",
+       "hint": "official announcements"
+      },
+      {
+       "word": "trilateral",
+       "hint": "three-way"
+      },
+      {
+       "word": "escalation",
+       "hint": "worsening tension"
+      },
+      {
+       "word": "bilateral",
+       "hint": "two-party"
+      },
+      {
+       "word": "arsenals",
+       "hint": "weapons stockpiles"
+      },
+      {
+       "word": "arbiter",
+       "hint": "judge or mediator"
+      }
+     ],
+     "terms": [
+      {
+       "term": "Trilateral summit",
+       "meaning": "A meeting where three sovereign leaders discuss issues together."
+      },
+      {
+       "term": "Strategic stability",
+       "meaning": "A condition where no side feels compelled to use nuclear weapons first because of credible deterrence."
+      },
+      {
+       "term": "Verification protocols",
+       "meaning": "Methods such as satellite monitoring used to confirm that parties obey arms‑control agreements."
+      },
+      {
+       "term": "Agenda‑setting",
+       "meaning": "The process of deciding which topics will be discussed, shaping future policy choices."
+      },
+      {
+       "term": "Peer pressure (in diplomacy)",
+       "meaning": "When one country’s stance influences another because they do not want to appear weaker or out of step."
+      }
+     ],
+     "ask": [
+      "Could this summit lead to a formal trilateral arms‑control treaty?",
+      "How might domestic politics in each country limit what leaders can agree to?",
+      "What would be the consequences if the summit ends without any agreement?"
+     ],
+     "sources": [
+      {
+       "title": "Trump, Xi and Putin Shake Hands as Leaders Gather in China",
+       "url": "https://www.nytimes.com/live/2026/11/18/world/trump-china-asia-apec",
+       "source": "The New York Times · World",
+       "date": "2026-11-18"
+      },
+      {
+       "title": "Trump, Xi and Putin Will Sit Down for the First Time. It Won’t Be Like Yalta.",
+       "url": "https://www.nytimes.com/2026/11/18/us/politics/trump-xi-putin-summit-yalta.html",
+       "source": "The New York Times · Politics",
+       "date": "2026-11-18"
+      },
+      {
+       "title": "Trump shakes hands with Putin and Xi ahead of historic talks in China",
+       "url": "https://www.bbc.co.uk/news/articles/ck9d75x5wwwwo?at_medium=RSS&at_campaign=rss",
+       "source": "BBC World",
+       "date": "2026-11-18"
+      },
+      {
+       "title": "The U.S.-Chinese-Russian Summit and the Future of Trilateral Nuclear Talks",
+       "url": "https://warontherocks.com/the-u-s-chinese-russian-summit-and-the-future-of-trilateral-nuclear-talks/",
+       "source": "War on the Rocks",
+       "date": "2026-11-18"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "econ",
+   "name": "Economics & Finance · Business & Companies · Science & Technology",
+   "stories": [
+    {
+     "id": "anthropic-ipo-highlights-ai-market-health",
+     "title": "Anthropic IPO Highlights AI Market Health",
+     "dek": "Explains what Anthropic’s record‑breaking IPO reveals about investor confidence, funding dynamics, and the broader AI sector.",
+     "kind": "news",
+     "why": "It sets a historic valuation milestone for generative AI companies amid broader stock market volatility and investor jitters.",
+     "minutes": 2,
+     "words": 560,
+     "sections": [
+      {
+       "heading": "The IPO Announcement",
+       "cue": "",
+       "body": "**Anthropic priced its IPO at $83 per share**, offering 825 million shares and raising roughly $90 billion, according to the Financial Times and the Wall Street Journal on 18 November 2026. The pricing placed the company’s fully‑diluted valuation at about $1.4 trillion, surpassing SpaceX’s previous record. Both outlets note that demand was strong enough for the company to sell more shares than originally planned and to price the offering above the $70‑$78 range."
+      },
+      {
+       "heading": "Pricing Drivers",
+       "cue": "Why such a high price?",
+       "body": "Investors were drawn to two key factors reported by the Financial Times. First, Anthropic’s rapid revenue growth and expanding enterprise customer base suggest a sizable market opportunity. Second, the company secured a large private‑placement from Nvidia, which is buying roughly $10 billion of shares, providing a further vote of confidence from a leading AI hardware supplier."
+      },
+      {
+       "heading": "IPO Mechanics",
+       "cue": "How does an IPO work?",
+       "body": "An initial public offering follows these steps:\n1. **Company files a registration statement** with regulators, disclosing financials and risks.\n2. **Underwriters set a price range** based on investor interest and comparable companies.\n3. **Investors place orders**; if demand exceeds supply, the price may be lifted within the range or above it.\n4. **Shares are allocated** to institutional and retail buyers, and the company receives the proceeds (minus underwriting fees).\nAnthropic’s underwriters lifted the price to $83, above the $70‑$78 range, because the order book was heavily oversubscribed, as reported by the Wall Street Journal."
+      },
+      {
+       "heading": "Funding Landscape",
+       "cue": "What does this say about AI funding?",
+       "body": "The IPO shows that **capital for generative AI remains abundant** despite recent volatility in technology stocks. The Financial Times points out that a group of low‑profile venture‑capital firms that backed Anthropic early could see a combined windfall of around $100 billion, underscoring how public‑market money is now validating private‑equity bets made over the past five years."
+      },
+      {
+       "heading": "Historical Context",
+       "cue": "Is this typical for tech IPOs?",
+       "body": "Comparisons with earlier tech listings illustrate a shift. The dot‑com boom of 1999‑2000 produced many high valuations that later collapsed, and the 2021‑2022 SPAC surge saw inflated prices that subsequently corrected. Anthropic’s IPO, however, is anchored by **enterprise contracts and a clear revenue roadmap**, resembling more disciplined offerings such as Salesforce’s 2004 IPO, which was also justified by a strong SaaS pipeline."
+      },
+      {
+       "heading": "Uncertainties",
+       "cue": "What are the risks?",
+       "body": "Analysts highlight several uncertainties: (1) **Revenue forecasts are aggressive**; projecting $200 billion by 2028 assumes rapid enterprise adoption across multiple sectors. (2) **Competitive pressure** from OpenAI, Google DeepMind and emerging Chinese firms could compress margins. (3) **Regulatory scrutiny** of AI models may add compliance costs. The Financial Times also notes that the Nasdaq‑100 was on a five‑day losing streak, indicating that broader market sentiment could still affect Anthropic’s share price."
+      },
+      {
+       "heading": "Looking Ahead",
+       "cue": "What should investors watch?",
+       "body": "Key indicators to monitor include:\n- **Quarterly revenue growth** versus analyst projections.\n- **Performance of Nvidia’s private‑placement stake**, given its strategic link to Anthropic’s model adoption.\n- **Regulatory developments** in the U.S. and EU concerning AI transparency and data use.\n- **Enterprise win rates** in high‑margin sectors such as healthcare and legal services.\nThese factors will help determine whether Anthropic can sustain its valuation or face the volatility typical of high‑growth tech listings."
+      },
+      {
+       "heading": "Impact on Everyday People",
+       "cue": "Why does this matter to me?",
+       "body": "For ordinary investors, Anthropic’s IPO provides a **new way to own a piece of the AI boom** through public markets, rather than private venture funds. For workers, the spread of AI tools across industries could reshape job tasks in coding, data analysis and professional services, creating a need for upskilling. Finally, the size of the IPO underscores how AI is becoming a core driver of future economic growth, influencing everything from product pricing to public policy."
+      }
+     ],
+     "glossary": [
+      {
+       "word": "fully‑diluted valuation",
+       "hint": "total company worth"
+      },
+      {
+       "word": "private‑placement",
+       "hint": "direct private sale"
+      },
+      {
+       "word": "oversubscribed",
+       "hint": "extremely high demand"
+      },
+      {
+       "word": "upskilling",
+       "hint": "learning new skills"
+      },
+      {
+       "word": "windfall",
+       "hint": "massive sudden profit"
+      },
+      {
+       "word": "scrutiny",
+       "hint": "close government checks"
+      },
+      {
+       "word": "SPAC",
+       "hint": "blank-check company"
+      },
+      {
+       "word": "IPO",
+       "hint": "stock market debut"
+      }
+     ],
+     "terms": [
+      {
+       "term": "IPO",
+       "meaning": "Initial public offering, the first sale of a company's shares to the public."
+      },
+      {
+       "term": "Oversubscribed",
+       "meaning": "When more investors want to buy shares than are available, allowing the price to be raised."
+      },
+      {
+       "term": "Token pricing",
+       "meaning": "The cost charged per unit of text processed by an AI model, similar to a usage fee."
+      },
+      {
+       "term": "Enterprise adoption",
+       "meaning": "Businesses purchasing and integrating a technology into their operations."
+      },
+      {
+       "term": "Revenue projection",
+       "meaning": "An estimate of future sales made by analysts or the company itself."
+      }
+     ],
+     "ask": [
+      "How will Anthropic’s valuation compare to other AI firms over the next year?",
+      "What specific regulatory actions could affect AI companies like Anthropic?",
+      "How might the broader market’s volatility influence the long‑term performance of this IPO?"
+     ],
+     "sources": [
+      {
+       "title": "Anthropic prices blockbuster IPO at $83 a share",
+       "url": "https://www.ft.com/content/62c0510b-ca65-441e-9baf-675b93903b9e?syn-25a6b1a6=1",
+       "source": "Financial Times",
+       "date": "2026-11-18"
+      },
+      {
+       "title": "Anthropic Prices IPO at $83 a Share on Strong Demand",
+       "url": "https://www.wsj.com/finance/stocks/anthropic-prices-ipo-at-83-a-share-0290494c?mod=rss_markets_main",
+       "source": "Wall Street Journal · Markets",
+       "date": "2026-11-18"
+      },
+      {
+       "title": "Low-profile VCs set for $100bn windfall from Anthropic IPO",
+       "url": "https://www.ft.com/content/a3430f0d-0080-4970-8eec-2c14c8438b3d?syn-25a6b1a6=1",
+       "source": "Financial Times",
+       "date": "2026-11-18"
+      },
+      {
+       "title": "Anthropic IPO set to raise $90.4 billion, could become biggest stock market debut ever",
+       "url": "https://www.livemint.com/market/anthropic-ipo-set-to-raise-90-4-billion-could-become-biggest-stock-market-debut-ever-11795025331762.html",
+       "source": "Mint · Markets",
+       "date": "2026-11-18"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "politics",
+   "name": "Politics & World · Economics & Finance",
+   "stories": [
+    {
+     "id": "eu-plans-45-billion-ukraine-loan-linked-to-russian-reparatio",
+     "title": "EU Plans €45 billion Ukraine Loan Linked to Russian Reparations",
+     "dek": "How the European Commission’s loan scheme works, its political stakes, and what it means for Ukraine and Europe.",
+     "kind": "news",
+     "why": "Provides immediate fiscal armor to Ukraine while establishing an unprecedented economic mechanism targeting frozen Russian assets.",
+     "minutes": 3,
+     "words": 681,
+     "sections": [
+      {
+       "heading": "The proposal announced",
+       "cue": "",
+       "body": "**The European Commission has proposed a €45 billion loan for Ukraine**, to be disbursed in 2027.  Ursula von der Leyen said the loan would give Kyiv “a strong hand at the negotiating table” and would only need to be repaid once Russia pays reparations for war damage.  Ukraine’s President Volodymyr Zelenskyy welcomed the plan, noting a €70 billion funding gap for 2027.  The loan is split into €25 billion for weapons and €20 billion for civilian needs such as schools and hospitals.  While most EU members are expected to back the loan, Slovakia, Czechia, Hungary and Bulgaria have opted out, prompting a warning from German Chancellor Friedrich Merz that the EU’s seven‑year budget could be blocked if they do not join.\n\n*Source: The Guardian (2026‑11‑18)."
+      },
+      {
+       "heading": "Link to frozen Russian assets",
+       "cue": "Why tie repayment to Russian assets?",
+       "body": "The loan is **backed by future profits from Russia’s frozen sovereign assets**.  A senior commission official explained that G7 countries providing the loan could receive guarantees that repayment will come from earnings on those assets.  In 2024 the G7 issued a separate €45 billion loan to Ukraine that is already being serviced with the same profit stream.  By tying repayment to a specific revenue source, the EU aims to reassure lenders that the debt is not a direct fiscal burden on member states.\n\n*Source: Reuters (2026‑11‑18)."
+      },
+      {
+       "heading": "Step‑by‑step flow",
+       "cue": "How does the mechanism work?",
+       "body": "**Mechanism in five steps:**\n1. **EU approves a €45 bn loan** and allocates €25 bn for weapons, €20 bn for civilian aid.\n2. **Member states commit funds**; those with AAA credit ratings (Australia, Canada, Liechtenstein, Norway, Singapore, Switzerland) may provide guarantees up to €5 bn each.\n3. **Funds are transferred to Ukraine in 2027**, covering the identified shortfall.\n4. **Russia’s frozen assets generate annual profits** (interest, dividends) that are placed in a dedicated repayment pool.\n5. **When the profit stream reaches €45 bn**, the loan is considered repaid; any surplus can be used for further assistance.\n\nThe profit pool is separate from the principal of the frozen assets, so the assets themselves remain immobilised.\n\n*Source: Reuters (2026‑11‑18)."
+      },
+      {
+       "heading": "Economic and political motives",
+       "cue": "What incentives drive each side?",
+       "body": "For **Ukraine**, the loan provides immediate fiscal armor to keep its defence industry running and to maintain essential public services.  For the **EU**, linking repayment to Russian profits avoids direct budgetary strain and creates a unified front against Moscow.  **G7 guarantors** gain a clear, asset‑backed repayment path, reducing sovereign‑risk premiums.  Conversely, the four dissenting EU states fear that the loan could set a precedent for future asset‑seizure policies and worry about the political fallout of a direct financial confrontation with Russia.\n\n*Source: The Guardian (2026‑11‑18)."
+      },
+      {
+       "heading": "Historical parallels",
+       "cue": "Has anything similar been done before?",
+       "body": "The closest precedent is the **post‑World‑War II reparations framework**, where Germany’s industrial output was earmarked to repay Allied claims.  More recently, the **2008 financial crisis** saw the U.S. Treasury create the Troubled Asset Relief Program (TARP), which bundled distressed assets into securities sold to investors, providing a repayment stream tied to asset performance.  Both cases illustrate how governments can mobilise future revenue streams to fund large‑scale borrowing without immediate tax hikes.\n\n*Source: General historical knowledge (no specific source cited)."
+      },
+      {
+       "heading": "Points of contention",
+       "cue": "What are the disagreements?",
+       "body": "Critics argue that **using frozen assets sets a risky legal precedent** that could undermine confidence in sovereign immunity protections.  Hungary and Slovakia worry the approach may be viewed as expropriation, potentially prompting retaliatory legal actions.  German Chancellor Merz warned that if the four dissenters do not join, he will block the EU’s seven‑year budget, highlighting the tension between solidarity and national budgetary autonomy.  Supporters counter that the loan is essential for **Ukraine’s defence sustainability** and that the profit‑based repayment model limits exposure for EU taxpayers.\n\n*Source: The Guardian (2026‑11‑18)."
+      },
+      {
+       "heading": "Future developments",
+       "cue": "What should we watch next?",
+       "body": "Key upcoming milestones include:\n- **EU member‑state ratification** of the loan, especially the stance of the four dissenters.\n- **Negotiations with G7 guarantors** on the size and terms of their guarantees.\n- **Actual profit flows** from Russian frozen assets, which depend on market conditions and legal challenges.\n- **Ukraine’s 2027 budget plan**, showing how the loan will be allocated between military and civilian needs.\nFor ordinary Europeans, the main impact will be whether the loan leads to a **more stable security environment in Eastern Europe**, potentially reducing spill‑over risks and influencing energy prices linked to Russian sanctions.\n\n*Source: Reuters (2026‑11‑18)."
+      }
+     ],
+     "glossary": [
+      {
+       "word": "expropriation",
+       "hint": "state seizure"
+      },
+      {
+       "word": "ratification",
+       "hint": "formal approval"
+      },
+      {
+       "word": "reparations",
+       "hint": "war payments"
+      },
+      {
+       "word": "immobilised",
+       "hint": "locked up"
+      },
+      {
+       "word": "dissenting",
+       "hint": "disagreeing"
+      },
+      {
+       "word": "disbursed",
+       "hint": "paid out"
+      },
+      {
+       "word": "allocates",
+       "hint": "sets aside"
+      },
+      {
+       "word": "shortfall",
+       "hint": "funding gap"
+      },
+      {
+       "word": "precedent",
+       "hint": "prior example"
+      },
+      {
+       "word": "earmarked",
+       "hint": "set aside"
+      },
+      {
+       "word": "serviced",
+       "hint": "paid off"
+      }
+     ],
+     "terms": [
+      {
+       "term": "Frozen assets",
+       "meaning": "Sovereign property that has been immobilised by sanctions and cannot be sold or transferred."
+      },
+      {
+       "term": "Reparations",
+       "meaning": "Compensation paid by a country that caused damage, usually after a conflict."
+      },
+      {
+       "term": "Guarantee",
+       "meaning": "A promise by a third party to cover a debt if the original borrower cannot repay."
+      },
+      {
+       "term": "AAA credit rating",
+       "meaning": "The highest rating given by credit agencies, indicating very low risk of default."
+      },
+      {
+       "term": "Profit pool",
+       "meaning": "A collection of earnings (interest, dividends) generated by an asset that is earmarked for a specific purpose."
+      }
+     ],
+     "ask": [
+      "How will legal challenges to Russia’s frozen assets affect the loan’s repayment?",
+      "What happens if the profit stream from the assets falls short of €45 bn?",
+      "Could this model be used for future conflicts or other countries?"
+     ],
+     "sources": [
+      {
+       "title": "EU proposes €45bn loan for Ukraine to avert cash crisis and boost defences",
+       "url": "https://www.theguardian.com/world/2026/nov/18/eu-loan-ukraine-cash-crisis-defences-von-der-leyen-kyiv",
+       "source": "The Guardian · World",
+       "date": "2026-11-18"
+      },
+      {
+       "title": "EU proposes €45 billion Ukraine loan, to be repaid after Russia pays reparations - Reuters",
+       "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxOaFhjUFo4SHBqb20yY1dQWmZZNlZhV2VvZjRQLTFoQjlYeFItaHNXX0FZVmhuazRYODFqcEk5RThWZUNpX2lPOFJrZ0M5U0hEODBZZFNndnE3U18xNWRtVGhlYmRXU3V1My16RTUybkdaSXRvc3NIOWpNdllIWG1GMjE4Z2N1bm1naUZjNXF6bVBPSF9lalVpeHdNN1FQeWRtZDBfaTh3ZXBaQQ?oc=5",
+       "source": "Reuters · World",
+       "date": "2026-11-18"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
