@@ -519,6 +519,8 @@ def remind(issue, site_url):
     hh, mm = map(int, REMIND_AT.split(":"))
     now = dt.datetime.now(TZ)
     at = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+    if at <= now:                                          # written at 9 PM: remind at 10 the next morning
+        at += dt.timedelta(days=1)
     stories = [s for t in issue["topics"] for s in t["stories"]]
     if stories:
         mins = sum(s["minutes"] for s in stories)
@@ -701,8 +703,7 @@ def main():
     publish()
     print(f"\nissue {date}: {n_stories} stories", flush=True)
     alert_keys(site_url)
-    if edition == "morning":                              # the 10:00 nudge comes with the morning edition
-        remind(issue, site_url)
+    remind(issue, site_url)                               # the 10:00 nudge the next morning
 
 
 if __name__ == "__main__":

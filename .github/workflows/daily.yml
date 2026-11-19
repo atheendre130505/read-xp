@@ -4,10 +4,8 @@ on:
   schedule:
     # GitHub sometimes delays or drops scheduled runs (it skipped 9 PM on 18 Nov), so each edition has a backup
     # run; a run that finds its edition already written stops at once.
-    - cron: "30 3 * * *"       # 09:00 IST: morning edition (also schedules the 10:00 reminder)
-    - cron: "47 4 * * *"       # 10:17 IST: backup for the morning edition
-    - cron: "30 15 * * *"      # 21:00 IST: evening edition
-    - cron: "47 16 * * *"      # 22:17 IST: backup for the evening edition
+    - cron: "30 15 * * *"      # 21:00 IST: the day's stories (also schedules the next morning's 10:00 reminder)
+    - cron: "47 16 * * *"      # 22:17 IST: backup, in case GitHub skips the 21:00 run
   workflow_dispatch: {}          # "Run workflow" button: build an issue now
   push:
     branches: [main]             # code change: just redeploy the site
@@ -44,8 +42,8 @@ jobs:
         run: |
           pip install -r requirements.txt
           python pipeline/build.py --site site
-      - name: Still remind at 10:00 if writing failed
-        if: failure() && github.event_name == 'schedule' && (github.event.schedule == '30 3 * * *' || github.event.schedule == '47 4 * * *')
+      - name: Still remind at 10:00 tomorrow if writing failed
+        if: failure() && github.event_name == 'schedule' && (github.event.schedule == '30 15 * * *' || github.event.schedule == '47 16 * * *')
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
