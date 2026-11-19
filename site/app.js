@@ -128,8 +128,12 @@ const sync = {
     if (location.hash.startsWith("#/settings")) return;
     if (!R) return route();
     if ($("#q")?.value.trim() || $("#askpill:not([hidden])")) return;               // don't pull the page from under you
-    if (changed.has(R.key)) return R.p.done ? (location.hash = "#/") : route();     // read elsewhere: on to the next
-    R.togo = (await readingQueue()).length; drawBottom();
+    if (changed.has(R.key) && R.p.done && !R.wasDone) return (location.hash = "#/");  // read elsewhere: on to the next
+    const up = await nextUp();
+    if (up && pkey(up.date, up.s) !== R.key && !R.p.done)                             // you opened another story there
+      return location.replace(`#/read/${up.date}/${encodeURIComponent(up.s.id)}`);
+    if (changed.has(R.key)) return route();                                           // moved on in this story there
+    R.togo = (await readingQueue()).length; R.next = R.p.done ? up : R.next; drawBottom();
   },
 };
 setInterval(() => sync.check(), 15000);
@@ -218,8 +222,10 @@ async function readingQueue() {
     if (!iss) continue;
     for (const x of allStories(iss)) if (!isRead(e.date, x)) out.push({ date: e.date, s: x, iss, n: out.length });
   }
-  const started = q => { const p = S.progress[pkey(q.date, q.s)]; return p && (p.sec > 1 || p.place?.f > 0) ? 1 : 0; };
-  return out.sort((a, b) => started(b) - started(a) || (b.s.score ?? 0) - (a.s.score ?? 0) || a.n - b.n);
+  // the story you last opened, on either device, stays first until you finish it
+  const opened = q => S.progress[pkey(q.date, q.s)]?.t || 0;
+  const last = out.reduce((m, q) => (opened(q) > (m ? opened(m) : 0) ? q : m), null);
+  return out.sort((a, b) => (b === last) - (a === last) || (b.s.score ?? 0) - (a.s.score ?? 0) || a.n - b.n);
 }
 async function nextUp() { return (await readingQueue())[0] || null; }
 const editionName = iss => iss.day ? new Date(iss.day + "T12:00").toLocaleDateString(undefined, { weekday: "long" })
@@ -293,8 +299,10 @@ async function renderReader(date, id) {
     if (up && (up.date !== date || up.s.id !== s.id)) { location.replace(`#/read/${up.date}/${encodeURIComponent(up.s.id)}`); return; }
   }
   const p = (S.progress[pkey(date, s)] ||= { sec: 1, done: false });
+  const newest = Math.max(0, ...Object.entries(S.progress).filter(([k, x]) => k !== pkey(date, s) && !x.done).map(([, x]) => x.t || 0));
+  if (!p.done && (p.t || 0) <= newest) touch(p);            // this is now the story you're on: your other device follows
   save();
-  R = { date, iss, s, p, togo: (await readingQueue()).length, next: p.done ? await nextUp() : null, key: pkey(date, s), pos: i + 1, total: list.length, used: new Set() };
+  R = { date, iss, s, p, wasDone: !!p.done, togo: (await readingQueue()).length, next: p.done ? await nextUp() : null, key: pkey(date, s), pos: i + 1, total: list.length, used: new Set() };
   attached = "";
   document.body.classList.add("reading"); wake(true);
   app.innerHTML = `<div class="bar"><div class="in"><a class="ib" href="#/settings" aria-label="Settings">${I.gear}</a>
@@ -670,6 +678,18 @@ addEventListener("keydown", e => {   // laptop: Space or → continues
 
 applySettings();
 // Read is a plain web page now (no installed app): drop the old offline copy so every visit gets the latest version
+// a new version of Read was published: reload into it (at the same place) so no device runs an old copy
+const VERSION = (document.currentScript?.src.match(/v=(\d+)/) || [])[1];
+async function checkVersion() {
+  if (!VERSION || document.visibilityState !== "visible") return;
+  try {
+    const v = ((await (await fetch("./?check=" + Date.now(), { cache: "no-store" })).text()).match(/app\.js\?v=(\d+)/) || [])[1];
+    if (!v || v === VERSION || $("#q")?.value.trim()) return;
+    setPlace(); await sync.push(true); location.reload();
+  } catch {}
+}
+setInterval(checkVersion, 60000);
+document.addEventListener("visibilitychange", () => setTimeout(checkVersion, 1500));
 navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
 window.caches?.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
 // open where you actually are: get the other device's latest first (but never wait more than a few seconds)
