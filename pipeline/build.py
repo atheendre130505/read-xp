@@ -33,6 +33,8 @@ if _env.exists():
 
 sys.path.insert(0, str(Path(__file__).parent))
 import llm  # noqa: E402
+import importance  # noqa: E402
+from reader import PROFILE  # noqa: E402
 from sources import MAX_AGE_DAYS, MAX_PER_FEED, TOPICS  # noqa: E402
 
 TZ = ZoneInfo(os.environ.get("READ_TZ", "Asia/Kolkata"))
@@ -88,8 +90,8 @@ def full_text(item) -> str:
 
 # ───────────────────────── choosing ─────────────────────────
 
-PICK_SYSTEM = """You are the editor of a personal daily reader for one curious, serious reader.
-You decide which few stories in a topic are genuinely worth 5-10 minutes of deep reading today."""
+PICK_SYSTEM = """You are the editor of a personal daily reader for one curious, serious person. You decide which
+few stories in a topic are genuinely worth 5-10 minutes of deep reading today."""
 
 PICK_PROMPT = """Topic: {topic}
 Today: {today}
@@ -102,11 +104,8 @@ Below are recent items from reputable sources (news, analysis and new research),
 Recently covered (do not repeat unless there is a materially new development):
 {recent}
 
-Shortlist up to {n} of the most important stories for this topic. Judge importance by:
-- consequence: how many people, how much money/power/knowledge it changes, and for how long;
-- explanatory value: there is a mechanism, a decision, or an idea worth understanding in depth;
-- signal: several outlets cover it, or it is genuinely new research / a new theory;
-- novelty for this reader: not a repeat of the recently covered list.
+Shortlist up to {n} of the most important stories for this topic: big stories, and stories with something real to
+learn or use.
 Only definitive, newly reported developments: something actually happened, was decided, announced, published or
 measured. Skip rumours, speculation, previews of things that haven't happened, opinion without news, and follow-ups
 that add nothing new. Also skip: celebrity, sport, routine crime, market-tick noise, listicles, product reviews,
@@ -115,8 +114,8 @@ press-release fluff. Merge items about the same story.
 If nothing in this list is both important and definitive, return an empty list. That is a good answer.
 
 Return JSON: {{"stories": [{{"ids": [ids of every item about this story, best first, max 4],
-"angle": "the specific question this piece should answer", "why": "one line on why it matters",
-"importance": 1-10}}]}} ordered most important first."""
+"angle": "the specific question this piece should answer", "why": "one line on why it matters"}}]}}
+ordered most important first."""
 
 
 def as_id(x):
@@ -146,32 +145,48 @@ def pick(topic, cands, recent, n):
         ids = [i for i in map(as_id, s.get("ids", [])) if i is not None and 0 <= i < len(cands) and i not in used][:4]
         if ids:
             used.update(ids)
-            imp = as_id(s.get("importance")) or 5
-            picked.append({"items": [cands[i] for i in ids], "angle": s.get("angle", ""), "why": s.get("why", ""),
-                           "importance": min(10, imp)})
+            picked.append({"items": [cands[i] for i in ids], "angle": s.get("angle", ""), "why": s.get("why", "")})
     return picked[:n]
 
 
-# How many stories a day: few and deep to start, more once reading is a habit.
-START = dt.date.fromisoformat(os.environ.get("READ_START", "2026-11-18"))
-RAMP = [(21, 5), (42, 8)]          # first 21 days: 5 a day; next 21: 8 a day; after that: 10 a day
+# No fixed number and no cap: every story that rates high enough goes in, and the app orders your queue by rating.
+RATE_PROMPT = PROFILE.replace("{", "{{").replace("}", "}}") + """
+
+{rules}
+
+Score what is actually reported, not the headline's hype.
+
+STORIES
+{items}
+
+Return JSON: {{"ratings": [{{"id": story id, "ratings": {shape}}}]}}"""
 
 
-def stories_for(day: str, edition: str) -> int:
-    if os.environ.get("STORIES_PER_DAY"):
-        per_day = int(os.environ["STORIES_PER_DAY"])
-    else:
-        n_days = (dt.date.fromisoformat(day) - START).days
-        per_day = next((n for upto, n in RAMP if n_days < upto), 10)
-    morning = -(-per_day * 3 // 5)                  # 5 -> 3 + 2, 8 -> 5 + 3, 10 -> 6 + 4
-    return morning if edition == "morning" else per_day - morning
+def rate(stories):
+    """The 0-10 ratings on the seven metrics for each story; stories = [(id, text describing it)]."""
+    if not stories:
+        return {}
+    out = {}
+    for k in range(0, len(stories), 15):                  # in batches, so the answer never gets cut off
+        chunk = stories[k:k + 15]
+        try:
+            got = llm.generate_json(RATE_PROMPT.format(rules=importance.RATING_INSTRUCTIONS, shape=importance.RATING_JSON,
+                                                       items="\n".join(f"[{i}] {t}" for i, t in chunk)),
+                                    temperature=0.1, tier="best", max_tokens=4000)
+            for r in got.get("ratings", []) if isinstance(got, dict) else []:
+                i = as_id(r.get("id"))
+                if i is not None and isinstance(r.get("ratings"), dict):
+                    out[i] = {m: r["ratings"].get(m) for m in importance.METRICS}
+        except Exception as e:
+            print("  rating failed:", e, flush=True)
+    return out
 
 
 FIELDS = ["Economics & Finance", "Business & Companies", "Politics & World", "Psychology & Mind",
           "Science & Technology", "Philosophy & Ideas"]
 
 CHOOSE_PROMPT = """You are the chief editor of a small daily reader for one serious, curious person. The field editors
-have shortlisted stories. Choose the {n} that matter most today, purely by importance.
+have shortlisted stories. Keep every one that is genuinely important; drop the rest.
 
 - Importance: consequence (how many people, how much money, power or knowledge it changes, and for how long), how much
   there is to understand (a real mechanism, decision or idea), and whether it is definitive, newly reported news.
@@ -180,7 +195,6 @@ have shortlisted stories. Choose the {n} that matter most today, purely by impor
   company scandal that is also a geopolitical story), choose it once and merge the other into it.
 - Label each chosen story with every field it genuinely belongs to (1-3), from: {fields}.
 - Skip anything that repeats what was covered recently without a materially new development.
-- If fewer than {n} are genuinely important, choose fewer.
 
 Recently covered:
 {recent}
@@ -192,16 +206,16 @@ Return JSON: {{"chosen": [{{"id": shortlist id, "merge": [ids of other items abo
 most important first."""
 
 
-def choose(shortlist, n, recent):
+def choose(shortlist, recent):
     if not shortlist:
         return []
-    items = "\n".join(f"[{i}] ({s['topic']['name']}, field editor's importance {s.get('importance', 5)}/10) "
+    items = "\n".join(f"[{i}] ({s['topic']['name']}) "
                       f"{s['items'][0]['title']} | angle: {s['angle']} | why: {s['why']}"
                       for i, s in enumerate(shortlist))
     try:
-        out = llm.generate_json(CHOOSE_PROMPT.format(n=n, items=items, fields=", ".join(FIELDS),
+        out = llm.generate_json(CHOOSE_PROMPT.format(items=items, fields=", ".join(FIELDS),
                                                      recent="\n".join(f"- {h}" for h in recent[:40]) or "- (none)"),
-                                temperature=0.2, tier="best", max_tokens=1500)
+                                temperature=0.2, tier="best", max_tokens=6000)
         chosen, used = [], set()
         for c in out.get("chosen", []):
             i = as_id(c.get("id")) if isinstance(c, dict) else as_id(c)
@@ -216,13 +230,11 @@ def choose(shortlist, n, recent):
             fields = [f for f in (c.get("fields") or []) if f in FIELDS] if isinstance(c, dict) else []
             s["fields"] = fields or [s["topic"]["name"]]
             chosen.append(s)
-            if len(chosen) == n:
-                break
         if chosen:
             return chosen
     except Exception as e:
-        print("  choose failed, ranking by the field editors' scores:", e, flush=True)
-    return sorted(shortlist, key=lambda s: -s.get("importance", 5))[:n]
+        print("  choose failed, keeping the whole shortlist:", e, flush=True)
+    return [dict(s, fields=[s["topic"]["name"]]) for s in shortlist]
 
 
 # ───────────────────────── writing ─────────────────────────
@@ -264,8 +276,21 @@ Cover, in a natural order:
 - Context: history, comparisons, base rates.
 - What's uncertain or disputed, and the other side's case.
 - What to watch next, and what it means for an ordinary person.
+- Finally, the LAST beat, marked "apply": true, is about what the reader can take away and use. Make it concrete and
+  practical, tied to this story's mechanism:
+  Business: the strategy or decision principle at work, when it works and when it backfires, and how the reader
+  could use it in their own work, career, team or a small business (with a small worked example).
+  Psychology/mind: what the finding suggests trying in daily life, as a specific small experiment or habit, and
+  how strong the evidence is (don't oversell one study).
+  Economics/finance: how this changes the way to think about one's own money, prices, loans, jobs or savings
+  (general principles only, never "buy X").
+  Politics/world: a mental model for reading similar events, and what signals to watch.
+  Science/technology: what changes in practice, and how to judge similar claims.
+  Ideas/philosophy: a question or practice to try on one's own beliefs or decisions.
+  These suggestions are yours, as the helper, not the sources': phrase them as suggestions ("One way to use
+  this...", "You could try..."), never as reported fact.
 
-Length: {words} words across 7-10 beats of roughly 150-300 words each. Depth matters more than breadth: every beat
+Length: {words} words across 8-11 beats of roughly 150-300 words each. Depth matters more than breadth: every beat
 should teach something specific (a number in context, a step in the mechanism, a reason someone acted). Short
 paragraphs (1-4 sentences). Use **bold** for the 1-2 key ideas in a beat, a list only when steps are genuinely
 list-shaped. No links. Plain markdown text only: never any HTML or tags (no <ruby>, <hint>, <span>), and never add
@@ -273,12 +298,14 @@ word meanings in brackets for hard words; a separate step shows short meanings a
 
 For every beat except the first, write the reader's "cue": the short, natural question they'd ask right before it,
 2-9 words, e.g. "Why would they do that?", "How does that actually work?", "Has this happened before?",
-"Who disagrees?", "What does this mean for me?". Each must fit the beat it leads into.
+"Who disagrees?", "What does this mean for me?". Each must fit the beat it leads into. The "apply" beat's cue is
+like "How can I use this?" or "What should I take from this?".
 
 Return JSON:
 {{"title": "a plain, specific headline, max 12 words",
  "dek": "one sentence on what this piece explains",
- "beats": [{{"cue": "reader's question (empty for the first beat)", "label": "2-4 word name for this beat", "body": "markdown"}}],
+ "beats": [{{"cue": "reader's question (empty for the first beat)", "label": "2-4 word name for this beat", "body": "markdown",
+            "apply": false}}],   // the last beat has "apply": true
  "terms": [{{"term": "...", "meaning": "one-sentence plain definition"}}],   // 3-6 key concepts
  "ask": ["3 good questions the reader might still want to ask"]}}"""
 
@@ -305,7 +332,8 @@ Improve the draft and return it in exactly the same JSON shape.
 - Accuracy first: remove or correct any fact, number, name or quote that the sources don't support, and make sure
   each reported fact says who reported it. Background explanations may stay if they are well known and accurate.
 - Make it clearer and deeper: where a step in the explanation is skipped, add it; cut repetition and filler.
-- Keep the calm, plain voice, the beats and the reader's cues (adjust a cue if the beat changed). Keep the length
+- Keep the calm, plain voice, the beats and the reader's cues (adjust a cue if the beat changed). Keep the final
+  "apply" beat and make it more concrete and useful if you can; it must stay framed as suggestions. Keep the length
   about the same or longer; never shorten it by more than a tenth.
 - Plain markdown only, no HTML or tags, no word meanings in brackets.
 
@@ -437,10 +465,13 @@ def write(topic, story, tier="best"):
         "dek": piece.get("dek", ""),
         "kind": items[0]["kind"],
         "why": story["why"],
+        "rating": story.get("rating", {}),
+        "score": story.get("score"),
         "minutes": max(2, round(n_words / WPM)),
         "words": n_words,
         "sections": [{"heading": s.get("label") or s.get("heading", ""), "cue": (s.get("cue") or "").strip() if k else "",
-                      "body": s["body"]} for k, s in enumerate(secs)],
+                      "body": s["body"], **({"apply": True} if str(s.get("apply")).lower() == "true" else {})}
+                     for k, s in enumerate(secs)],
         "glossary": clean_gloss(piece.get("glossary"), " ".join(x["body"] for x in secs)),
         "terms": piece.get("terms", [])[:6],
         "ask": piece.get("ask", [])[:3],
@@ -493,12 +524,27 @@ def remind(issue, site_url):
         mins = sum(s["minutes"] for s in stories)
         body = f"{len(stories)} stories · ~{mins} min. First up: {stories[0]['title']}"
     else:
-        body = "Today's issue is lighter than usual — open the app to keep your streak."
+        body = "Your stories are waiting."
     headers = {"Title": "Today's read is ready", "Tags": "books", "Priority": "high", "Click": site_url}
     if at > now + dt.timedelta(minutes=2):
         headers["At"] = str(int(at.timestamp()))
     r = requests.post(f"https://ntfy.sh/{topic}", data=body.encode(), headers=headers, timeout=20)
     print("reminder:", r.status_code, "at", at.strftime("%H:%M %Z") if "At" in headers else "now")
+
+
+def rate_existing(out_dir):
+    for p in sorted(out_dir.glob("20*.json")):
+        iss = json.loads(p.read_text("utf-8"))
+        todo = [(t, x) for t in iss["topics"] for x in t["stories"] if not x.get("rating")]
+        if not todo:
+            continue
+        got = rate([(i, f"({t['name']}) {x['title']} | {x.get('dek', '')} | why: {x.get('why', '')} | sources: "
+                        f"{', '.join(src['source'] for src in x.get('sources', []))}") for i, (t, x) in enumerate(todo)])
+        for i, (t, x) in enumerate(todo):
+            if got.get(i):
+                x["rating"], x["score"] = got[i], importance.score(got[i])
+                print(f"  {x['score']:4.1f}  {x['title'][:70]}", flush=True)
+        p.write_text(json.dumps(iss, ensure_ascii=False, indent=1), "utf-8")
 
 
 def main():
@@ -507,6 +553,8 @@ def main():
     ap.add_argument("--topics", default="")
     ap.add_argument("--stories", type=int, default=0, help="override the number of stories in this edition")
     ap.add_argument("--remind-only", action="store_true")
+    ap.add_argument("--dry-run", action="store_true", help="pick and rate, print, write nothing")
+    ap.add_argument("--rate-existing", action="store_true", help="rate published stories that have no rating yet")
     ap.add_argument("--edition", choices=["morning", "evening"], help="default: by the time of day")
     a = ap.parse_args()
 
@@ -518,8 +566,17 @@ def main():
     edition = a.edition or ("morning" if dt.datetime.now(TZ).hour < 15 else "evening")
     date = f"{day}-{edition}"                              # two editions a day, kept apart
 
+    if a.rate_existing:
+        rate_existing(out_dir)
+        return
+
     if a.remind_only:                                      # pipeline failed: still nudge at 10:00
         remind({"topics": []}, site_url)
+        return
+
+    done_path = out_dir / f"{date}.json"                 # a backup run: the edition is already written
+    if os.environ.get("SCHEDULED") == "true" and done_path.exists() and not json.loads(done_path.read_text("utf-8")).get("partial"):
+        print(f"{date} is already written; nothing to do")
         return
 
     seen_path = out_dir / "seen.json"
@@ -540,8 +597,7 @@ def main():
     wanted = set(filter(None, a.topics.split(",")))
     issue = {"date": date, "day": day, "edition": edition, "generated": dt.datetime.now(TZ).isoformat(timespec="minutes"),
              "model": llm.models()[0], "partial": True, "topics": []}
-    n_total = a.stories or stories_for(day, edition)
-    print(f"{edition} edition: {n_total} stories", flush=True)
+    print(f"{edition} edition", flush=True)
 
     def publish():
         """Saves the issue as it stands, so the app can show each story the moment it is written."""
@@ -591,9 +647,30 @@ def main():
         except Exception as e:
             print("  pick failed:", e, flush=True)
 
-    # 2. the chief editor picks the day's most important stories across all topics
-    chosen = choose(shortlist, n_total, all_recent)
-    print("\nchosen:", [f"{s['topic']['id']}: {s['items'][0]['title'][:60]}" for s in chosen], flush=True)
+    # 2. the chief editor merges the same event seen from different fields and drops repeats; then each story is
+    #    rated 0-10 on seven metrics, the score is the plain average, and every story at or above the bar goes in
+    chosen = choose(shortlist, all_recent)
+    desc = [(i, f"({', '.join(s.get('fields') or [s['topic']['name']])}) {s['items'][0]['title']} | angle: {s['angle']}"
+                f" | why: {s['why']} | sources: {', '.join(it['source'] for it in s['items'])}")
+            for i, s in enumerate(chosen)]
+    ratings = rate(desc)
+    for i, s in enumerate(chosen):
+        s["rating"] = ratings.get(i, {})
+        s["score"] = importance.score(s["rating"]) if s["rating"] else 0
+    chosen = importance.dedupe(chosen)                    # backstop: never two stories about one event
+    chosen.sort(key=lambda s: -s["score"])
+    print("\nratings (" + " ".join(importance.METRICS) + "):", flush=True)
+    for s in chosen:
+        print(f"  {s['score']:4.1f}  {[s['rating'].get(m) for m in importance.METRICS]}  {s['items'][0]['title'][:70]}", flush=True)
+    if a.dry_run:
+        return
+    chosen = [s for s in chosen if s["score"] >= importance.THRESHOLD]
+    if a.stories:
+        chosen = chosen[:a.stories]
+    print(f"\nchosen {len(chosen)} (bar {importance.THRESHOLD})", flush=True)
+    if not chosen:
+        print("nothing important enough this time")
+        return
 
     # 3. each one is written by the best model, edited, and given word hints; published one by one
     for s in chosen:

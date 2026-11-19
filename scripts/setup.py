@@ -45,7 +45,7 @@ def main():
 
     blob = base64.urlsafe_b64encode(json.dumps({"k": key, "g": groq, "t": topic, "s": sync, "r": SYNC_REPO}).encode()).decode().rstrip("=")
     link = f"{SITE}#setup={blob}"
-    env_path.write_text(f"# private — git-ignored\nGEMINI_API_KEY={key}\nGROQ_API_KEY={groq}\nNTFY_TOPIC={topic}\nSETUP_LINK={link}\n")
+    env_path.write_text(f"# private — git-ignored\nGEMINI_API_KEY={key}\nGROQ_API_KEY={groq}\nNTFY_TOPIC={topic}\nSYNC_TOKEN={sync}\nSETUP_LINK={link}\n")
     try:
         import qrcode
         qrcode.make(link).save(ROOT / "setup-qr.png")

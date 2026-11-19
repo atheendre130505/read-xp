@@ -207,17 +207,19 @@ setInterval(async () => {
   } catch {}
 }, 20000);
 const allStories = iss => iss.topics.flatMap(t => t.stories.map(s => ({ ...s, topic: t })));
-// There is no choosing: one fixed order. Unread stories carry over: the oldest edition with unread stories comes first.
+// There is no choosing: one fixed order, by rating. Every unread story from the last two weeks, highest rated first
+// (a story you've started stays first until you finish it); equal ratings keep the order they were published in.
 async function readingQueue() {
   if (!INDEX.length) await loadIndex();
   const out = [];
   const when = e => (e.day || e.date) + (e.edition === "evening" ? "-2" : "-1");   // morning before evening
-  for (const e of INDEX.slice(0, 14).sort((a, b) => when(a).localeCompare(when(b)))) {
+  for (const e of INDEX.slice(0, 28).sort((a, b) => when(a).localeCompare(when(b)))) {
     const iss = await issue(e.date).catch(() => null);
     if (!iss) continue;
-    for (const x of allStories(iss)) if (!isRead(e.date, x)) out.push({ date: e.date, s: x, iss });
+    for (const x of allStories(iss)) if (!isRead(e.date, x)) out.push({ date: e.date, s: x, iss, n: out.length });
   }
-  return out;
+  const started = q => { const p = S.progress[pkey(q.date, q.s)]; return p && (p.sec > 1 || p.place?.f > 0) ? 1 : 0; };
+  return out.sort((a, b) => started(b) - started(a) || (b.s.score ?? 0) - (a.s.score ?? 0) || a.n - b.n);
 }
 async function nextUp() { return (await readingQueue())[0] || null; }
 const editionName = iss => iss.day ? new Date(iss.day + "T12:00").toLocaleDateString(undefined, { weekday: "long" })
@@ -301,7 +303,7 @@ async function renderReader(date, id) {
     <article class="story">
       <div class="kicker">${esc(s.topic.name)}</div>
       <h1>${esc(s.title)}</h1><p class="dek">${esc(s.dek)}</p>
-      <div class="meta">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min read<i class="dot"></i>${esc(outlets(s).join(", "))}</div>
+      <div class="meta">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min read<i class="dot"></i>${esc(outlets(s).join(", "))}${s.score ? `<i class="dot"></i><span title="${esc(Object.entries(s.rating || {}).map(([k, v]) => `${k} ${v}`).join(" · "))}">Rated ${Number(s.score).toFixed(1)}</span>` : ""}</div>
       <div id="thread"></div><div id="end"></div><div class="after"></div>
     </article>
     <div class="dock"><div class="in"><div class="cont" id="cont"></div>
@@ -320,7 +322,7 @@ async function renderReader(date, id) {
 function sectionHTML(k) {
   const sec = R.s.sections[k];
   const lead = k === 0 ? "" : sec.cue ? `<div class="cue" data-cue="${k}">${esc(sec.cue)}</div>` : `<h3 data-cue="${k}">${esc(sec.heading)}</h3>`;
-  return `${lead}<section class="sec${k === 0 ? " first" : ""}" data-sec="${k}">${md(sec.body, { bionic: S.settings.bionic, gloss: S.settings.hints ? R.s.glossary : null, used: R.used })}</section>
+  return `${lead}<section class="sec${k === 0 ? " first" : ""}${sec.apply ? " apply" : ""}" data-sec="${k}">${sec.apply ? `<div class="apply-h">Use it</div>` : ""}${md(sec.body, { bionic: S.settings.bionic, gloss: S.settings.hints ? R.s.glossary : null, used: R.used })}</section>
     <div class="qa" data-qa="${k}">${(S.chats[R.key] || []).filter(c => c.sec === k).map(turnHTML).join("")}</div>`;
 }
 const turnHTML = c => `<div class="turn-you">${c.quote ? `<span class="quote">${esc(c.quote.slice(0, 240))}</span>` : ""}${esc(c.q)}</div><div class="turn-ai">${md(c.a)}</div>`;
@@ -356,7 +358,10 @@ function drawEnd() {
 }
 
 const barBottom = () => ($(".bar")?.getBoundingClientRect().bottom || 0);
-const rulerTopPx = () => Math.max(barBottom(), innerHeight * (S.settings.rulerPos ?? 0.3));
+// the ruler always stays in the readable area: below the top bar, above the question box at the bottom
+const dockTop = () => ($(".dock")?.getBoundingClientRect().top || innerHeight);
+const clampRuler = (top, h = rulerH || S.settings.fs * 1.7) => Math.min(Math.max(barBottom(), top), dockTop() - h - 8);
+const rulerTopPx = () => clampRuler(innerHeight * (S.settings.rulerPos ?? 0.3));
 let rulerH = 0;   // height of the line the ruler sits on (measured from the text)
 function setRulerTop(top = rulerTopPx(), h = rulerH) {
   const r = document.documentElement.style;
@@ -389,7 +394,7 @@ document.addEventListener("click", e => {
   if (!S.settings.ruler || !R || !e.target.closest(".story") || e.target.closest("button, a, summary") || !getSelection().isCollapsed) return;
   const line = lineRectAt(e.clientX, e.clientY);
   const lh = line?.h || S.settings.fs * 1.7;
-  const top = Math.max(barBottom(), line ? line.top : e.clientY - lh / 2);
+  const top = clampRuler(line ? line.top : e.clientY - lh / 2, lh);
   rulerH = lh;
   S.settings.rulerPos = top / innerHeight;
   save(); setRulerTop(top, lh);

@@ -140,7 +140,17 @@
        "source": "Financial Times",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 9,
+      "lasting": 7,
+      "growth": 4,
+      "learning": 6,
+      "relevance": 8,
+      "novelty": 8,
+      "solidity": 8
+     },
+     "score": 7.14
     },
     {
      "id": "fed-chair-kevin-warsh-s-new-map-for-the-ai-economy",
@@ -297,7 +307,17 @@
        "source": "CNBC · Finance",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 9,
+      "lasting": 9,
+      "growth": 7,
+      "learning": 9,
+      "relevance": 9,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 8.57
     },
     {
      "id": "why-raising-interest-rates-might-actually-make-things-more-e",
@@ -429,7 +449,17 @@
        "source": "NBER Working Papers",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 8,
+      "lasting": 8,
+      "growth": 8,
+      "learning": 10,
+      "relevance": 8,
+      "novelty": 9,
+      "solidity": 9
+     },
+     "score": 8.57
     },
     {
      "id": "india-s-fiscal-crossroads-taxing-gains-versus-funding-welfar",
@@ -591,7 +621,17 @@
        "source": "Mint · Economy",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 8,
+      "lasting": 7,
+      "growth": 6,
+      "learning": 8,
+      "relevance": 10,
+      "novelty": 7,
+      "solidity": 8
+     },
+     "score": 7.71
     }
    ]
   },
@@ -730,7 +770,17 @@
        "source": "The Economic Times · Tech",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 10,
+      "lasting": 9,
+      "growth": 5,
+      "learning": 8,
+      "relevance": 9,
+      "novelty": 9,
+      "solidity": 9
+     },
+     "score": 8.43
     },
     {
      "id": "nvidia-charts-a-new-course-under-interim-ceo-colette-kress-a",
@@ -855,7 +905,17 @@
        "source": "The Economist · Business",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 9,
+      "lasting": 7,
+      "growth": 6,
+      "learning": 7,
+      "relevance": 8,
+      "novelty": 9,
+      "solidity": 9
+     },
+     "score": 7.86
     },
     {
      "id": "anil-agarwal-and-vedanta-s-dispute-with-ongc-over-the-cambay",
@@ -949,7 +1009,17 @@
        "source": "Mint · Companies",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 5,
+      "lasting": 4,
+      "growth": 3,
+      "learning": 5,
+      "relevance": 6,
+      "novelty": 6,
+      "solidity": 8
+     },
+     "score": 5.29
     }
    ]
   },
@@ -1084,7 +1154,17 @@
        "source": "DW",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 10,
+      "lasting": 10,
+      "growth": 6,
+      "learning": 9,
+      "relevance": 9,
+      "novelty": 10,
+      "solidity": 7
+     },
+     "score": 8.71
     },
     {
      "id": "the-strategic-impact-of-the-unprecedented-kerch-bridge-colla",
@@ -1233,7 +1313,17 @@
        "source": "BBC World",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 7,
+      "lasting": 6,
+      "growth": 2,
+      "learning": 5,
+      "relevance": 4,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 5.86
     },
     {
      "id": "the-end-of-an-era-why-the-us-lost-its-measles-free-status",
@@ -1375,7 +1465,17 @@
        "source": "The New York Times · Politics",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 6,
+      "lasting": 7,
+      "growth": 4,
+      "learning": 6,
+      "relevance": 3,
+      "novelty": 8,
+      "solidity": 10
+     },
+     "score": 6.29
     }
    ]
   },
@@ -1488,7 +1588,17 @@
        "source": "ScienceDaily · Mind & Brain",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 8,
+      "lasting": 9,
+      "growth": 10,
+      "learning": 10,
+      "relevance": 10,
+      "novelty": 9,
+      "solidity": 8
+     },
+     "score": 9.14
     },
     {
      "id": "how-an-ancient-virus-helped-shape-the-human-brain",
@@ -1589,7 +1699,17 @@
        "source": "ScienceDaily · Mind & Brain",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 5,
+      "lasting": 10,
+      "growth": 6,
+      "learning": 9,
+      "relevance": 7,
+      "novelty": 9,
+      "solidity": 8
+     },
+     "score": 7.71
     }
    ]
   },
@@ -1704,7 +1824,17 @@
        "source": "Quanta Magazine",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 6,
+      "lasting": 9,
+      "growth": 5,
+      "learning": 8,
+      "relevance": 4,
+      "novelty": 9,
+      "solidity": 8
+     },
+     "score": 7.0
     },
     {
      "id": "a-toxic-magic-mushroom-and-the-harsh-lives-of-sacred-cats",
@@ -1810,7 +1940,17 @@
        "source": "Smithsonian Magazine",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 3,
+      "lasting": 4,
+      "growth": 2,
+      "learning": 5,
+      "relevance": 2,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 4.71
     },
     {
      "id": "how-silicon-photonics-and-optical-computing-aim-to-fix-ai-bo",
@@ -1933,7 +2073,17 @@
        "source": "Scientific American",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 8,
+      "lasting": 9,
+      "growth": 5,
+      "learning": 10,
+      "relevance": 9,
+      "novelty": 8,
+      "solidity": 8
+     },
+     "score": 8.14
     },
     {
      "id": "bridging-the-gap-between-ai-ethics-and-engineering-complianc",
@@ -2055,7 +2205,17 @@
        "source": "IEEE Spectrum",
        "date": "2026-11-13"
       }
-     ]
+     ],
+     "rating": {
+      "size": 7,
+      "lasting": 8,
+      "growth": 6,
+      "learning": 8,
+      "relevance": 9,
+      "novelty": 7,
+      "solidity": 8
+     },
+     "score": 7.57
     }
    ]
   },
@@ -2169,7 +2329,17 @@
        "source": "Stanford Encyclopedia (new & revised)",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 4,
+      "lasting": 9,
+      "growth": 7,
+      "learning": 8,
+      "relevance": 5,
+      "novelty": 4,
+      "solidity": 9
+     },
+     "score": 6.57
     },
     {
      "id": "how-awe-changes-our-brains-and-our-sense-of-self",
@@ -2277,7 +2447,17 @@
        "source": "Big Think",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 5,
+      "lasting": 7,
+      "growth": 9,
+      "learning": 8,
+      "relevance": 8,
+      "novelty": 6,
+      "solidity": 7
+     },
+     "score": 7.14
     },
     {
      "id": "understanding-hans-georg-gadamer-and-the-art-of-interpretati",
@@ -2358,7 +2538,17 @@
        "source": "Stanford Encyclopedia (new & revised)",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 3,
+      "lasting": 8,
+      "growth": 5,
+      "learning": 8,
+      "relevance": 4,
+      "novelty": 3,
+      "solidity": 9
+     },
+     "score": 5.71
     }
    ]
   }

@@ -145,7 +145,17 @@
        "source": "CNBC · Economy",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 9,
+      "lasting": 8,
+      "growth": 4,
+      "learning": 7,
+      "relevance": 8,
+      "novelty": 7,
+      "solidity": 9
+     },
+     "score": 7.43
     },
     {
      "id": "how-ai-debt-and-hedge-funds-are-alarming-european-central-ba",
@@ -270,7 +280,17 @@
        "source": "Bloomberg · Economics",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 8,
+      "lasting": 7,
+      "growth": 5,
+      "learning": 9,
+      "relevance": 6,
+      "novelty": 8,
+      "solidity": 8
+     },
+     "score": 7.29
     },
     {
      "id": "why-pessimistic-young-adults-are-gambling-on-crypto-to-reach",
@@ -397,7 +417,17 @@
        "source": "NBER Working Papers",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 6,
+      "lasting": 7,
+      "growth": 9,
+      "learning": 8,
+      "relevance": 9,
+      "novelty": 7,
+      "solidity": 9
+     },
+     "score": 7.86
     },
     {
      "id": "middle-east-war-sparks-fresh-energy-shocks-and-european-infl",
@@ -520,7 +550,17 @@
        "source": "CNBC · Economy",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 8,
+      "lasting": 5,
+      "growth": 4,
+      "learning": 6,
+      "relevance": 7,
+      "novelty": 5,
+      "solidity": 9
+     },
+     "score": 6.29
     }
    ]
   },
@@ -663,7 +703,17 @@
        "source": "Foreign Policy",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 9,
+      "lasting": 7,
+      "growth": 3,
+      "learning": 7,
+      "relevance": 7,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 7.14
     },
     {
      "id": "mary-peltola-wins-alaska-senate-race-giving-democrats-56-sea",
@@ -804,7 +854,17 @@
        "source": "DW",
        "date": "2026-11-18"
       }
-     ]
+     ],
+     "rating": {
+      "size": 5,
+      "lasting": 4,
+      "growth": 2,
+      "learning": 4,
+      "relevance": 3,
+      "novelty": 5,
+      "solidity": 10
+     },
+     "score": 4.71
     },
     {
      "id": "how-the-icj-s-myanmar-genocide-ruling-sparks-a-us-showdown",
@@ -948,7 +1008,17 @@
        "source": "The Diplomat",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 7,
+      "lasting": 7,
+      "growth": 3,
+      "learning": 6,
+      "relevance": 6,
+      "novelty": 7,
+      "solidity": 9
+     },
+     "score": 6.43
     },
     {
      "id": "how-xi-jinping-s-military-purges-impact-china-s-readiness",
@@ -1063,7 +1133,17 @@
        "source": "War on the Rocks",
        "date": "2026-11-12"
       }
-     ]
+     ],
+     "rating": {
+      "size": 8,
+      "lasting": 7,
+      "growth": 4,
+      "learning": 7,
+      "relevance": 8,
+      "novelty": 6,
+      "solidity": 8
+     },
+     "score": 6.86
     }
    ]
   },
@@ -1192,7 +1272,17 @@
        "source": "Nature Human Behaviour",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 6,
+      "lasting": 9,
+      "growth": 8,
+      "learning": 9,
+      "relevance": 8,
+      "novelty": 9,
+      "solidity": 9
+     },
+     "score": 8.29
     },
     {
      "id": "how-generative-ai-shapes-grant-writing-and-scientific-origin",
@@ -1311,7 +1401,17 @@
        "source": "PsyPost",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 6,
+      "lasting": 8,
+      "growth": 9,
+      "learning": 9,
+      "relevance": 9,
+      "novelty": 8,
+      "solidity": 8
+     },
+     "score": 8.14
     },
     {
      "id": "how-your-tongue-edits-flavor-before-the-brain-can-hear-it",
@@ -1422,7 +1522,17 @@
        "source": "Neuroscience News",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 4,
+      "lasting": 8,
+      "growth": 6,
+      "learning": 8,
+      "relevance": 7,
+      "novelty": 9,
+      "solidity": 9
+     },
+     "score": 7.29
     }
    ]
   },
@@ -1543,7 +1653,17 @@
        "source": "Daily Nous",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 4,
+      "lasting": 6,
+      "growth": 7,
+      "learning": 6,
+      "relevance": 5,
+      "novelty": 5,
+      "solidity": 10
+     },
+     "score": 6.14
     },
     {
      "id": "the-zetetic-turn-why-seeking-truth-is-a-skill-we-must-practi",
@@ -1661,7 +1781,17 @@
        "source": "Stanford Encyclopedia (new & revised)",
        "date": "2026-11-16"
       }
-     ]
+     ],
+     "rating": {
+      "size": 3,
+      "lasting": 8,
+      "growth": 9,
+      "learning": 9,
+      "relevance": 7,
+      "novelty": 7,
+      "solidity": 9
+     },
+     "score": 7.43
     },
     {
      "id": "the-ghost-in-the-machine-redefining-creativity-in-the-ai-era",
@@ -1789,7 +1919,17 @@
        "source": "Big Think",
        "date": "2026-11-17"
       }
-     ]
+     ],
+     "rating": {
+      "size": 6,
+      "lasting": 8,
+      "growth": 8,
+      "learning": 8,
+      "relevance": 9,
+      "novelty": 7,
+      "solidity": 7
+     },
+     "score": 7.57
     }
    ]
   }
