@@ -1,0 +1,712 @@
+{
+ "date": "2026-11-20-morning",
+ "day": "2026-11-20",
+ "edition": "morning",
+ "generated": "2026-11-20T04:14+05:30",
+ "model": "gemini-3.6-flash",
+ "partial": false,
+ "topics": [
+  {
+   "id": "psych",
+   "name": "Psychology & Mind · Science & Technology",
+   "stories": [
+    {
+     "id": "four-insula-regions-explain-pain-emotion-and-placebo",
+     "title": "Four Insula Regions Explain Pain, Emotion, and Placebo",
+     "dek": "A new brain‑mapping study shows how four sub‑areas of the insula coordinate sensations, feelings and expectations.",
+     "kind": "news",
+     "why": "Fifteen years of intracranial recordings map how the insula bridges subjective expectations with physical sensations.",
+     "rating": {
+      "size": 6,
+      "lasting": 8,
+      "growth": 7,
+      "learning": 8,
+      "relevance": 7,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 7.57,
+     "minutes": 3,
+     "words": 776,
+     "sections": [
+      {
+       "heading": "The discovery",
+       "cue": "",
+       "body": "**Neuroscience News** reports that an international team led by Dr. Julian Quabs and Prof. Dr. Svenja Caspers created the first functional atlas of the human insula. Using about 15 years of intracranial recordings from 87 epilepsy patients at Stanford, the researchers identified four cooperating subregions. The work was described in a paper titled “Functional architecture of the human insula” and released in November 2026.\n\nThe team set out to resolve a long‑standing puzzle: although the insula sits deep in the brain and integrates bodily signals with emotion and cognition, its internal organization had never been mapped in detail. By delivering brief electrical pulses through depth electrodes and recording the patients’ reported sensations, they could infer the functional role of each spot."
+      },
+      {
+       "heading": "Four functional zones",
+       "cue": "What are the four zones?",
+       "body": "According to **Neuroscience News**, the atlas divides the insula into:\n\n1. **Upper‑rear (dorsal) region** – contains a somatotopic map for pain and temperature, arranged from legs (posterior) to mouth (anterior).\n2. **Lower‑ventral region** – produces diffuse, whole‑body sensations rather than precise, localized pain.\n3. **Middle‑front region** – evokes visceral feelings such as chest tightness or gut flutter and is linked to anxiety.\n4. **Insular pole** – the most anterior tip that shows little direct sensation but becomes active when the brain directs attention or forms expectations, connecting strongly with frontal‑lobe executive areas.\n\nThese zones were defined by the specific qualities of the patients’ reports during stimulation."
+      },
+      {
+       "heading": "Top‑down control",
+       "cue": "How does the brain change pain?",
+       "body": "**Neuroscience News** explains that connectivity analysis revealed a hierarchical flow: the insular pole sends strong descending signals to the posterior sensory zones, while feedback from those zones is comparatively weak. In plain terms, the front tip can modulate how the back of the insula processes pain.\n\nThis pattern matches the classic “top‑down” model, in which expectations, attention, or emotion generated in frontal regions shape raw sensory input. The study therefore provides a concrete neural circuit that could underlie the placebo effect—when believing a treatment works actually reduces pain."
+      },
+      {
+       "heading": "Placebo mechanism",
+       "cue": "Why does this matter for pain relief?",
+       "body": "When a person expects relief, frontal‑lobe areas become active and, via the insular pole, dampen activity in the dorsal pain map. The result is a **lower perceived intensity** even though the physical stimulus is unchanged.\n\nThe authors suggest that neuromodulation techniques aimed at the insular pole (for example, transcranial magnetic stimulation) might amplify this natural top‑down inhibition, offering a potential new avenue for chronic‑pain treatment."
+      },
+      {
+       "heading": "Historical context",
+       "cue": "Has anything similar been seen before?",
+       "body": "Earlier functional‑MRI studies hinted at an anterior‑posterior gradient in the insula, but the spatial resolution was insufficient to separate distinct sub‑areas. A 2008 study by Craig and colleagues identified an “anterior‑insular network” involved in awareness, yet it could not isolate pain‑specific maps.\n\nThe intracranial approach used by Quabs, Caspers and colleagues overcomes those limits, providing direct electrophysiological evidence rather than indirect blood‑flow signals. This methodological advance is comparable to the shift from scalp EEG to intracranial recordings that clarified language‑area organization in the 1990s."
+      },
+      {
+       "heading": "Uncertainties",
+       "cue": "What are the limits of this work?",
+       "body": "The sample consists of patients with drug‑resistant epilepsy, whose brain anatomy or connectivity may differ from the general population. Electrical stimulation creates artificial sensations that might not fully reflect natural processing, and the study does not examine long‑term plasticity—whether repeated expectations can permanently reshape the insular map.\n\nNo independent replication of the four‑zone model has been published yet, so future work will need to test the findings in larger, healthier cohorts and with non‑invasive imaging methods."
+      },
+      {
+       "heading": "Future directions",
+       "cue": "What could happen next?",
+       "body": "The researchers plan to combine their atlas with functional‑MRI in healthy volunteers to see whether the same zones activate during real‑world pain, anxiety, or attention tasks. Clinical trials may also explore **targeted neuromodulation** of the insular pole to boost placebo‑like analgesia.\n\nIf successful, such interventions could complement opioid therapy and help reduce reliance on drugs that carry addiction risk."
+      },
+      {
+       "heading": "Practical take‑aways",
+       "cue": "How does this affect everyday life?",
+       "body": "The key insight is that **expectations can literally re‑wire pain perception** through a specific brain circuit. For people coping with chronic discomfort, practices that foster positive expectations—such as guided imagery, mindfulness, or therapist‑led suggestion—may engage the same top‑down pathway.\n\nThe study does not prove that any single technique works for everyone, but it provides a biological rationale for why placebo‑based approaches (e.g., acupuncture, sham procedures) sometimes produce genuine relief."
+      },
+      {
+       "heading": "apply",
+       "cue": "How can I use this?",
+       "body": "Try a simple self‑experiment: before a mildly painful activity (for example, a brief cold‑water hand immersion), spend a minute visualizing the sensation as *less* intense and remind yourself that your brain can lower pain. After the activity, rate the pain on a 0‑10 scale.\n\nIf the rating is lower than when you performed the same activity without the visualization, you have likely tapped the insular pole’s top‑down influence. Repeating the practice can strengthen the habit of expectation‑driven modulation, which may help manage everyday aches without medication.\n\nRemember, the effect is modest, varies between individuals, and is not a substitute for medical care when pain signals a serious condition.",
+       "apply": true
+      }
+     ],
+     "glossary": [
+      {
+       "word": "electrophysiological",
+       "hint": "electrical brain"
+      },
+      {
+       "word": "neuromodulation",
+       "hint": "brain stimulation"
+      },
+      {
+       "word": "intracranial",
+       "hint": "inside the skull"
+      },
+      {
+       "word": "hierarchical",
+       "hint": "ranked order"
+      },
+      {
+       "word": "somatotopic",
+       "hint": "body map"
+      },
+      {
+       "word": "analgesia",
+       "hint": "pain relief"
+      },
+      {
+       "word": "modulate",
+       "hint": "adjust or control"
+      },
+      {
+       "word": "diffuse",
+       "hint": "spread out"
+      },
+      {
+       "word": "insula",
+       "hint": "deep brain region"
+      }
+     ],
+     "terms": [
+      {
+       "term": "Insula",
+       "meaning": "A deep cortical region that integrates body signals with emotions and cognition."
+      },
+      {
+       "term": "Somatotopic map",
+       "meaning": "An orderly representation of body parts in the brain, where neighboring regions correspond to neighboring body areas."
+      },
+      {
+       "term": "Top‑down control",
+       "meaning": "When higher‑order brain areas influence how lower‑order sensory regions process information."
+      },
+      {
+       "term": "Placebo effect",
+       "meaning": "A reduction in symptoms that occurs because a person expects a treatment to work, not because of the treatment itself."
+      },
+      {
+       "term": "Neuromodulation",
+       "meaning": "Techniques that alter brain activity using electrical or magnetic stimulation."
+      }
+     ],
+     "ask": [
+      "Can non‑invasive brain stimulation reliably target the insular pole?",
+      "How long do expectation‑driven changes in pain perception last?",
+      "Do people with chronic pain show a different insular architecture than healthy individuals?"
+     ],
+     "sources": [
+      {
+       "title": "Brain’s Insula Shapes Pain, Emotion, and the Placebo Effect",
+       "url": "https://neurosciencenews.com/insula-pain-emotion-placebo-32429/",
+       "source": "Neuroscience News",
+       "date": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scitech",
+   "name": "Science & Technology · Psychology & Mind",
+   "stories": [
+    {
+     "id": "how-new-brain-recording-research-challenges-a-150-year-old-m",
+     "title": "How new brain-recording research challenges a 150-year-old model of language",
+     "dek": "A newly discovered brain mechanism reveals that a region once thought only to process heard speech also helps generate it.",
+     "kind": "news",
+     "why": "Revising our fundamental understanding of Wernicke's area and language generation opens pathways for more effective speech-restoring brain implants.",
+     "rating": {
+      "size": 6,
+      "lasting": 8,
+      "growth": 4,
+      "learning": 8,
+      "relevance": 7,
+      "novelty": 8,
+      "solidity": 8
+     },
+     "score": 7.0,
+     "minutes": 4,
+     "words": 1006,
+     "sections": [
+      {
+       "heading": "The Textbook Discovery",
+       "cue": "",
+       "body": "Scientific American and Science News report that researchers have published a finding in the journal Science that challenges a foundational 150-year-old model of how the human brain handles language. For over a century, standard medical textbooks taught that the brain divides language labor into two distinct zones. One zone, discovered by physician Paul Broca, was believed to handle speech production in the frontal lobe. The other zone, discovered by neurologist Carl Wernicke in 1874, was located in the temporal lobe above the left ear and was thought to handle only speech perception and comprehension. Wernicke noticed that patients with damage to this temporal lobe region could speak fluidly, but their words often made little sense, creating a baffling paradox. If this was just a listening center, why did damage to it break clear speaking?"
+      },
+      {
+       "heading": "Direct Brain Recordings",
+       "cue": "How did they solve this 150-year-old puzzle?",
+       "body": "Science News and Scientific American report that to solve this mystery, a research team led by neurosurgeon Edward Chang at the University of California, San Francisco, measured direct brain activity. They worked with 28 people who were already undergoing brain surgery for epilepsy or tumors and remained awake during the procedure. Using arrays of electric sensors placed directly on the surface of the brain's language centers, the researchers tracked activity as participants listened to words and tried to speak them. They discovered that a nickel-sized spot inside Wernicke's area—specifically known as the left posterior superior temporal gyrus, or **lpSTG**—activates about a quarter of a second before a person says a word. Every word spoken by the participants began in that small listening-associated region just moments before utterance."
+      },
+      {
+       "heading": "The Auditory Image",
+       "cue": "What makes this specific region so active?",
+       "body": "Scientific American reports that study lead author Alexander Silva described this spot as generating an **auditory image** of the sounds a person plans to say. The researchers found that the intensity of brain activity in this region changes depending on what is about to be uttered. As cognitive neuroscientist Matthew Leonard noted, the region is far more active when a person is about to say a long, complex word like caterpillar than when they are about to say a short word like cat. It also activates more strongly for uncommon words. Crucially, the exact same neurons in this area fire both when a person listens to someone else talk and when they prepare to speak themselves, suggesting that the brain integrates listening and speaking rather than segregating them into isolated compartments."
+      },
+      {
+       "heading": "The Neural Pathway",
+       "cue": "How does the signal move to make sound?",
+       "body": "Science News and Scientific American report that the lpSTG acts as an early stop on the pathway to speaking, sending its generated signals straight to the motor centers of the brain. In these motor centers, the signals are translated into muscle impulses that instruct the vocal tract to move. This upends the classic view that higher-level speech planning happens entirely in Broca's area in the frontal lobe before any sound processing occurs. To test whether this spot is truly necessary for speech, bioengineer Alexander Silva and his team applied electrical stimulation directly to the lpSTG just prior to speaking. This stimulation specifically disrupted the participants' ability to talk, providing strong causal evidence that the listening region is actively required for speech production."
+      },
+      {
+       "heading": "Historical Revisions",
+       "cue": "Has anything like this happened in neuroscience before?",
+       "body": "As a historical parallel, consider how medical science viewed brain localization throughout the twentieth century. For decades, standard neuroscience taught a rigid modular model where every cognitive task was mapped to a single, dedicated patch of neural tissue, much like separate computer chips on a motherboard. When neuroscientists first mapped the motor cortex or visual cortex in animals, they found neat, orderly maps of the body and the visual field. But as techniques improved to record from individual neurons and local circuits in awake humans, researchers repeatedly found that these boundaries were far messier. Just as economists had to revise rigid models of market rationality after the 2008 financial crisis revealed complex human behavior, neuroscientists are now finding that classic brain regions do much more than their textbook definitions suggest, with areas handling multiple overlapping jobs."
+      },
+      {
+       "heading": "The Broca Mystery",
+       "cue": "Why do some scientists stay cautious about the rest of the network?",
+       "body": "Scientific American reports that while the discovery is widely praised as a major achievement, it leaves significant questions unanswered about the rest of the language network. Cognitive neuroscientist Evelina Fedorenko of the Massachusetts Institute of Technology, who was not involved in the new research, pointed out a central remaining mystery: if the main action during both language comprehension and production happens in the temporal lobe, what is the exact function of the frontal-lobe components like Broca's area? While Matthew Leonard affirms that Broca's area remains critically important, its precise role in coordinating this newly revealed pathway is now up for debate, showing that researchers are still piecing together the full network architecture."
+      },
+      {
+       "heading": "Restoring Human Voices",
+       "cue": "How will this help medical technology?",
+       "body": "Science News and Scientific American report that these findings open up new pathways for developing speech-restoring brain-computer interfaces, or **BCIs**. Most experimental BCI devices designed to help paralyzed people communicate have focused on reading signals from the motor cortex, which controls the physical movements of the mouth and tongue. However, for people suffering from certain types of aphasia—language disorders caused by brain damage—intended speech often fails to reach the motor centers intact. By targeting upstream language planning areas like the lpSTG, researchers hope to build neuroprostheses that can decode what a person intends to say before it hits the motor bottleneck. In experimental tests, brain implants in two volunteers with paralysis were successfully able to detect both what the volunteers heard and what they were trying to say."
+      },
+      {
+       "heading": "Apply: Judging Scientific Claims",
+       "cue": "What should I take from this?",
+       "body": "One way to use this story as a mental model is to change how you evaluate sweeping claims about complex systems, whether in technology, business, or medicine. When a long-standing dogma—like the idea that listening and speaking happen in entirely separate brain boxes—is overturned by direct measurement, it reminds us that simple models are often just convenient approximations of messy realities. If you encounter similar claims about how a new tool or organizational structure works, look for direct, high-resolution observations rather than relying on textbook assumptions or indirect summaries. In your own work or technical problem-solving, remember that components inside a complex system frequently serve dual purposes, acting as both input receivers and output generators simultaneously.",
+       "apply": true
+      }
+     ],
+     "glossary": [
+      {
+       "word": "localization",
+       "hint": "regional mapping"
+      },
+      {
+       "word": "segregating",
+       "hint": "separating"
+      },
+      {
+       "word": "baffling",
+       "hint": "confusing"
+      },
+      {
+       "word": "upstream",
+       "hint": "earlier stage"
+      },
+      {
+       "word": "upends",
+       "hint": "overturns"
+      },
+      {
+       "word": "BCIs",
+       "hint": "neural computer links"
+      }
+     ],
+     "terms": [
+      {
+       "term": "lpSTG",
+       "meaning": "The left posterior superior temporal gyrus, a small region inside Wernicke's area that activates both when listening to speech and just before speaking."
+      },
+      {
+       "term": "Aphasia",
+       "meaning": "A language disorder caused by brain damage that affects a person's ability to communicate, comprehend, or produce speech."
+      },
+      {
+       "term": "Brain-computer interface",
+       "meaning": "An implanted device that reads neural signals from the brain and translates them into external digital or physical actions."
+      },
+      {
+       "term": "Broca's area",
+       "meaning": "A classic region in the frontal lobe historically associated with the physical production of speech."
+      }
+     ],
+     "ask": [
+      "How do researchers ensure that electrical stimulation of the brain during epilepsy surgery is completely safe for patients?",
+      "What specific differences did the brain implants detect between what the paralyzed volunteers heard versus what they tried to say?",
+      "Why did functional magnetic resonance imaging fail to reveal this rapid sequence of events in Wernicke's area?"
+     ],
+     "sources": [
+      {
+       "title": "A brain region known for listening helps us speak",
+       "url": "https://www.sciencenews.org/article/brain-region-listening-speak-wernickie",
+       "source": "Science News",
+       "date": "2026-11-19"
+      },
+      {
+       "title": "We’ve been wrong about how language is produced in the brain for 150 years",
+       "url": "https://www.scientificamerican.com/article/weve-been-wrong-about-how-language-is-produced-in-the-brain-for-150-years/",
+       "source": "Scientific American",
+       "date": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "scitech",
+   "name": "Science & Technology",
+   "stories": [
+    {
+     "id": "human-liver-survives-seven-weeks-outside-body",
+     "title": "Human Liver Survives Seven Weeks Outside Body",
+     "dek": "How Australian researchers kept a donated liver alive for a record time and why it matters for transplants",
+     "kind": "analysis",
+     "why": "This breakthrough in biomedical engineering significantly extends ex-vivo organ viability windows, potentially transforming transplant logistics and organ preservation.",
+     "rating": {
+      "size": 6,
+      "lasting": 8,
+      "growth": 3,
+      "learning": 7,
+      "relevance": 5,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 6.57,
+     "minutes": 4,
+     "words": 924,
+     "sections": [
+      {
+       "heading": "The Claim",
+       "cue": "",
+       "body": "**MIT Technology Review reports** that a team in Sydney, led by surgeon‑inventor Carlo Pulitano, connected a donated human liver to a life‑support system and kept it functional for seven weeks. The work was carried out in late 2025; the researchers have not yet published a peer‑reviewed paper. Their stated goal was to test how far organ viability can be extended, a step that could give surgeons more time to match donors and recipients and potentially ease the chronic shortage of transplantable livers."
+      },
+      {
+       "heading": "The Set‑up",
+       "cue": "How did they do it?",
+       "body": "The liver was placed in a **normothermic perfusion device**—a machine that circulates warm, oxygen‑rich, blood‑like fluid through the organ at body temperature. The system continuously monitors metabolic markers such as bile production, glucose consumption, lactate clearance, and liver enzyme levels (ALT, AST) to confirm that the tissue remains alive. Over the seven‑week period the team:\n\n1. Cannulated the hepatic artery, portal vein, and bile duct.\n2. Connected each cannula to the perfusion circuit.\n3. Supplied oxygenated perfusate at 37 °C, matching normal hepatic blood flow.\n4. Adjusted nutrient composition and electrolyte balance based on real‑time readings.\n5. Replaced the perfusate regularly to prevent toxin buildup and maintain sterility.\n\nThis differs from traditional cold storage, which merely slows metabolism and cannot sustain active liver functions beyond a day or two."
+      },
+      {
+       "heading": "Why Warm Perfusion",
+       "cue": "Why is this better than cold storage?",
+       "body": "Cold storage preserves organs by chilling them to about 4 °C, halting most biochemical activity and giving a preservation window of 6‑12 hours for livers. **Normothermic perfusion** keeps the organ metabolically active, allowing it to detoxify, produce bile, and maintain energy stores. The benefit is two‑fold: a much longer preservation time and a real‑time health check, because surgeons can observe functional outputs before implantation.\n\nThe first commercial normothermic system (OrganOx metra) received U.S. approval in 2018 and extended liver preservation to roughly 24 hours. The Australian experiment pushes that limit by a factor of about ten, according to MIT Technology Review.\n\n"
+      },
+      {
+       "heading": "Economic Drivers",
+       "cue": "What are the costs and incentives?",
+       "body": "MIT Technology Review notes that a commercial perfusion unit costs **US$200,000‑300,000**, with additional consumables for each organ. The potential savings are substantial: a failed transplant can exceed **US$500,000** in postoperative care, and each lost organ represents a missed revenue opportunity for hospitals.\n\nThe Australian team is funded by university research grants, government health‑research money, and a modest partnership with a medical‑device startup. Investors see a market in extending organ viability, especially for regions where transport distances are long and cold‑storage windows are insufficient.\n\n"
+      },
+      {
+       "heading": "Policy Landscape",
+       "cue": "Are there any political or regulatory hurdles?",
+       "body": "In Australia, the Therapeutic Goods Administration (TGA) regulates medical devices and organ‑preservation technologies. The experiment used a donated liver that would otherwise have been discarded, and the team obtained ethical clearance under a waiver for “research on non‑viable tissue,” MIT Technology Review reports.\n\nInternationally, organ‑allocation networks such as Eurotransplant and UNOS have strict transport timelines. A seven‑week preservation window would require new protocols and possibly revisions to allocation policies. Some policymakers worry that only well‑funded hospitals could afford perfusion machines, potentially widening equity gaps. Researchers acknowledge that scalable, lower‑cost versions are needed before the technology can be widely adopted.\n\n"
+      },
+      {
+       "heading": "Historical Context",
+       "cue": "Has anything like this been done before?",
+       "body": "MIT Technology Review cites the previous human‑liver record of **48 hours** achieved by a German team in 2020 using a normothermic system. Earlier, in 2013, researchers kept a pig liver alive for **10 days**. The seven‑week result therefore represents roughly a ten‑fold increase over the prior human benchmark.\n\nIn kidney transplantation, hypothermic machine perfusion (HMP) extended preservation from about 24 to 48 hours and is now standard in many countries. The liver’s higher metabolic demand has made similar advances more challenging, so the new result marks a notable leap.\n\n"
+      },
+      {
+       "heading": "Open Questions",
+       "cue": "What are the uncertainties?",
+       "body": "Because the study has not yet been published, peer review has not validated the findings. Critics note that the liver was never transplanted, so it is unclear whether the organ remained fully functional or merely survived in a minimal state. MIT Technology Review highlights two key unknowns:\n\n* **Immune compatibility** – prolonged perfusion could alter antigen presentation or induce subtle cellular changes that affect rejection risk after transplantation.\n* **Scalability** – maintaining sterile conditions for weeks demands rigorous protocols that may be difficult to replicate outside a specialized laboratory.\n\nThe scientific community is awaiting detailed data on metabolic markers, histology, and any post‑perfusional transplantation outcomes before drawing firm conclusions.\n\n"
+      },
+      {
+       "heading": "Future Outlook",
+       "cue": "What could happen next?",
+       "body": "If follow‑up trials demonstrate that a seven‑week perfused liver can be safely transplanted, the logistics of organ sharing could change dramatically. Organs could be moved across continents, allowing better donor‑recipient matches and potentially reducing waiting‑list mortality. Companies are already filing patents for portable perfusion units that could travel with the organ, similar to today’s organ‑preserving trucks.\n\nIn the nearer term, the technology may first be applied to **research**—for example, testing drug toxicity on a living human liver without animal models, which could accelerate pharmaceutical development and cut costs.\n\nKey milestones to watch:\n1. Publication of the full data set.\n2. Regulatory filings for clinical use.\n3. Announcements of commercial partners scaling the device for hospital use.\n\n"
+      },
+      {
+       "heading": "Apply",
+       "cue": "How can I use this?",
+       "body": "The underlying principle—**maintaining function by continuously supplying essential inputs**—can be applied to personal projects. Just as the liver needed a steady flow of oxygen and nutrients, a long‑term project thrives when its core resources (clear goals, time, feedback) are kept flowing rather than paused.\n\nTry a small experiment: choose a habit you want to sustain (e.g., daily reading). Instead of a large weekly target, set up a daily “perfusate” – a 10‑minute slot at the same time each day. Track a simple metric (pages read) and adjust the “nutrient mix” (type of material) if motivation drops. Frequent, modest input mirrors the biology of organ perfusion and, according to habit‑formation research, leads to stronger, longer‑lasting behavior change.\n\n",
+       "apply": true
+      }
+     ],
+     "glossary": [
+      {
+       "word": "peer‑reviewed",
+       "hint": "expert-checked"
+      },
+      {
+       "word": "consumables",
+       "hint": "supplies used up"
+      },
+      {
+       "word": "hypothermic",
+       "hint": "cold-chill"
+      },
+      {
+       "word": "Cannulated",
+       "hint": "tubed"
+      },
+      {
+       "word": "perfusate",
+       "hint": "circulating fluid"
+      },
+      {
+       "word": "histology",
+       "hint": "tissue study"
+      },
+      {
+       "word": "hepatic",
+       "hint": "liver"
+      }
+     ],
+     "terms": [
+      {
+       "term": "Normothermic perfusion",
+       "meaning": "A technique that circulates warm, oxygen‑rich fluid through an organ to keep it alive outside the body"
+      },
+      {
+       "term": "Cannulation",
+       "meaning": "Inserting tubes into blood vessels to allow fluid flow"
+      },
+      {
+       "term": "Therapeutic Goods Administration",
+       "meaning": "Australia’s regulator for medical devices and medicines"
+      }
+     ],
+     "ask": [
+      "What specific metabolic markers did the researchers monitor?",
+      "How might extended perfusion affect immune compatibility for transplants?",
+      "When could commercial perfusion devices become affordable for smaller hospitals?"
+     ],
+     "sources": [
+      {
+       "title": "A human liver has been kept alive outside the body for a record seven weeks",
+       "url": "https://www.technologyreview.com/2026/11/19/1148934/a-human-liver-has-been-kept-alive-outside-the-body-for-seven-weeks-setting-a-record/",
+       "source": "MIT Technology Review",
+       "date": "2026-11-19"
+      },
+      {
+       "title": "The Download: a living liver, a billion-dollar battery deal, and AI hype",
+       "url": "https://www.technologyreview.com/2026/11/19/1148979/the-download-liver-kept-alive-sila-battery-deal-ai-hype/",
+       "source": "MIT Technology Review",
+       "date": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "biz",
+   "name": "Business & Companies · Politics & World · Science & Technology",
+   "stories": [
+    {
+     "id": "ford-begins-u-s-ev-battery-production-using-catl-tech",
+     "title": "Ford Begins U.S. EV Battery Production Using CATL Tech",
+     "dek": "How Ford is using licensed Chinese battery technology to launch domestic LFP cells amid political scrutiny",
+     "kind": "news",
+     "why": "Ford has officially begun domestic production and shipments of battery cells utilizing licensed technology from China's CATL.",
+     "rating": {
+      "size": 7,
+      "lasting": 7,
+      "growth": 2,
+      "learning": 8,
+      "relevance": 5,
+      "novelty": 7,
+      "solidity": 9
+     },
+     "score": 6.43,
+     "minutes": 4,
+     "words": 1034,
+     "sections": [
+      {
+       "heading": "The Announcement",
+       "cue": "",
+       "body": "**Ford started shipping battery cells from its new Michigan plant** that use technology licensed from China’s CATL, according to CNBC (Nov 18, 2026). The 2‑million‑square‑foot facility in Marshall began production last month and is already sending cells to prototype vehicles, including the upcoming Fathom electric pickup. Ford says the move lets it bring low‑cost lithium‑iron‑phosphate (LFP) chemistry to U.S. EVs quickly, a chemistry originally developed in the United States but commercialized mainly in China. The company framed the decision as a way to make affordable EVs and keep jobs domestic, even as U.S. officials raise concerns about Chinese ties."
+      },
+      {
+       "heading": "Strategic Reasoning",
+       "cue": "Why license Chinese tech?",
+       "body": "Ford’s vice‑president of advanced development projects, Alan Clarke, told reporters that **CATL is the world’s largest battery supplier**, so licensing its LFP process is the fastest route to domestic production (CNBC). The alternative would be to develop the chemistry in‑house, which could take years and cost billions. By using a proven technology, Ford hopes to reduce battery cost, hit production targets for the Fathom pickup, and stay competitive with rivals like Tesla and Chinese EV makers that already use LFP cells.\n\nThe economic incentive is clear: lower‑cost batteries improve vehicle margins and enable a price point that appeals to a broader market. The political incentive is to showcase “Made in America” jobs, even while the technology originates abroad."
+      },
+      {
+       "heading": "Production Mechanism",
+       "cue": "How does the cell plant work?",
+       "body": "The Marshall plant is **highly automated** and can produce about 40 cells per minute, which translates to roughly 20 GWh of capacity per year (CNBC). The steps are:\n1. **Raw material preparation** – lithium, iron, phosphate, and other inputs are mixed into a slurry.\n2. **Coating and drying** – the slurry is spread onto metal foils and dried to form electrode sheets.\n3. **Cell assembly** – sheets are stacked or wound, then sealed into a pouch or cylindrical cell.\n4. **Formation and testing** – cells are charged and discharged to verify performance.\n5. **Packaging and shipping** – approved cells are sent to the Fathom prototype line.\n\nBecause the plant uses CATL‑licensed process parameters, the chemistry (LFP) is already optimized for safety, longevity, and cost, allowing Ford to skip much of the trial‑and‑error phase typical of new battery development."
+      },
+      {
+       "heading": "Economic Context",
+       "cue": "What’s the money picture?",
+       "body": "Ford invested **$3 billion** in the Marshall facility (CNBC). At 20 GWh annual capacity, the plant could generate roughly $1.5 billion in revenue per year if cells sell at $75 kWh, a price point common for LFP packs today. The plant’s design leaves room to double capacity to 40 GWh, which would further spread fixed costs and lower per‑kWh prices.\n\nThe licensing fee to CATL is not disclosed, but such agreements typically involve upfront payments plus royalties per cell. By avoiding a full R&D spend on LFP, Ford saves an estimated $500 million‑$1 billion in development costs, according to industry analysts cited by Reuters.\n\nThus, the financial calculus balances a large capital outlay against faster market entry, lower battery costs, and the ability to claim domestic production for political goodwill."
+      },
+      {
+       "heading": "Political Scrutiny",
+       "cue": "Why is politics involved?",
+       "body": "U.S. officials have heightened concern over Chinese technology in critical supply chains. In September, U.S. Transportation Secretary Sean Duffy sent a letter to Ford expressing “profound concern” about its CATL ties (CNBC). The White House later praised the job creation aspect, creating a mixed signal.\n\nThe tension stems from fears of intellectual‑property leakage, potential export controls, and national‑security considerations. At the same time, the Biden and Trump administrations have both urged onshoring of EV components, so Ford’s domestic plant satisfies the “jobs” narrative while still relying on foreign IP.\n\nThis duality illustrates how companies must navigate **geopolitical risk**—balancing supply‑chain resilience against regulatory and reputational pressures."
+      },
+      {
+       "heading": "Historical Precedent",
+       "cue": "Has this been done before?",
+       "body": "Licensing foreign technology for domestic production is not new. In the 1990s, U.S. automakers licensed Japanese engine designs to meet fuel‑efficiency standards quickly. More recently, several U.S. firms have used Chinese semiconductor designs under export‑control licenses to keep up with demand.\n\nThe key difference today is the strategic importance of batteries for energy transition and national security, making the CATL‑Ford deal more politically sensitive than earlier technology transfers.\n\nThese precedents show that **technology licensing can accelerate market entry**, but the surrounding regulatory environment can shift dramatically over time."
+      },
+      {
+       "heading": "Uncertainties",
+       "cue": "What’s still unclear?",
+       "body": "- **Scale of licensing fees**: The exact cost of the CATL agreement is undisclosed, leaving analysts uncertain about long‑term profitability.\n- **Future regulatory changes**: If the U.S. imposes stricter limits on Chinese IP, Ford may need to re‑tool the plant or develop its own LFP process.\n- **Market demand**: The Fathom pickup’s success is unproven; if consumer uptake is low, the plant could operate below capacity, raising unit costs.\n- **Supply‑chain stability**: While raw materials are sourced globally, any disruption (e.g., lithium shortages) could affect production.\n\nThese variables mean the venture’s financial and strategic outcomes remain contingent on external factors."
+      },
+      {
+       "heading": "Looking Ahead",
+       "cue": "What should I watch?",
+       "body": "- **Regulatory announcements** from the Department of Commerce or the White House regarding Chinese tech in critical industries.\n- **Ford’s production ramp‑up schedule** for the Marshall plant in 2027, as reported in quarterly earnings.\n- **Pricing trends for LFP batteries**; a continued drop would validate Ford’s cost‑reduction thesis.\n- **Consumer response to the Fathom pickup** once it launches in Q4 2027.\n\nFor an ordinary consumer, the main impact could be lower EV prices and more locally made vehicles, assuming the plant achieves its cost goals.\n\nMonitoring these signals will indicate whether Ford’s licensing strategy pays off or faces new hurdles."
+      },
+      {
+       "heading": "Apply the Lesson",
+       "cue": "How can I use this?",
+       "body": "One way to apply Ford’s approach is to **evaluate licensing versus in‑house development** when your organization needs a new technology quickly. Sketch a simple cost‑benefit table:\n- **Licensing**: lower upfront R&D, faster time‑to‑market, possible royalty fees, dependence on external IP.\n- **In‑house**: higher R&D spend, longer timeline, full control, potential for higher margins.\nIf the market window is narrow (as with EV battery cost pressures), the licensing side may dominate.\n\nYou could try this in a small business setting: suppose you need a new payment‑processing API. Compare the cost of building it yourself over six months versus paying a modest monthly fee to a proven provider. Factor in time‑to‑revenue and risk of bugs. This structured comparison mirrors Ford’s decision‑making process and helps you choose the fastest, most cost‑effective path.\n\nRemember, the trade‑off works best when the licensed technology is mature and the partner is reputable, just as Ford relied on CATL’s global leadership in LFP cells.",
+       "apply": true
+      }
+     ],
+     "glossary": [
+      {
+       "word": "commercialized",
+       "hint": "made into business"
+      },
+      {
+       "word": "geopolitical",
+       "hint": "global political"
+      },
+      {
+       "word": "parameters",
+       "hint": "set rules"
+      },
+      {
+       "word": "precedents",
+       "hint": "past examples"
+      },
+      {
+       "word": "contingent",
+       "hint": "dependent"
+      },
+      {
+       "word": "longevity",
+       "hint": "long life"
+      },
+      {
+       "word": "onshoring",
+       "hint": "bringing home"
+      },
+      {
+       "word": "calculus",
+       "hint": "careful planning"
+      },
+      {
+       "word": "margins",
+       "hint": "profit amounts"
+      },
+      {
+       "word": "slurry",
+       "hint": "thick liquid mixture"
+      },
+      {
+       "word": "outlay",
+       "hint": "money spent"
+      }
+     ],
+     "terms": [
+      {
+       "term": "LFP",
+       "meaning": "Lithium‑iron‑phosphate, a type of battery chemistry that is cheaper and safer but has lower energy density than nickel‑cobalt‑aluminum chemistries"
+      },
+      {
+       "term": "GWh",
+       "meaning": "Gigawatt‑hour, a unit of energy equal to one billion watt‑hours, used to describe battery production capacity"
+      },
+      {
+       "term": "Licensing",
+       "meaning": "A legal agreement where one company pays to use another’s patented technology or know‑how"
+      }
+     ],
+     "ask": [
+      "What are the potential long‑term risks of relying on foreign battery technology?",
+      "How might changes in U.S. export‑control policy affect other automakers’ supply chains?",
+      "Could domestic development of LFP chemistry become viable without Chinese partnerships?"
+     ],
+     "sources": [
+      {
+       "title": "Ford starts U.S. battery cell production using Chinese tech amid geopolitical tensions",
+       "url": "https://www.cnbc.com/2026/11/18/ford-us-battery-cells-catl-tech.html",
+       "source": "CNBC · Business",
+       "date": "2026-11-18"
+      },
+      {
+       "title": "Ford ships first battery cells using CATL technology - Reuters",
+       "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxQeTBMV1ZFVURFMmhJNEl1SXNETWpmMnNadDQyWEo1UGZRNXZjWE5yR2JQb2VyeDJoZEItQ0Fjd2RRNnA5aHBtNUtnbXVPUm40SW8tSjJHTkJsaTcyNk5uYlMyd3pMM2V5VHdIYVVFZHBSSHhjYTNKYkdReERNS095Nnp2OFdKNGtqNndnOWRZblltN3AwaDcwSy1aSGhhN0dhd0xsRXVaZTJ5c1BGM2M1cTZaUmNHUlZGQVE?oc=5",
+       "source": "Reuters · Companies",
+       "date": "2026-11-18"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "psych",
+   "name": "Psychology & Mind",
+   "stories": [
+    {
+     "id": "adhd-classroom-accommodations-don-t-boost-performance",
+     "title": "ADHD Classroom Accommodations Don't Boost Performance",
+     "dek": "A summer trial shows that standard spatial tweaks fail, while behavior support and medication help ADHD students.",
+     "kind": "news",
+     "why": "A clinical trial reveals that popular spatial accommodations fall short, underscoring the need for structured behavioral supports.",
+     "rating": {
+      "size": 5,
+      "lasting": 6,
+      "growth": 5,
+      "learning": 7,
+      "relevance": 4,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 6.29,
+     "minutes": 4,
+     "words": 837,
+     "sections": [
+      {
+       "heading": "What Happened?",
+       "cue": "",
+       "body": "PsyPost reports that a clinical trial published in JAMA Pediatrics tested four widely used classroom accommodations for children with attention-deficit/hyperactivity disorder and found they did not improve student behavior or academic performance. The study compared these accommodations alongside structured behavioral classroom supports and a moderate dose of stimulant medication during an eight-week summer school program.\n\nThe trial was led by Gregory A. Fabiano, a professor of psychology at Florida International University, and enrolled 255 children in kindergarten through sixth grade who met diagnostic criteria for ADHD. Over four summers from 2022 to 2025 at sites in the southeastern and northeastern United States, the researchers used a crossover design where every child rotated through each treatment condition in a randomized, counterbalanced order so that each student served as their own comparison."
+      },
+      {
+       "heading": "Why Test?",
+       "cue": "Why test accommodations?",
+       "body": "In the United States, roughly half of students diagnosed with ADHD receive formal educational services through individualized education programs under federal special education law or Section 504 plans under disability civil rights law. These plans routinely center on academic accommodations, which are adjustments to classroom surroundings, work schedules, or testing conditions meant to help students complete the same assignments as their classmates. Common examples include extra time on assignments and quizzes, frequent short breaks, noise-canceling headphones with desk dividers, and permission to stand while working. Fabiano told PsyPost that while these approaches are very common, they had typically not been rigorously evaluated to see if they actually work."
+      },
+      {
+       "heading": "Study Design",
+       "cue": "How was the study set up?",
+       "body": "The researchers screened 306 children and enrolled 280, with 255 beginning the intervention across four summers from 2022 to 2025. The study took place inside a structured eight-week summer treatment program, adjusted to seven weeks for the fourth cohort. Students attended two one-hour classroom sessions each day before spending the remaining hours in recreational activities.\n\nThree treatment factors were systematically varied. Classroom behavior management alternated in two-week blocks between a general classroom modeled on typical school practices and an enhanced behavioral intervention classroom featuring a public point board, frequent specific praise, and daily report cards tracking personalized targets. Stimulant medication alternated in one-week blocks under double-blind conditions, where participants swallowed an opaque capsule containing either an inactive placebo or extended-release methylphenidate at a moderate weight-based dose. The four accommodations were tested separately and together alongside these conditions."
+      },
+      {
+       "heading": "Results",
+       "cue": "What did they find?",
+       "body": "According to PsyPost, the clinical trial provided evidence that four widely used classroom accommodations did not improve student behavior or academic performance. In contrast, structured behavioral classroom supports and a moderate dose of stimulant medication both substantially reduced classroom rule-breaking, while medication also increased assignment completion and quiz scores. The findings suggest that schools seeking to help students with ADHD succeed may achieve better results from active behavioral strategies than from standard classroom accommodations."
+      },
+      {
+       "heading": "Mechanism",
+       "cue": "Why might accommodations fail?",
+       "body": "ADHD is a neurodevelopmental condition characterized by ongoing difficulties sustaining attention, curbing impulsive actions, and regulating physical restlessness. Clinical guidelines generally recommend stimulant medications, which act on brain chemical signaling involved in focus and self-control, alongside positive behavioral interventions, which use structured expectations, frequent specific praise, daily behavior goals, and earned privileges. \n\nAs background, keeping students with ADHD engaged involves more than simply blocking out hallway noise or visual clutter. For instance, an earlier classroom study of children with ADHD indicated that students with the condition were especially prone to internal mind-wandering, which lowered work output when anticipating a reward. Furthermore, a 2026 single-student classroom study observed that a first-grader with ADHD stayed focused on assignments for only about a minute and a half when teachers relied on routine verbal prompts, whereas introducing structured positive reinforcement extended the student's on-task time. Accommodations like extra time or headphones adjust the environment, but they do not provide the active, systematic reinforcement needed to engage the brain's reward circuitry."
+      },
+      {
+       "heading": "Historical Context",
+       "cue": "Has this been seen before?",
+       "body": "As background, the separation of pharmacological and behavioral approaches has long been studied in psychology. In historical cases like the landmark Multimodal Treatment Study of Children with ADHD, researchers evaluated combined treatments over long periods to understand how medication and behavioral therapy interact. Similarly, studies examining classroom interventions often find that environmental modifications alone produce smaller changes in academic output compared to direct behavioral contingencies or pharmacological agents that alter dopamine and norepinephrine signaling."
+      },
+      {
+       "heading": "Disagreement",
+       "cue": "What do critics say?",
+       "body": "The provided source texts do not mention any critics or opposing viewpoints regarding the study's design or findings."
+      },
+      {
+       "heading": "Implications",
+       "cue": "What should schools do?",
+       "body": "The findings suggest that schools seeking to help students with ADHD succeed may achieve better results from active behavioral strategies than from standard classroom accommodations. While accommodations remain common in school plans, the trial's results indicate they do not improve student behavior or schoolwork on their own."
+      },
+      {
+       "heading": "apply",
+       "cue": "How can I use this?",
+       "body": "If you are supporting a child with ADHD at home or in a tutoring setting, you can use these findings by pairing any environmental adjustments with active behavioral supports. For example, if you allow a student extra time on a task (an accommodation), combine it with a structured daily goal, frequent specific praise, and small earned privileges for staying on task. This blends spatial or scheduling tweaks with the systematic positive reinforcement shown in the study to genuinely reduce rule-breaking and improve performance.",
+       "apply": true
+      }
+     ],
+     "glossary": [
+      {
+       "word": "neurodevelopmental",
+       "hint": "brain development"
+      },
+      {
+       "word": "pharmacological",
+       "hint": "drug-based"
+      },
+      {
+       "word": "accommodations",
+       "hint": "helpful adjustments"
+      },
+      {
+       "word": "contingencies",
+       "hint": "conditions or rules"
+      },
+      {
+       "word": "rigorously",
+       "hint": "strictly and thoroughly"
+      },
+      {
+       "word": "evaluated",
+       "hint": "tested or assessed"
+      },
+      {
+       "word": "placebo",
+       "hint": "fake inactive pill"
+      },
+      {
+       "word": "cohort",
+       "hint": "group of participants"
+      }
+     ],
+     "terms": [
+      {
+       "term": "crossover randomized clinical trial",
+       "meaning": "A study design where every participant rotates through every treatment condition in a randomized order, allowing each student to serve as their own comparison."
+      },
+      {
+       "term": "stimulant medication",
+       "meaning": "Prescription drugs, such as extended-release methylphenidate, that act on brain chemical signaling involved in focus and self-control."
+      },
+      {
+       "term": "behavioral classroom supports",
+       "meaning": "Interventions that use structured expectations, frequent specific praise, daily behavior goals, public point boards, and earned privileges."
+      },
+      {
+       "term": "accommodations",
+       "meaning": "Adjustments to classroom surroundings, work schedules, or testing conditions meant to help students complete the same assignments as their classmates."
+      }
+     ],
+     "ask": [
+      "How do these findings apply to students outside of the elementary school grades tested in the trial?",
+      "What are the practical hurdles schools face when shifting from standard accommodations to enhanced behavioral intervention classrooms?"
+     ],
+     "sources": [
+      {
+       "title": "Common classroom accommodations for ADHD fail to improve student behavior or schoolwork in clinical trial",
+       "url": "https://www.psypost.org/common-classroom-accommodations-for-adhd-fail-to-improve-student-behavior-or-schoolwork-in-clinical-trial/",
+       "source": "PsyPost",
+       "date": "2026-11-19"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
