@@ -294,6 +294,7 @@ async function renderReader(date, id) {
   const i = list.findIndex(s => s.id === id);
   if (i < 0) { location.hash = "#/"; return; }
   const s = list[i];
+  if (isRead(date, s) && justFinished !== pkey(date, s)) { location.replace("#/"); return; }   // read stories never reopen
   if (!isRead(date, s)) {                                  // no skipping ahead
     const up = await nextUp();
     if (up && (up.date !== date || up.s.id !== s.id)) { location.replace(`#/read/${up.date}/${encodeURIComponent(up.s.id)}`); return; }
@@ -461,7 +462,8 @@ function markRead(key) {
   const p = (S.progress[key] ||= { sec: 1 });
   if (!p.done) { p.done = true; p.at = Date.now(); save(); touch(p); sync.soon(300); }
 }
-async function finish() { markRead(R.key); await sync.push(); R.next = await nextUp(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
+let justFinished = null;                                   // the story you just finished stays on screen (its end page)
+async function finish() { justFinished = R.key; markRead(R.key); await sync.push(); R.next = await nextUp(); drawBottom(); setTimeout(() => scrollToEl($("#end")), 60); }
 async function markAndNext() {
   markRead(R.key);
   await sync.push();                                         // send it now, so your other device drops it too
