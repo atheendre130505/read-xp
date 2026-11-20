@@ -1,5 +1,106 @@
 [
 {
+"d": "2026-11-20-evening",
+"id": "inside-wall-street-s-4-trillion-tech-and-ai-selloff",
+"t": "Inside Wall Street's $4 Trillion Tech and AI Selloff",
+"dek": "How soaring expectations, heavy corporate spending, and regulatory scrutiny triggered a historic tech market downturn.",
+"src": [
+"US tech stocks plunge into bear market in worst week since Covid-19 crisis",
+"Anthropic’s IPO Bust Caps $4 Trillion AI Wipeout on Wall Street",
+"Stock Market Today: Tech Rout Deepens as Nvidia, Anthropic Slide",
+"Nvidia Plunges as SEC Probe Deepens AI Market Selloff | Closing Bell"
+],
+"terms": [
+"Valuation Multiple",
+"Bear Market",
+"Initial Public Offering (IPO)",
+"Capital Expenditure (CapEx)"
+]
+},
+{
+"d": "2026-11-20-evening",
+"id": "how-acceptance-therapy-rewires-the-brain-s-emotional-and-rum",
+"t": "How Acceptance Therapy Rewires the Brain's Emotional and Rumination Networks",
+"dek": "A study reported by PsyPost reveals that Acceptance and Commitment Therapy increases activity in emotional control centers and strengthens brain pathways linked to rumination.",
+"src": [
+"Acceptance and commitment therapy linked to neural shifts in the depressed brain"
+],
+"terms": [
+"Acceptance and Commitment Therapy (ACT)",
+"Cognitive Fusion",
+"Medial Prefrontal Cortex (mPFC)",
+"Default Mode Network (DMN)",
+"Rumination"
+]
+},
+{
+"d": "2026-11-20-evening",
+"id": "why-intuit-sold-mailchimp-at-an-8-billion-loss",
+"t": "Why Intuit Sold Mailchimp at an $8 Billion Loss",
+"dek": "A drastic price drop highlights how AI is reshaping software valuations and corporate strategies.",
+"src": [
+"Bending Spoons buys Mailchimp for $3.68B",
+"Anthropic’s 7 founders cashed out nearly $2B in record-breaking IPO"
+],
+"terms": [
+"Software as a Service (SaaS)",
+"Write-down",
+"Share Buyback",
+"Class N Stock"
+]
+},
+{
+"d": "2026-11-20-evening",
+"id": "inside-the-19-year-sentence-over-an-indian-murder-for-hire-p",
+"t": "Inside the 19-year sentence over an Indian murder-for-hire plot",
+"dek": "A federal judge sentenced Nikhil Gupta for plotting to assassinate a Sikh separatist in New York, exposing intelligence operations and diplomatic rifts.",
+"src": [
+"Indian man sentenced to 19-plus years in plot to assassinate US-based Sikh separatist leader",
+"Indian man sentenced to 19 years in US Sikh separatist assassination plot"
+],
+"terms": [
+"Khalistan movement",
+"Extradition",
+"Transnational repression",
+"Murder-for-hire"
+]
+},
+{
+"d": "2026-11-20-evening",
+"id": "how-an-ai-assisted-team-claimed-a-solution-to-the-riemann-hy",
+"t": "How an AI-Assisted Team Claimed a Solution to the Riemann Hypothesis",
+"dek": "An Anthropic mathematician used Claude and the proof assistant Lean to report a solution to mathematics's most famous open problem, triggering swift independent verification across the scientific community.",
+"src": [
+"Anthropic mathematician claims to prove Riemann hypothesis, most famous problem in all of math",
+"The AI Riemann hypothesis proof is almost certainly true, independent mathematicians attest",
+"What the Riemann hypothesis proof really means about AI and the future",
+"Anthropic mathematician claims to have solved prestigious Millennium Prize problem with Claude"
+],
+"terms": [
+"Riemann Hypothesis",
+"Generalized Riemann Hypothesis (GRH)",
+"Lean",
+"Millennium Prize Problems",
+"Comparator Run"
+]
+},
+{
+"d": "2026-11-20-evening",
+"id": "how-scientists-controlled-a-virtual-fruit-fly-using-its-brai",
+"t": "How Scientists Controlled a Virtual Fruit Fly Using Its Brain Map",
+"dek": "By pairing a full wiring diagram of an insect's brain with a physical simulation, researchers have taken a key step toward predicting how neural activity drives movement.",
+"src": [
+"Scientists control a virtual fruit fly with map of insect’s brain",
+"Exclusive: I got to eavesdrop on AI agents doing science. It was eye opening"
+],
+"terms": [
+"Connectome",
+"Synapse",
+"Neuromodulator",
+"Embodiment"
+]
+},
+{
 "d": "2026-11-20-morning",
 "id": "four-insula-regions-explain-pain-emotion-and-placebo",
 "t": "Four Insula Regions Explain Pain, Emotion, and Placebo",
