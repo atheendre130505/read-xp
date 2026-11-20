@@ -566,6 +566,12 @@ def main():
     site_url = os.environ.get("SITE_URL", "https://atheendre130505.github.io/read-xp/")
     day = today_str()
     edition = a.edition or ("morning" if dt.datetime.now(TZ).hour < 15 else "evening")
+    if os.environ.get("SCHEDULED") == "true" and not a.edition:
+        # The nightly 9 PM run. If it starts late (GitHub's own schedule has started it hours late, past
+        # midnight), it still belongs to the evening it was meant for, so the backup finds it and stops.
+        now = dt.datetime.now(TZ)
+        day = (now - dt.timedelta(days=1 if now.hour < 20 else 0)).strftime("%Y-%m-%d")
+        edition = "evening"
     date = f"{day}-{edition}"                              # two editions a day, kept apart
 
     if a.rate_existing:
