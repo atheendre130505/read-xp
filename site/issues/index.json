@@ -12,8 +12,8 @@
   "date": "2026-11-20-morning",
   "day": "2026-11-20",
   "edition": "morning",
-  "stories": 5,
-  "minutes": 19,
+  "stories": 3,
+  "minutes": 11,
   "headline": "Four Insula Regions Explain Pain, Emotion, and Placebo",
   "partial": false
  },
@@ -21,8 +21,8 @@
   "date": "2026-11-19-evening",
   "day": "2026-11-19",
   "edition": "evening",
-  "stories": 7,
-  "minutes": 40,
+  "stories": 5,
+  "minutes": 32,
   "headline": "How the Brain Regulates Illness and Blood Sugar Through Nerve Networks",
   "partial": false
  },
@@ -30,17 +30,17 @@
   "date": "2026-11-19-morning",
   "day": "2026-11-19",
   "edition": "morning",
-  "stories": 3,
-  "minutes": 8,
-  "headline": "First US‑China‑Russia Summit: What It Means",
+  "stories": 1,
+  "minutes": 3,
+  "headline": "EU Plans €45 billion Ukraine Loan Linked to Russian Reparations",
   "partial": false
  },
  {
   "date": "2026-11-18-morning",
   "day": "2026-11-18",
   "edition": "morning",
-  "stories": 18,
-  "minutes": 84,
+  "stories": 14,
+  "minutes": 65,
   "headline": "Nvidia’s AI Dominance Faces Crisis Over Leadership and Export Evasion Probes",
   "partial": false
  },
@@ -48,8 +48,8 @@
   "date": "2026-11-18-evening",
   "day": "2026-11-18",
   "edition": "evening",
-  "stories": 14,
-  "minutes": 71,
+  "stories": 10,
+  "minutes": 52,
   "headline": "What US Chip Rules Mean for the Shenzhen Summit and Asia",
   "partial": false
  }

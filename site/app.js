@@ -312,7 +312,7 @@ async function renderReader(date, id) {
     <article class="story">
       <div class="kicker">${esc(s.topic.name)}</div>
       <h1>${esc(s.title)}</h1><p class="dek">${esc(s.dek)}</p>
-      <div class="meta">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min read<i class="dot"></i>${esc(outlets(s).join(", "))}${s.score ? `<i class="dot"></i><span title="${esc(Object.entries(s.rating || {}).map(([k, v]) => `${k} ${v}`).join(" · "))}">Rated ${Number(s.score).toFixed(1)}</span>` : ""}</div>
+      <div class="meta">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min read<i class="dot"></i>${esc(outlets(s).join(", "))}${s.score ? `<i class="dot"></i><span title="${esc(Object.entries(s.rating || {}).map(([k, v]) => `${k} ${v}`).concat(/Psychology|Philosophy/.test(s.topic?.name || "") ? ["+1 psychology/philosophy"] : []).join(" · "))}">Rated ${Number(s.score).toFixed(1)}</span>` : ""}</div>
       <div id="thread"></div><div id="end"></div><div class="after"></div>
     </article>
     <div class="dock"><div class="in"><div class="cont" id="cont"></div>
@@ -640,6 +640,7 @@ function renderSettings() {
       : sync.last ? `In step with your other device (checked ${Math.max(0, Math.round((Date.now() - sync.last) / 1000))} s ago).` : "Linked."}</p>
     <div class="row" style="display:block"><label>Sync key<small>A GitHub token that can only touch your private read-xp-sync repo.</small></label>
       <input class="field" id="synckey" type="password" autocomplete="off" placeholder="github_pat_…" value="${esc(st.sync || "")}"></div>
+    ${nightlyErr === "perm" ? `<p class="note">To start the 9 PM stories on time when you open Read, give this key "Actions: Read and write" on the read-xp repo too (GitHub → Settings → Developer settings → Fine-grained tokens).</p>` : ""}
     <h3>History</h3>
     <p class="note">${Object.values(S.progress).filter(p => p.done).length} stories read in the last two weeks.</p>
     <p style="margin-bottom:60px"><button class="btn" data-act="reset">Clear reading history</button></p>
@@ -695,4 +696,28 @@ document.addEventListener("visibilitychange", () => setTimeout(checkVersion, 150
 navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
 window.caches?.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
 // open where you actually are: get the other device's latest first (but never wait more than a few seconds)
-Promise.race([sync.pull().catch(() => {}), new Promise(r => setTimeout(r, 4000))]).finally(() => loadIndex().then(route));
+Promise.race([sync.pull().catch(() => {}), new Promise(r => setTimeout(r, 4000))]).finally(() => loadIndex().then(route).then(nightly));
+
+// GitHub starts its own 9 PM schedule hours late, so opening Read after 9 PM starts tonight's run itself if it
+// hasn't happened yet (once per evening per device, retried after 45 min). Uses the sync key, which needs
+// "Actions: read and write" on read-xp for this; without it nothing happens and GitHub's schedule still runs.
+const SITE_REPO = "atheendre130505/read-xp";
+let nightlyErr = "";
+async function nightly() {
+  if (!sync.on()) return;
+  const ist = new Date(Date.now() + 5.5 * 3600e3), h = ist.getUTCHours();
+  if (h === 20) return;                                     // 8-9 PM: last night's stories are the current ones
+  const day = new Date(ist - (h < 20 ? 86400e3 : 0)).toISOString().slice(0, 10), ed = `${day}-evening`;
+  if (INDEX.some(e => e.date === ed && !e.partial)) return;
+  let tried = {};
+  try { tried = JSON.parse(localStorage.getItem("rxp-nightly") || "{}"); } catch {}
+  if (Date.now() - (tried[ed] || 0) < 45 * 60e3) return;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${SITE_REPO}/actions/workflows/daily.yml/dispatches`, {
+      method: "POST", headers: { ...sync.hdr(), "Content-Type": "application/json" },
+      body: JSON.stringify({ ref: "main", inputs: { nightly: "true" } }) });
+    nightlyErr = r.ok ? "" : r.status === 403 || r.status === 404 ? "perm" : "net";
+    if (r.ok) { try { localStorage.setItem("rxp-nightly", JSON.stringify({ [ed]: Date.now() })); } catch {} toast("Tonight's stories are being written (about 15 min)"); }
+  } catch { nightlyErr = "net"; }
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") setTimeout(() => loadIndex().then(nightly), 2000); });

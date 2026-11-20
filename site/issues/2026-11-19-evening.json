@@ -25,7 +25,7 @@
       "novelty": 8,
       "solidity": 9
      },
-     "score": 8.0,
+     "score": 9.0,
      "minutes": 5,
      "words": 1063,
      "sections": [
@@ -174,7 +174,7 @@
       "novelty": 7,
       "solidity": 8
      },
-     "score": 8.0,
+     "score": 9.0,
      "minutes": 7,
      "words": 1709,
      "sections": [
@@ -316,7 +316,7 @@
       "novelty": 8,
       "solidity": 8
      },
-     "score": 7.71,
+     "score": 8.71,
      "minutes": 7,
      "words": 1571,
      "sections": [
@@ -602,272 +602,6 @@
    ]
   },
   {
-   "id": "biz",
-   "name": "Business & Companies · Science & Technology · Economics & Finance",
-   "stories": [
-    {
-     "id": "the-ai-energy-crunch-why-data-centers-are-straining-global-p",
-     "title": "The AI Energy Crunch: Why Data Centers Are Straining Global Power",
-     "dek": "A new IEA report details how the rapid rise of AI is fueling a surge in emissions and testing energy infrastructure.",
-     "kind": "news",
-     "why": "The IEA's forecast highlights a critical tension between the rapid scaling of AI and the physical limits of energy grids and environmental commitments.",
-     "rating": {
-      "size": 7,
-      "lasting": 8,
-      "growth": 4,
-      "learning": 7,
-      "relevance": 6,
-      "novelty": 7,
-      "solidity": 9
-     },
-     "score": 6.86,
-     "minutes": 3,
-     "words": 748,
-     "sections": [
-      {
-       "heading": "The Energy Forecast",
-       "cue": "",
-       "body": "The International Energy Agency (IEA) recently released a report highlighting a significant conflict between the growth of artificial intelligence and global sustainability targets. According to the IEA, datacenters are expected to generate 70% more carbon emissions by 2030 than they do today. The agency found that the electricity consumption of these facilities will double within the next four years, with AI driving three-quarters of that increase. To put that scale in perspective, the IEA estimates that AI datacenters will require an additional 350 terrawatt-hours of electricity annually—an amount exceeding the total yearly electricity consumption of Great Britain."
-      },
-      {
-       "heading": "The AI Growth Engine",
-       "cue": "Why is this happening so fast?",
-       "body": "The primary driver of this demand is the rapid expansion of AI-optimized infrastructure. The IEA reports that global shipments of AI servers have climbed eighteen-fold since 2020. Using satellite imagery, the agency tracked the construction of 93 large-scale 'AI factories' globally. Currently, the world’s total datacenter capacity is 120 gigawatts, with 80% concentrated in China, the US, and the EU. The IEA projects another 120 gigawatts will be built by 2030, and notes that three-quarters of that new capacity will be dedicated to AI. Because these facilities require constant, reliable power to function, developers are scrambling to secure energy sources that can keep up with their build-out pace."
-      },
-      {
-       "heading": "Grid Bottlenecks and Gas",
-       "cue": "How does this affect energy grids?",
-       "body": "The challenge is not just producing enough energy; it is delivering it where and when it is needed. A commentary in Fortune by a Schneider Electric executive notes that over 2,500 gigawatts of renewable and storage projects are currently sitting in global grid connection queues. Because renewable projects often take years to permit and connect, datacenter developers are increasingly turning to fossil fuels to fill the gap. The IEA reports that the US is expected to rely on natural gas for about 60% of its datacenter electricity by 2030. In fact, plans for new gas-fired power plants linked to US datacenters total 180 gigawatts, which is nearly equivalent to the entire current gas capacity of the European Union."
-      },
-      {
-       "heading": "Historical Context",
-       "cue": "Is this a new problem for the world?",
-       "body": "Energy transitions often face these 'infrastructure lags.' For example, in the early 1990s, India’s economic reforms triggered a massive surge in industrial demand that the existing grid could not handle, leading to years of power shortages that required decentralized, private diesel-powered generation. Similarly, Japan’s post-war industrial boom required constant, rapid expansion of its power grid, which eventually forced the country to pivot toward nuclear and imported liquefied natural gas (LNG) to maintain stability. The current situation with AI is a modern variation of this theme: when technology demand outpaces the speed at which we can build high-voltage transmission lines or utility-scale wind and solar farms, companies often default to the fastest available energy source—which, in many cases, remains fossil fuels."
-      },
-      {
-       "heading": "The Tension in Commitments",
-       "cue": "What about corporate sustainability goals?",
-       "body": "There is a clear tension between corporate climate pledges and the physical reality of powering AI. While the IEA notes that datacenter developers are the world’s largest corporate buyers of renewable energy, their appetite for fossil fuels is growing even faster. By 2030, China is expected to source roughly half of its datacenter power from coal. In contrast, the EU is projected to rely on renewables for about 70% of its datacenter electricity, supplemented by nuclear power. This disparity suggests that sustainability outcomes will vary significantly by region, depending on the availability of existing grid infrastructure and local government policies regarding energy mix."
-      },
-      {
-       "heading": "Efficiency and Optimization",
-       "cue": "Are there solutions being proposed?",
-       "body": "Beyond just building more power plants, the industry is looking at 'energy intelligence' to manage existing capacity. This involves using software and AI to optimize how power is consumed and stored, effectively doing more with less. Schneider Electric points to its own Dubai headquarters, which reduced energy costs and emissions by 48% through a combination of onsite solar and automated energy management. The argument is that while infrastructure must grow, we can also improve the efficiency of the systems we already have. If companies can prove that energy efficiency improves their competitive advantage—as 80% of industrial firms surveyed by the IEA believe—it may incentivize faster adoption of smart grid technologies."
-      },
-      {
-       "heading": "The Road to COP31",
-       "cue": "What should I watch for next?",
-       "body": "The upcoming COP31 summit in Türkiye is viewed as a critical test for whether nations can move from high-level promises to concrete delivery. Experts suggest watching for whether governments can streamline the permitting process for grid connections and whether new investment in energy infrastructure reaches the required 50% increase by 2030. For the individual, this means watching energy prices and local policy debates; when an entire region's power demand spikes due to industrial growth, it can put upward pressure on utility bills and force difficult trade-offs between economic development and environmental targets.",
-       "apply": true
-      }
-     ],
-     "glossary": [
-      {
-       "word": "infrastructure",
-       "hint": "basic physical systems"
-      },
-      {
-       "word": "decentralized",
-       "hint": "locally managed"
-      },
-      {
-       "word": "incentivize",
-       "hint": "encourage action"
-      },
-      {
-       "word": "streamline",
-       "hint": "make more efficient"
-      },
-      {
-       "word": "disparity",
-       "hint": "noticeable difference"
-      },
-      {
-       "word": "queues",
-       "hint": "waiting lines"
-      },
-      {
-       "word": "spikes",
-       "hint": "rises sharply"
-      }
-     ],
-     "terms": [
-      {
-       "term": "Terawatt-hour",
-       "meaning": "A unit of energy equal to one trillion watt-hours, commonly used to measure the annual electricity consumption of large regions or industries."
-      },
-      {
-       "term": "Gigawatt",
-       "meaning": "A unit of power equal to one billion watts, typically used to measure the capacity of power plants or the total output of a power grid."
-      },
-      {
-       "term": "Grid connection queue",
-       "meaning": "The backlog of power projects waiting for approval and infrastructure upgrades to be physically linked to the main electricity grid."
-      },
-      {
-       "term": "Nationally Determined Contributions (NDCs)",
-       "meaning": "The climate action plans submitted by countries under the Paris Agreement to reduce emissions and adapt to climate change."
-      }
-     ],
-     "ask": [
-      "How do different countries' regulations influence where companies choose to build their datacenters?",
-      "Could nuclear energy realistically scale fast enough to support AI needs by 2030?",
-      "What are the specific technical ways that AI can be used to lower the energy consumption of a datacenter?"
-     ],
-     "sources": [
-      {
-       "title": "Datacentres to create 70% more carbon emissions by 2030, IEA report warns",
-       "url": "https://www.theguardian.com/world/2026/nov/19/datacentres-to-create-70-more-carbon-emissions-by-2030-iea-report-warns",
-       "source": "The Guardian · Business",
-       "date": "2026-11-19"
-      },
-      {
-       "title": "Schneider Electric EVP: COP31 needs to move from promises to delivery",
-       "url": "https://fortune.com/2026/11/19/cop31-climate-promises-delivery-grid-schneider-electric/",
-       "source": "Fortune",
-       "date": "2026-11-19"
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "id": "scitech",
-   "name": "Science & Technology",
-   "stories": [
-    {
-     "id": "gut-dwelling-egoviruses-link-giant-and-human-viruses",
-     "title": "Gut‑dwelling ‘egoviruses’ link giant and human viruses",
-     "dek": "Scientists discovered egoviruses in human guts, filling an evolutionary gap between giant unicellular viruses and those that infect people.",
-     "kind": "news",
-     "why": "The discovery of these gut-dwelling viruses provides a missing evolutionary link in viral history, potentially reshaping our understanding of the human microbiome.",
-     "rating": {
-      "size": 5,
-      "lasting": 7,
-      "growth": 4,
-      "learning": 7,
-      "relevance": 5,
-      "novelty": 9,
-      "solidity": 9
-     },
-     "score": 6.57,
-     "minutes": 5,
-     "words": 1171,
-     "sections": [
-      {
-       "heading": "Discovery announced",
-       "cue": "",
-       "body": "**Nature reports** that on 18 November 2026 researchers identified a new group of large DNA viruses in the human gut, calling them *egoviruses* (short for “enteric giant viruses”). The finding came from metagenomic sequencing of stool samples collected from thousands of volunteers in Europe and Asia. The researchers were looking for unknown viral sequences because previous studies had shown many giant viruses in soil and water but had rarely seen them in the gut microbiome. Their analysis revealed that egoviruses are common, present in millions of people, and form a distinct clade between the giant viruses that infect single‑celled eukaryotes and the poxviruses that can infect mammals."
-      },
-      {
-       "heading": "What are egoviruses?",
-       "cue": "What are they?",
-       "body": "Egoviruses are **large, double‑stranded DNA viruses** with genomes up to 500 kilobases—much bigger than typical gut viruses such as bacteriophages. Electron microscopy shows they have the classic icosahedral capsid of poxviruses, but they lack the outer membrane that some poxviruses acquire during infection. Their gene repertoire includes enzymes for DNA replication, transcription, and even some metabolic functions, mirroring the complexity seen in giant viruses that prey on amoebae.\n\nThe term “enteric” refers to the digestive tract, indicating where these viruses were found. The researchers named the group *egoviridae* pending formal taxonomic approval."
-      },
-      {
-       "heading": "Research methods",
-       "cue": "How were they found?",
-       "body": "The team used **shotgun metagenomics**, a method that fragments all DNA in a sample and sequences it without targeting any specific organism. They then applied bioinformatic pipelines that compare sequences against known viral databases. When they encountered long contigs that did not match any known virus, they looked for hallmark genes of large DNA viruses—like the DNA polymerase B gene. By assembling these contigs, they reconstructed near‑complete egovirus genomes.\n\nTo confirm that the sequences came from actual viruses rather than contaminating host DNA, the researchers performed **viral particle enrichment**: they filtered stool samples to retain particles the size of viruses, treated them with nucleases to destroy free DNA, and then extracted the protected viral nucleic acids. This two‑step approach strengthens confidence that the sequences belong to bona‑fide viruses living in the gut."
-      },
-      {
-       "heading": "Evolutionary bridge",
-       "cue": "Why does this matter?",
-       "body": "Prior to this work, the **phylogenetic tree** of large DNA viruses had a conspicuous gap: giant viruses like *Mimivirus* infect free‑living protists, while poxviruses infect animals, including humans. The egoviruses sit **between** these branches, sharing genetic traits with both groups. According to the Nature article, this suggests that poxviruses may have **originated in the digestive systems of early animals**, gradually adapting to infect other tissues.\n\nThe implication is that the gut, long recognized as a bacterial hotspot, also hosts a diverse viral community that can serve as a crucible for viral evolution. This reshapes how scientists view the **human microbiome**, expanding it beyond bacteria and small viruses to include large, potentially interactive DNA viruses.\n\nThe authors argue that the gut environment—rich in nutrients, cells, and immune interactions—provides the selective pressures needed for a giant virus to acquire traits that enable infection of multicellular hosts."
-      },
-      {
-       "heading": "Potential impact",
-       "cue": "How do they affect us?",
-       "body": "So far, egoviruses have **not been linked to disease**. Their genomes lack known virulence factors, and epidemiological data show no correlation with gastrointestinal symptoms. However, their presence raises questions about **immune modulation**. Large DNA viruses can encode proteins that interfere with host antiviral pathways; if egoviruses do this, they might subtly shape gut immunity or influence bacterial composition.\n\nThe researchers propose three non‑exclusive scenarios:\n1. **Neutral passengers**—they replicate without harming or helping the host.\n2. **Immune trainers**—by repeatedly exposing the gut immune system to viral antigens, they could prime defenses against more pathogenic viruses.\n3. **Microbiome shapers**—viral proteins might affect bacterial populations, indirectly altering digestion or metabolism.\n\nThese hypotheses remain speculative; experimental infection models in mice are planned to test them."
-      },
-      {
-       "heading": "Historical context",
-       "cue": "Has this happened before?",
-       "body": "Large DNA viruses have been discovered in **environmental samples** for decades. The first giant virus, *Mimivirus*, was isolated from a cooling tower in 2003, overturning the belief that viruses are always tiny. Subsequent discoveries of *Pandoravirus* and *Pithovirus* in soil and permafrost reinforced the idea that giant viruses are widespread in nature.\n\nHowever, **gut virome studies** have traditionally focused on small RNA viruses and bacteriophages because sequencing methods favored short genomes. The egovirus discovery mirrors the shift that occurred when metagenomics began capturing longer reads, revealing hidden diversity. It therefore fits a pattern: as technology improves, we uncover previously invisible members of the microbial world.\n\nThe second Nature piece notes that poxviruses likely evolved in animal digestive tracts, echoing earlier theories that many animal viruses originated in mucosal surfaces before spreading systemically."
-      },
-      {
-       "heading": "Uncertainties",
-       "cue": "Are there disagreements?",
-       "body": "The authors acknowledge several **limitations**. First, the metagenomic data are **correlational**; they cannot prove that egoviruses actively replicate in the gut rather than being transient passengers from food. Second, the phylogenetic placement relies on a limited set of conserved genes; adding more egovirus genomes could shift their position on the tree.\n\nA minority of virologists caution that **horizontal gene transfer**—the swapping of genes between unrelated viruses—might blur evolutionary signals, making it harder to infer a linear lineage. They suggest alternative scenarios, such as independent acquisition of poxvirus‑like genes by gut viruses.\n\nThus, while the evidence points to egoviruses as a missing link, the scientific community will likely debate the exact evolutionary pathway for years.\n\nThe uncertainty also extends to health relevance: without experimental infection data, any claim about immune effects remains provisional."
-      },
-      {
-       "heading": "Future directions",
-       "cue": "What comes next?",
-       "body": "Researchers plan three main lines of inquiry:\n1. **Isolation and culture** of egoviruses from fresh stool, enabling controlled infection studies in cell lines and animal models.\n2. **Longitudinal cohort studies** to track egovirus abundance over time and correlate it with diet, antibiotics, and disease outcomes.\n3. **Comparative genomics** across mammals to see whether similar viruses inhabit other species’ guts, which would test the hypothesis that poxviruses emerged from a shared ancestor.\n\nFunding agencies are showing interest because the work bridges microbiome research, virology, and evolutionary biology. If successful, the studies could inform **vaccine design** (by revealing new viral antigens) or **microbiome therapeutics** that harness benign viruses to modulate immunity.\n\nFor an ordinary person, the immediate takeaway is that the gut virome is more complex than previously thought, but there is no reason to alter diet or hygiene based on this single discovery."
-      },
-      {
-       "heading": "apply",
-       "cue": "How can I use this?",
-       "body": "*One way to apply this insight* is to treat the gut microbiome as a **multifaceted ecosystem** that includes not only bacteria and small viruses but also large DNA viruses. When evaluating probiotic or dietary supplements, ask whether the product has been tested for effects on the **viral component** of the microbiome. While evidence is still early, being aware of the viral dimension can help you make more informed choices about gut health.\n\n*You could try* a simple habit: keep a short log of any major dietary changes (e.g., starting a high‑fiber diet) and note any gastrointestinal symptoms. Over a few months, compare this with any new research on egovirus prevalence in similar diets. This practice builds a personal data set that can be useful if future studies link diet to egovirus dynamics.\n\nRemember, the current evidence is **observational**, so the habit is about staying curious rather than expecting a health boost. By monitoring your own gut responses, you’ll be better positioned to interpret emerging findings about the gut virome.\n",
-       "apply": true
-      }
-     ],
-     "glossary": [
-      {
-       "word": "phylogenetic",
-       "hint": "evolutionary tree"
-      },
-      {
-       "word": "metagenomic",
-       "hint": "community DNA"
-      },
-      {
-       "word": "icosahedral",
-       "hint": "20‑sided shape"
-      },
-      {
-       "word": "contigs",
-       "hint": "DNA fragments"
-      },
-      {
-       "word": "enzymes",
-       "hint": "catalyst proteins"
-      },
-      {
-       "word": "virome",
-       "hint": "viral community"
-      }
-     ],
-     "terms": [
-      {
-       "term": "Metagenomics",
-       "meaning": "Sequencing all genetic material in a sample to identify organisms without culturing them"
-      },
-      {
-       "term": "Phylogenetic tree",
-       "meaning": "A diagram that shows evolutionary relationships among species based on genetic similarities"
-      },
-      {
-       "term": "Icosahedral capsid",
-       "meaning": "A virus shell shaped like a 20‑sided polygon, common among many DNA viruses"
-      },
-      {
-       "term": "Horizontal gene transfer",
-       "meaning": "The movement of genetic material between unrelated organisms, often blurring evolutionary lines"
-      }
-     ],
-     "ask": [
-      "Do egoviruses influence the effectiveness of existing vaccines?",
-      "Could egoviruses be engineered for therapeutic purposes?",
-      "What methods are best for detecting large DNA viruses in routine gut microbiome tests?"
-     ],
-     "sources": [
-      {
-       "title": "Meet ‘egoviruses’: the surprise microbes living in the guts of millions of people",
-       "url": "https://www.nature.com/articles/d41586-026-03766-w",
-       "source": "Nature · News",
-       "date": "2026-11-18"
-      },
-      {
-       "title": "Poxviruses probably evolved in the digestive system of animals",
-       "url": "https://www.nature.com/articles/d41586-026-03436-x",
-       "source": "Nature · News",
-       "date": "2026-11-18"
-      }
-     ]
-    }
-   ]
-  },
-  {
    "id": "scitech",
    "name": "Science & Technology · Philosophy & Ideas",
    "stories": [
@@ -886,7 +620,7 @@
       "novelty": 7,
       "solidity": 5
      },
-     "score": 6.14,
+     "score": 7.14,
      "minutes": 4,
      "words": 991,
      "sections": [

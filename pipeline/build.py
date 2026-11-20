@@ -33,6 +33,7 @@ if _env.exists():
 
 sys.path.insert(0, str(Path(__file__).parent))
 import llm  # noqa: E402
+import history  # noqa: E402
 import importance  # noqa: E402
 from reader import PROFILE  # noqa: E402
 from sources import MAX_AGE_DAYS, MAX_PER_FEED, TOPICS  # noqa: E402
@@ -154,7 +155,8 @@ RATE_PROMPT = PROFILE.replace("{", "{{").replace("}", "}}") + """
 
 {rules}
 
-Score what is actually reported, not the headline's hype.
+Score what is actually reported, not the headline's hype. "covered before" lists past stories that share keywords
+with it; if it is really the same story again, "novelty" is low (0-3).
 
 STORIES
 {items}
@@ -194,7 +196,10 @@ have shortlisted stories. Keep every one that is genuinely important; drop the r
 - Never two about the same event. If two shortlisted items are the same event seen from different fields (e.g. a
   company scandal that is also a geopolitical story), choose it once and merge the other into it.
 - Label each chosen story with every field it genuinely belongs to (1-3), from: {fields}.
-- Skip anything that repeats what was covered recently without a materially new development.
+- Skip anything that repeats what was covered recently without a materially new development. Under some candidates
+  are the past stories that share the most keywords with it ("earlier"). Some are only loosely related; judge each:
+  if it is the same story or event again, drop it, unless there is a real new development since (a decision, a result,
+  new numbers), and then the story must be about that development.
 
 Recently covered:
 {recent}
@@ -206,11 +211,19 @@ Return JSON: {{"chosen": [{{"id": shortlist id, "merge": [ids of other items abo
 most important first."""
 
 
-def choose(shortlist, recent):
+def earlier(s, covered):
+    """Past stories that share the most (rare) keywords with this candidate, for the editors to judge."""
+    text = " ".join([*(it["title"] for it in s["items"]), s.get("angle", "")])
+    return [f'"{e["t"]}" ({e["d"][:10]}; shared: {", ".join(w[:4])})'
+            for _, e, w in history.matches(text, covered, top=3, min_score=10)]
+
+
+def choose(shortlist, recent, covered=()):
     if not shortlist:
         return []
     items = "\n".join(f"[{i}] ({s['topic']['name']}) "
                       f"{s['items'][0]['title']} | angle: {s['angle']} | why: {s['why']}"
+                      + "".join(f"\n      earlier: {x}" for x in earlier(s, covered))
                       for i, s in enumerate(shortlist))
     try:
         out = llm.generate_json(CHOOSE_PROMPT.format(items=items, fields=", ".join(FIELDS),
@@ -544,9 +557,89 @@ def rate_existing(out_dir):
                         f"{', '.join(src['source'] for src in x.get('sources', []))}") for i, (t, x) in enumerate(todo)])
         for i, (t, x) in enumerate(todo):
             if got.get(i):
-                x["rating"], x["score"] = got[i], importance.score(got[i])
+                x["rating"], x["score"] = got[i], importance.score(got[i], t["name"])
                 print(f"  {x['score']:4.1f}  {x['title'][:70]}", flush=True)
         p.write_text(json.dumps(iss, ensure_ascii=False, indent=1), "utf-8")
+
+
+REPEAT_PROMPT = """Each pair below is a story in a daily reader (NEW) and an earlier story (OLD) that shares many
+keywords with it. Is NEW the same story or event again, without a materially new development (a decision, a result,
+new numbers)? Different angles on one big event (e.g. the summit's chip politics vs. the summit itself) are NOT
+repeats; a second explainer of the same news IS.
+
+{pairs}
+
+Return JSON: {{"repeats": [ids of the pairs where NEW is a repeat]}}"""
+
+
+def _order(date):                                         # "2026-11-18-morning" before "2026-11-18-evening"
+    return (date[:10], 0 if date.endswith("morning") else 1)
+
+
+def find_repeats(out_dir, index):
+    """Published stories that repeat an earlier one: keyword matches, confirmed by the editor model. Each pair is
+    judged once (remembered in repeat-checked.json)."""
+    covered = history.load(out_dir / "covered.json")
+    checked_path = out_dir / "repeat-checked.json"
+    checked = json.loads(checked_path.read_text("utf-8")) if checked_path.exists() else {}
+    pairs = []
+    for e in index:
+        p = out_dir / f"{e['date']}.json"
+        if not p.exists():
+            continue
+        for t in json.loads(p.read_text("utf-8"))["topics"]:
+            for x in t["stories"]:
+                older = [c for c in covered if c["id"] != x["id"] and _order(c["d"]) < _order(e["date"])]
+                text = " ".join([x["title"], *(s.get("title", "") for s in x.get("sources", []))])
+                for _, c, _w in history.matches(text, older, top=2, min_score=12):
+                    k = f"{x['id']}|{c['id']}"
+                    if k not in checked:
+                        pairs.append((k, x, e["date"], c))
+    if pairs:
+        try:
+            out = llm.generate_json(REPEAT_PROMPT.format(pairs="\n".join(
+                f"[{i}] NEW ({d[:10]}): {x['title']} | {x.get('dek', '')}\n    OLD ({c['d'][:10]}): {c['t']} | {c.get('dek', '')}"
+                for i, (_, x, d, c) in enumerate(pairs))), temperature=0.1, tier="best", max_tokens=1500)
+            yes = {as_id(i) for i in out.get("repeats", [])}
+            for i, (k, x, d, c) in enumerate(pairs):
+                checked[k] = i in yes
+                print(f"  {'REPEAT' if i in yes else 'differs'}: {x['title'][:55]}  ~  {c['t'][:55]}", flush=True)
+            checked_path.write_text(json.dumps(checked, indent=0), "utf-8")
+        except Exception as ex:
+            print("  repeat check failed (will try next run):", ex, flush=True)
+    return {k.split("|")[0] for k, v in checked.items() if v}
+
+
+def prune(out_dir):
+    """Re-scores every published story (average + the psychology/philosophy bonus) and deletes rated ones below the
+    bar (stories that were never rated stay) and any story that repeats an earlier one. Editions left empty go."""
+    index_path = out_dir / "index.json"
+    index = json.loads(index_path.read_text("utf-8")) if index_path.exists() else []
+    repeats = find_repeats(out_dir, index)
+    keep = []
+    for e in index:
+        p = out_dir / f"{e['date']}.json"
+        if not p.exists():
+            continue
+        iss = json.loads(p.read_text("utf-8"))
+        for t in iss["topics"]:
+            for x in t["stories"]:
+                if x.get("rating"):
+                    x["score"] = importance.score(x["rating"], t["name"])
+            gone = [x for x in t["stories"] if (x.get("rating") and x["score"] < importance.THRESHOLD) or x["id"] in repeats]
+            for x in gone:
+                print(f"  removed {'repeat' if x['id'] in repeats else x['score']}  {x['title'][:70]}", flush=True)
+            t["stories"] = [x for x in t["stories"] if x not in gone]
+        iss["topics"] = [t for t in iss["topics"] if t["stories"]]
+        stories = [x for t in iss["topics"] for x in t["stories"]]
+        if not stories and not iss.get("partial"):
+            p.unlink()
+            continue
+        p.write_text(json.dumps(iss, ensure_ascii=False, indent=1), "utf-8")
+        if stories:
+            e.update(stories=len(stories), minutes=sum(x["minutes"] for x in stories), headline=stories[0]["title"])
+        keep.append(e)
+    index_path.write_text(json.dumps(keep, ensure_ascii=False, indent=1), "utf-8")
 
 
 def main():
@@ -557,6 +650,7 @@ def main():
     ap.add_argument("--remind-only", action="store_true")
     ap.add_argument("--dry-run", action="store_true", help="pick and rate, print, write nothing")
     ap.add_argument("--rate-existing", action="store_true", help="rate published stories that have no rating yet")
+    ap.add_argument("--prune", action="store_true", help="re-score published stories and delete those below the bar")
     ap.add_argument("--edition", choices=["morning", "evening"], help="default: by the time of day")
     a = ap.parse_args()
 
@@ -578,6 +672,10 @@ def main():
         rate_existing(out_dir)
         return
 
+    if a.prune:
+        prune(out_dir)
+        return
+
     if a.remind_only:                                      # pipeline failed: still nudge at 10:00
         remind({"topics": []}, site_url)
         return
@@ -587,6 +685,7 @@ def main():
         print(f"{date} is already written; nothing to do")
         return
 
+    covered_path = out_dir / "covered.json"              # every story ever published (deleted ones too)
     seen_path = out_dir / "seen.json"
     seen = json.loads(seen_path.read_text("utf-8")) if seen_path.exists() else {}
     cutoff = (dt.date.today() - dt.timedelta(days=21)).isoformat()
@@ -615,6 +714,7 @@ def main():
         out = {**issue, "topics": [t for t in issue["topics"] if t["stories"] or t.get("pending")]}
         (out_dir / f"{date}.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), "utf-8")
         seen_path.write_text(json.dumps(seen, indent=0), "utf-8")
+        history.add(covered_path, [s for t in issue["topics"] for s in t["stories"]], date, day)
         first = next(s for t in issue["topics"] for s in t["stories"])
         entry = {"date": date, "day": day, "edition": edition, "stories": n, "minutes": sum(s["minutes"] for t in issue["topics"] for s in t["stories"]),
                  "headline": first["title"], "partial": issue["partial"]}
@@ -656,16 +756,24 @@ def main():
             print("  pick failed:", e, flush=True)
 
     # 2. the chief editor merges the same event seen from different fields and drops repeats; then each story is
-    #    rated 0-10 on seven metrics, the score is the plain average, and every story at or above the bar goes in
-    chosen = choose(shortlist, all_recent)
+    #    rated 0-10 on seven metrics, the score is the plain average (+1 for psychology or philosophy), and every
+    #    story at or above the bar (7) goes in
+    covered = history.load(covered_path)
+    for s in shortlist:
+        for x in earlier(s, covered):
+            print(f"  maybe covered: {s['items'][0]['title'][:60]}  ~  {x[:90]}", flush=True)
+    chosen = choose(shortlist, all_recent, covered)
     desc = [(i, f"({', '.join(s.get('fields') or [s['topic']['name']])}) {s['items'][0]['title']} | angle: {s['angle']}"
-                f" | why: {s['why']} | sources: {', '.join(it['source'] for it in s['items'])}")
+                f" | why: {s['why']} | sources: {', '.join(it['source'] for it in s['items'])}"
+                + "".join(f" | covered before: {x}" for x in earlier(s, covered)))
             for i, s in enumerate(chosen)]
     ratings = rate(desc)
     for i, s in enumerate(chosen):
         s["rating"] = ratings.get(i, {})
-        s["score"] = importance.score(s["rating"]) if s["rating"] else 0
+        s["score"] = importance.score(s["rating"], s.get("fields")) if s["rating"] else 0
     chosen = importance.dedupe(chosen)                    # backstop: never two stories about one event
+    for s in chosen:                                      # a merged twin may have brought in psychology/philosophy
+        s["score"] = importance.score(s["rating"], s.get("fields")) if s["rating"] else 0
     chosen.sort(key=lambda s: -s["score"])
     print("\nratings (" + " ".join(importance.METRICS) + "):", flush=True)
     for s in chosen:
@@ -708,6 +816,7 @@ def main():
         sys.exit(1)
     publish()
     print(f"\nissue {date}: {n_stories} stories", flush=True)
+    prune(out_dir)                                        # after every run: older stories below the bar go
     alert_keys(site_url)
     remind(issue, site_url)                               # the 10:00 nudge the next morning
 

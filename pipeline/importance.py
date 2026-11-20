@@ -1,10 +1,11 @@
 """How important is a story? The editor model rates it 0-10 on seven plain questions; the score is the simple
-average (every question counts the same). Stories are ranked by that score, and the app's queue is ordered by it.
+average (every question counts the same), plus 1 for a psychology or philosophy story. Stories are ranked by that
+score, and the app's queue is ordered by it.
 """
 import os
 import re
 
-THRESHOLD = float(os.environ.get("IMPORTANCE_THRESHOLD", "6"))     # average out of 10 needed to get in
+THRESHOLD = float(os.environ.get("IMPORTANCE_THRESHOLD", "7"))     # average out of 10 needed to get in
 
 METRICS = {
     "size": "how big the story is: how many people, how much money, power or knowledge it changes",
@@ -21,8 +22,18 @@ RATING_INSTRUCTIONS = "Rate each story 0-10 on each of these, honestly and stric
 RATING_JSON = "{" + ", ".join(f'"{k}": 0-10' for k in METRICS) + "}"
 
 
-def score(ratings) -> float:
-    """The plain average of the seven ratings (a missing one counts as 5)."""
+BONUS_FIELDS = {"Psychology & Mind", "Philosophy & Ideas"}   # the reader's favourite fields: +1 on the total
+
+
+def bonus(fields) -> int:
+    """1 if any of the story's fields is psychology or philosophy (fields: a list, or names joined by ' · ')."""
+    if isinstance(fields, str):
+        fields = fields.split(" · ")
+    return 1 if BONUS_FIELDS & set(fields or []) else 0
+
+
+def score(ratings, fields=()) -> float:
+    """The plain average of the seven ratings (a missing one counts as 5), +1 for psychology or philosophy."""
     vals = []
     for k in METRICS:
         try:
@@ -30,7 +41,7 @@ def score(ratings) -> float:
         except (TypeError, ValueError):
             v = 5.0
         vals.append(min(10.0, max(0.0, v)))
-    return round(sum(vals) / len(vals), 2)
+    return round(sum(vals) / len(vals) + bonus(fields), 2)
 
 
 STOP = set("""a an the and or but of for to in on at by with from into over after before about as is are was were be
