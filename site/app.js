@@ -699,6 +699,9 @@ async function checkVersion() {
 setInterval(checkVersion, 60000);
 document.addEventListener("visibilitychange", () => setTimeout(checkVersion, 1500));
 navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {});
+// ask the browser to keep this site's storage (the sync key, your place) instead of clearing it when space runs low,
+// so a device stays linked once linked
+navigator.storage?.persist?.().catch(() => {});
 window.caches?.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
 // open where you actually are: get the other device's latest first (but never wait more than a few seconds)
 Promise.race([sync.pull().catch(() => {}), new Promise(r => setTimeout(r, 4000))]).finally(() => loadIndex().then(route).then(nightly));
