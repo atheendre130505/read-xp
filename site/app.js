@@ -27,6 +27,7 @@ function adoptStored() {
   try {
     const o = JSON.parse(localStorage.getItem("rxp") || "{}");
     for (const k of ["sync", "syncRepo", "key", "groq", "ntfy"]) if (o.settings?.[k] && !S.settings[k]) S.settings[k] = o.settings[k];
+    if ((o.settings?.newsSeen || "") > (S.settings.newsSeen || "")) S.settings.newsSeen = o.settings.newsSeen;
     const cut = new Date(Date.now() - 14 * 864e5).toLocaleDateString("en-CA");
     for (const [k, p] of Object.entries(o.progress || {})) {
       if (k.slice(0, 10) < cut) continue;
@@ -99,6 +100,8 @@ const sync = {
     const whole = JSON.parse(b64d(j.content));
     const remote = whole.progress || {};
     this.dev = whole.dev || {};
+    if (whole.news && whole.news > (S.settings.newsSeen || "")) { S.settings.newsSeen = whole.news; save(); }   // announced there
+    if ((S.settings.newsSeen || "") > (whole.news || "")) this.soon();
     const changed = this.merge(remote);
     const same = (a, b) => !!b && a.sec === (b.sec || 1) && a.done === !!b.done && a.t === (b.t || 0);
     if (Object.entries(this.mine()).some(([k, v]) => !same(v, remote[k]))) this.soon();       // we know something it doesn't
@@ -113,7 +116,7 @@ const sync = {
         if (!this.sha) await this.fetchState().catch(() => {});
         this.dirty = false;
         const r = await fetch(this.url(), { method: "PUT", keepalive: final, headers: this.hdr(),
-          body: JSON.stringify({ message: "sync", content: b64e(JSON.stringify({ progress: this.mine(), dev: { ...this.dev, [DEVICE]: { at: Date.now(), v: VERSION_N } } })), sha: this.sha || undefined }) });
+          body: JSON.stringify({ message: "sync", content: b64e(JSON.stringify({ progress: this.mine(), news: S.settings.newsSeen || "", dev: { ...this.dev, [DEVICE]: { at: Date.now(), v: VERSION_N } } })), sha: this.sha || undefined }) });
         if (r.ok) { this.sha = (await r.json()).content.sha; this.etag = null; this.last = Date.now(); this.err = ""; return; }
         this.dirty = true;
         if (r.status === 409 || r.status === 422) { this.sha = null; this.etag = null; continue; }   // the other device wrote first: merge, retry
@@ -704,7 +707,7 @@ navigator.serviceWorker?.getRegistrations().then(rs => rs.forEach(r => r.unregis
 navigator.storage?.persist?.().catch(() => {});
 window.caches?.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => {});
 // open where you actually are: get the other device's latest first (but never wait more than a few seconds)
-Promise.race([sync.pull().catch(() => {}), new Promise(r => setTimeout(r, 4000))]).finally(() => loadIndex().then(route).then(nightly));
+Promise.race([sync.pull().catch(() => {}), new Promise(r => setTimeout(r, 4000))]).finally(() => loadIndex().then(route).then(nightly).then(newsCheck));
 
 // GitHub starts its own 9 PM schedule hours late, so opening Read after 9 PM starts tonight's run itself if it
 // hasn't happened yet (once per evening per device, retried after 45 min). Uses the sync key, which needs
@@ -728,4 +731,36 @@ async function nightly() {
     if (r.ok) { try { localStorage.setItem("rxp-nightly", JSON.stringify({ [ed]: Date.now() })); } catch {} toast("Tonight's stories are being written (about 15 min)"); }
   } catch { nightlyErr = "net"; }
 }
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") setTimeout(() => loadIndex().then(nightly), 2000); });
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") setTimeout(() => loadIndex().then(nightly).then(newsCheck), 2000); });
+
+// New stories: one popup per new batch, for its best story, on whichever device sees it first. The batch is marked
+// as announced in the sync file, so the other device doesn't show it again.
+const edKey = e => (e.day || e.date.slice(0, 10)) + (e.edition === "evening" ? "-2" : "-1");
+async function newsCheck() {
+  if (document.visibilityState !== "visible") return;
+  const idx = await getJSON("issues/index.json").catch(() => null);
+  if (!idx?.length || idx[0].date === "sample") return;
+  const e = idx[0], k = edKey(e);
+  if (!S.settings.newsSeen) { S.settings.newsSeen = k; save(); sync.soon(); return; }   // first visit: what's here isn't news
+  if (k <= S.settings.newsSeen) return;
+  await sync.pull().catch(() => {});
+  if (k <= S.settings.newsSeen) return;                                                // the other device showed it
+  S.settings.newsSeen = k; save(); sync.soon(500);
+  INDEX = idx;
+  const iss = await getJSON(`issues/${e.date}.json`).catch(() => null);
+  if (!iss) return;
+  ISSUES[e.date] = iss;
+  const best = allStories(iss).filter(x => !isRead(e.date, x)).sort((a, b) => (b.score ?? 0) - (a.score ?? 0))[0];
+  if (!best) return;
+  $("#newpop")?.remove();
+  const el = document.createElement("div");
+  el.id = "newpop";
+  el.innerHTML = `<div class="txt"><small>New story</small><b>${esc(best.title)}</b></div>
+    <a class="btn" href="#/read/${e.date}/${encodeURIComponent(best.id)}">Read</a><button class="x" aria-label="Close">×</button>`;
+  el.addEventListener("click", ev => {
+    if (ev.target.closest("a")) { touch(S.progress[pkey(e.date, best)] ||= { sec: 1, done: false }); save(); }   // it becomes the story you're on
+    if (ev.target.closest("a,.x")) el.remove();
+  });
+  document.body.append(el);
+}
+setInterval(newsCheck, 60000);
