@@ -155,7 +155,8 @@ RATE_PROMPT = PROFILE.replace("{", "{{").replace("}", "}}") + """
 
 {rules}
 
-Score what is actually reported, not the headline's hype. "covered before" lists past stories that share keywords
+Each story comes with the opening of its source articles. Read them first and score what the sources actually
+report and support, not the headline's hype (a thin or vague source means lower "solidity" and "learning"). "covered before" lists past stories that share keywords
 with it; if it is really the same story again, "novelty" is low (0-3).
 
 STORIES
@@ -169,11 +170,11 @@ def rate(stories):
     if not stories:
         return {}
     out = {}
-    for k in range(0, len(stories), 15):                  # in batches, so the answer never gets cut off
-        chunk = stories[k:k + 15]
+    for k in range(0, len(stories), 5):                   # small batches: each story comes with its source texts
+        chunk = stories[k:k + 5]
         try:
             got = llm.generate_json(RATE_PROMPT.format(rules=importance.RATING_INSTRUCTIONS, shape=importance.RATING_JSON,
-                                                       items="\n".join(f"[{i}] {t}" for i, t in chunk)),
+                                                       items="\n\n".join(f"[{i}] {t}" for i, t in chunk)),
                                     temperature=0.1, tier="best", max_tokens=4000)
             for r in got.get("ratings", []) if isinstance(got, dict) else []:
                 i = as_id(r.get("id"))
@@ -425,8 +426,10 @@ def add_glossary(story):
 
 def write(topic, story, tier="best"):
     items = story["items"]
-    with cf.ThreadPoolExecutor(4) as ex:
-        texts = list(ex.map(full_text, items))
+    texts = story.get("texts")                            # already read for the rating
+    if not texts or len(texts) != len(items):
+        with cf.ThreadPoolExecutor(4) as ex:
+            texts = list(ex.map(full_text, items))
     blocks = [f"[{i + 1}] {it['source']} ({it['kind']}, {it['date']}): {it['title']}\n{t}"
               for i, (it, t) in enumerate(zip(items, texts))]
     depth = sum(len(t) for t in texts)
@@ -763,9 +766,16 @@ def main():
         for x in earlier(s, covered):
             print(f"  maybe covered: {s['items'][0]['title'][:60]}  ~  {x[:90]}", flush=True)
     chosen = choose(shortlist, all_recent, covered)
+    # read every source first (free), so the rating is on what the articles actually say, not the headline; only
+    # stories that score 7+ are then written (the costly step), reusing these texts
+    with cf.ThreadPoolExecutor(8) as ex:
+        texts = list(ex.map(full_text, [it for s in chosen for it in s["items"]]))
+    for s in chosen:
+        s["texts"], texts = texts[:len(s["items"])], texts[len(s["items"]):]
     desc = [(i, f"({', '.join(s.get('fields') or [s['topic']['name']])}) {s['items'][0]['title']} | angle: {s['angle']}"
-                f" | why: {s['why']} | sources: {', '.join(it['source'] for it in s['items'])}"
-                + "".join(f" | covered before: {x}" for x in earlier(s, covered)))
+                f" | why: {s['why']}" + "".join(f" | covered before: {x}" for x in earlier(s, covered))
+                + "".join(f"\n  SOURCE {it['source']} ({it['date']}): {it['title']}\n  {' '.join(t.split())[:1800]}"
+                          for it, t in list(zip(s["items"], s["texts"]))[:3]))
             for i, s in enumerate(chosen)]
     ratings = rate(desc)
     for i, s in enumerate(chosen):
