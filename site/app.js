@@ -52,10 +52,13 @@ const h36 = k => { let h = 5381; for (let i = 0; i < k.length; i++) h = (h * 33 
 // for every story, how far you've got, exactly where you are, and whether you've read it. Each device sends its
 // changes within a few seconds and checks for the other's every 15 s while open, and at once when you come back to it.
 // For each story the newer place wins; "read" never gets undone.
+const VERSION_N = (document.currentScript?.src.match(/v=(\d+)/) || [])[1];
 const b64e = s => btoa(unescape(encodeURIComponent(s)));
 const b64d = s => decodeURIComponent(escape(atob(s.replace(/\s/g, ""))));
 const touch = p => { p.t = Date.now(); sync.soon(); };
+const DEVICE = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) ? "phone" : "laptop";
 const sync = {
+  dev: {},                              // when each device last sent (so a silent device can be spotted)
   sha: null, etag: null, dirty: false, busy: null, timer: null, last: 0, err: "",
   on: () => !!(S.settings.sync && S.settings.syncRepo),
   url: () => `https://api.github.com/repos/${S.settings.syncRepo}/contents/state.json`,
@@ -93,7 +96,9 @@ const sync = {
     if (!r.ok) { this.err = r.status === 401 || r.status === 403 || r.status === 404 ? "key" : "net"; throw new Error(r.status); }
     const j = await r.json();
     this.sha = j.sha; this.etag = r.headers.get("ETag"); this.last = Date.now(); this.err = "";
-    const remote = JSON.parse(b64d(j.content)).progress || {};
+    const whole = JSON.parse(b64d(j.content));
+    const remote = whole.progress || {};
+    this.dev = whole.dev || {};
     const changed = this.merge(remote);
     const same = (a, b) => !!b && a.sec === (b.sec || 1) && a.done === !!b.done && a.t === (b.t || 0);
     if (Object.entries(this.mine()).some(([k, v]) => !same(v, remote[k]))) this.soon();       // we know something it doesn't
@@ -108,7 +113,7 @@ const sync = {
         if (!this.sha) await this.fetchState().catch(() => {});
         this.dirty = false;
         const r = await fetch(this.url(), { method: "PUT", keepalive: final, headers: this.hdr(),
-          body: JSON.stringify({ message: "sync", content: b64e(JSON.stringify({ progress: this.mine() })), sha: this.sha || undefined }) });
+          body: JSON.stringify({ message: "sync", content: b64e(JSON.stringify({ progress: this.mine(), dev: { ...this.dev, [DEVICE]: { at: Date.now(), v: VERSION_N } } })), sha: this.sha || undefined }) });
         if (r.ok) { this.sha = (await r.json()).content.sha; this.etag = null; this.last = Date.now(); this.err = ""; return; }
         this.dirty = true;
         if (r.status === 409 || r.status === 422) { this.sha = null; this.etag = null; continue; }   // the other device wrote first: merge, retry
@@ -682,7 +687,7 @@ addEventListener("keydown", e => {   // laptop: Space or → continues
 applySettings();
 // Read is a plain web page now (no installed app): drop the old offline copy so every visit gets the latest version
 // a new version of Read was published: reload into it (at the same place) so no device runs an old copy
-const VERSION = (document.currentScript?.src.match(/v=(\d+)/) || [])[1];
+const VERSION = VERSION_N;
 async function checkVersion() {
   if (!VERSION || document.visibilityState !== "visible") return;
   try {
