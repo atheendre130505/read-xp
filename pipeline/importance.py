@@ -5,7 +5,7 @@ score, and the app's queue is ordered by it.
 import os
 import re
 
-THRESHOLD = float(os.environ.get("IMPORTANCE_THRESHOLD", "7"))     # average out of 10 needed to get in
+THRESHOLD = float(os.environ.get("IMPORTANCE_THRESHOLD", "6"))     # average out of 10 needed to get in
 
 METRICS = {
     "size": "how big the story is: how many people, how much money, power or knowledge it changes",

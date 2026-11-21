@@ -760,14 +760,14 @@ def main():
 
     # 2. the chief editor merges the same event seen from different fields and drops repeats; then each story is
     #    rated 0-10 on seven metrics, the score is the plain average (+1 for psychology or philosophy), and every
-    #    story at or above the bar (7) goes in
+    #    story at or above the bar (6) goes in
     covered = history.load(covered_path)
     for s in shortlist:
         for x in earlier(s, covered):
             print(f"  maybe covered: {s['items'][0]['title'][:60]}  ~  {x[:90]}", flush=True)
     chosen = choose(shortlist, all_recent, covered)
     # read every source first (free), so the rating is on what the articles actually say, not the headline; only
-    # stories that score 7+ are then written (the costly step), reusing these texts
+    # stories that score 6+ are then written (the costly step), reusing these texts
     with cf.ThreadPoolExecutor(8) as ex:
         texts = list(ex.map(full_text, [it for s in chosen for it in s["items"]]))
     for s in chosen:
