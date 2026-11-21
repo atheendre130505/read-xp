@@ -12,8 +12,8 @@
   "date": "2026-11-20-evening",
   "day": "2026-11-20",
   "edition": "evening",
-  "stories": 3,
-  "minutes": 16,
+  "stories": 6,
+  "minutes": 33,
   "headline": "Inside Wall Street's $4 Trillion Tech and AI Selloff",
   "partial": false
  },
@@ -21,8 +21,8 @@
   "date": "2026-11-20-morning",
   "day": "2026-11-20",
   "edition": "morning",
-  "stories": 3,
-  "minutes": 11,
+  "stories": 5,
+  "minutes": 19,
   "headline": "Four Insula Regions Explain Pain, Emotion, and Placebo",
   "partial": false
  },
@@ -30,8 +30,8 @@
   "date": "2026-11-19-evening",
   "day": "2026-11-19",
   "edition": "evening",
-  "stories": 5,
-  "minutes": 32,
+  "stories": 7,
+  "minutes": 40,
   "headline": "How the Brain Regulates Illness and Blood Sugar Through Nerve Networks",
   "partial": false
  },
@@ -48,8 +48,8 @@
   "date": "2026-11-18-morning",
   "day": "2026-11-18",
   "edition": "morning",
-  "stories": 14,
-  "minutes": 65,
+  "stories": 16,
+  "minutes": 75,
   "headline": "Nvidia’s AI Dominance Faces Crisis Over Leadership and Export Evasion Probes",
   "partial": false
  },
@@ -57,8 +57,8 @@
   "date": "2026-11-18-evening",
   "day": "2026-11-18",
   "edition": "evening",
-  "stories": 10,
-  "minutes": 52,
+  "stories": 13,
+  "minutes": 66,
   "headline": "What US Chip Rules Mean for the Shenzhen Summit and Asia",
   "partial": false
  }
