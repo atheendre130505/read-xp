@@ -1,5 +1,214 @@
 [
 {
+"d": "2026-11-23-evening",
+"id": "how-moral-anger-lowers-our-guard-against-online-misinformati",
+"t": "How Moral Anger Lowers Our Guard Against Online Misinformation",
+"dek": "New research explains why moral outrage makes us share fake news faster and with less caution.",
+"src": [
+"Moral anger overrides credibility and accelerates the spread of misinformation online"
+],
+"terms": [
+"Moral Outrage",
+"Cognitive Threshold",
+"Approach-Oriented Behavior",
+"Avoidance Behavior",
+"Peripheral Cues"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "the-brain-s-sleep-switch-how-specific-neurons-control-our-ur",
+"t": "The Brain's Sleep Switch: How Specific Neurons Control Our Urge to Rest",
+"dek": "Researchers have identified the exact brainstem cells that generate sleep pressure, potentially rewriting our understanding of exhaustion.",
+"src": [
+"Mice slept 70% less after scientists switched off these brain cells"
+],
+"terms": [
+"Sleep drive",
+"GABAergic neurons",
+"Serotonergic neurons",
+"Brainstem",
+"Homeostatic sleep pressure"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "the-body-as-part-of-the-mind-rethinking-how-we-think",
+"t": "The Body as Part of the Mind: Rethinking How We Think",
+"dek": "A major update to the Stanford Encyclopedia of Philosophy details how cognitive science is moving away from the 'brain-as-computer' model toward an embodied understanding of intelligence.",
+"src": [
+"Embodied Cognition"
+],
+"terms": [
+"Computationalism",
+"Embodied Cognition",
+"Affordance",
+"Inverse Optics",
+"Invariants",
+"Mentalese"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "the-brain-s-secret-blueprint-how-wernicke-s-area-rewrites-la",
+"t": "The Brain’s Secret Blueprint: How Wernicke’s Area Rewrites Language Theory",
+"dek": "Researchers have discovered that the brain’s speech comprehension hub also builds a structural plan for words before we speak them.",
+"src": [
+"Brain Speech Hub Builds a “Blueprint” Before We Speak"
+],
+"terms": [
+"lpSTG",
+"Wernicke’s Area",
+"Anarthria",
+"Lexical Frequency",
+"Intracranial Recordings"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "tobacco-plants-engineered-to-make-taxol",
+"t": "Tobacco Plants Engineered to Make Taxol",
+"dek": "Scientists map the full gene pathway for paclitaxel and put it into fast‑growing tobacco, opening routes to cheaper chemotherapy.",
+"src": [
+"Recipe for one of the world's most important cancer drugs uncovered: Tobacco plants could produce the medicine"
+],
+"terms": [
+"Biosynthesis",
+"Transient expression",
+"Cytochrome P450",
+"Metabolic engineering"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "trump-pushes-trump-to-reinstate-nvidia-ceo",
+"t": "Trump Pushes Trump to Reinstate Nvidia CEO",
+"dek": "How President Trump overrode national‑security warnings to put Jensen Huang back at Nvidia’s helm and why it matters",
+"src": [
+"Jensen Huang reinstated as Nvidia CEO",
+"US to blacklist Asian AI firm Megaspeed after Nvidia scandal",
+"US adds Megaspeed, at center of Nvidia scandal, to a trade blacklist",
+"Trump’s Extraordinary Nvidia Intervention Sidelines National Security Concerns"
+],
+"terms": [
+"Entity List",
+"Export control",
+"AI chip"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "stablecoins-move-beyond-store-of-value-to-transaction-engine",
+"t": "Stablecoins Move Beyond Store of Value to Transaction Engine",
+"dek": "Wallet‑level data from 2020‑2025 shows stablecoins handling more on‑chain payments than Bitcoin despite a smaller supply.",
+"src": [
+"Five Facts About Stablecoins -- by Lin William Cong, Gordon Y. Liao, Eswar S. Prasad, Tony Zhang"
+],
+"terms": [
+"velocity",
+"smart contract",
+"on‑chain",
+"Layer‑2"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "philosophical-updates-on-clinical-delusions",
+"t": "Philosophical Updates on Clinical Delusions",
+"dek": "How recent philosophical and cognitive work reshapes our view of delusions and their boundaries with ordinary belief.",
+"src": [
+"Delusion"
+],
+"terms": [
+"delusion",
+"erotomania",
+"Cotard delusion",
+"Capgras delusion",
+"intentionality"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "crowdstrike-zscaler-deal-redefines-ai-security",
+"t": "CrowdStrike-Zscaler Deal Redefines AI Security",
+"dek": "How the $44 billion merger will reshape zero-trust protection for enterprise AI agents.",
+"src": [
+"CrowdStrike snaps up Zscaler in $44 billion deal as cyber threats mount",
+"Zscaler’s Chaudhrys to Reap $14.5 Billion From CrowdStrike Deal",
+"Who is Jay Chaudhry? Indian-origin entrepreneur behind Zscaler's $43.9 bn deal as CrowdStrike moves to acquire firm",
+"CrowdStrike to acquire Zscaler for $44 billion"
+],
+"terms": [
+"zero-trust",
+"all-stock deal",
+"antitrust",
+"endpoint protection"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "human-ai-team-claims-riemann-proof",
+"t": "Human‑AI Team Claims Riemann Proof",
+"dek": "How mathematician Levent Alpöge and Anthropic’s Claude collaborated to produce a claimed proof of the Riemann hypothesis.",
+"src": [
+"Math’s holy grail, the Riemann hypothesis, appears solved with AI’s help"
+],
+"terms": [
+"Lean",
+"Mathlib",
+"Riemann hypothesis",
+"Generalized Riemann hypothesis",
+"AI agent"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "amazon-buys-decart-to-boost-trainium-chip-adoption",
+"t": "Amazon Buys Decart to Boost Trainium Chip Adoption",
+"dek": "Amazon’s $7.5 billion purchase of Decart’s AI‑optimization software aims to make its custom Trainium chips more attractive to customers.",
+"src": [
+"Amazon snaps up Decart’s AI optimization tech for $7.5B as it prepares to sell Trainium chips",
+"Amazon to buy Decart's AI chip optimization tech in latest AI talent grab - Reuters"
+],
+"terms": [
+"Trainium",
+"Optimization Stack (DOS)",
+"FP16 / bfloat16",
+"Total‑ownership cost",
+"Lock‑in"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "california-s-all-in-pricing-law-raised-rental-prices",
+"t": "California’s All‑In Pricing Law Raised Rental Prices",
+"dek": "A CEPR analysis shows the 2024 fee‑transparent rule lifted short‑term rental rates by about 5 % while reshaping the market.",
+"src": [
+"When transparency raises prices: Lessons from California’s all-in pricing law for short-term rentals"
+],
+"terms": [
+"All‑in pricing",
+"Price pass‑through",
+"Selection bias",
+"Econometric controls"
+]
+},
+{
+"d": "2026-11-23-evening",
+"id": "un-calls-for-global-ai-safety-framework-within-a-year",
+"t": "UN Calls for Global AI Safety Framework Within a Year",
+"dek": "Antonio Guterres urges nations to agree on a multilateral AI risk‑management system backed by independent oversight by next year.",
+"src": [
+"UN chief calls for world to agree on AI oversight within a year",
+"'Maintain control': UN chief calls for creation of global AI safety framework within a year"
+],
+"terms": [
+"Multilateral framework",
+"Principles‑based framework",
+"Testing regime"
+]
+},
+{
 "d": "2026-11-22-evening",
 "id": "india-and-the-european-union-prepare-to-sign-landmark-free-t",
 "t": "India and the European Union Prepare to Sign Landmark Free Trade Pact",
