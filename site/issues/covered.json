@@ -1,5 +1,112 @@
 [
 {
+"d": "2026-11-25-evening",
+"id": "stanford-ai-scans-reveal-three-hidden-brain-types-for-adhd-a",
+"t": "Stanford AI Scans Reveal Three Hidden Brain Types for ADHD and Anxiety",
+"dek": "Researchers have identified three biological 'biotypes' that clarify why ADHD and anxiety symptoms often overlap and how they might be treated more effectively.",
+"src": [
+"Stanford scientists discover 3 hidden brain types behind ADHD and anxiety"
+],
+"terms": [
+"Biotype",
+"Functional Connectivity",
+"fMRI",
+"Comorbidity",
+"Precision Medicine",
+"Externalizing"
+]
+},
+{
+"d": "2026-11-25-evening",
+"id": "the-hidden-cost-of-replacing-workers-with-foreign-ai-agents",
+"t": "The Hidden Cost of Replacing Workers with Foreign AI Agents",
+"dek": "New research explores why hiring foreign AI can boost productivity while simultaneously shrinking a nation's total income.",
+"src": [
+"Burning the Bridge: Agentification and Domestic Value Added"
+],
+"terms": [
+"Agentification",
+"Domestic Value Added",
+"Small Open Economy",
+"Reservation Floor",
+"Bargaining Share"
+]
+},
+{
+"d": "2026-11-25-evening",
+"id": "the-fcc-s-billion-dollar-bet-on-orbital-ai-data-centers",
+"t": "The FCC's Billion-Dollar Bet on Orbital AI Data Centers",
+"dek": "SpaceX has received approval for a 1-million-satellite constellation to move AI computing into orbit, bypassing Earth's power and cooling limits.",
+"src": [
+"Musk's SpaceX gets FCC nod for 1 million satellites to power orbital data centres",
+"SpaceX Receives Government Approval to Launch Space Data Centers",
+"FCC approves SpaceX plan to put AI data centers in space"
+],
+"terms": [
+"Radiative cooling",
+"Laser links",
+"Orbital debris",
+"Constellation",
+"Kessler Syndrome"
+]
+},
+{
+"d": "2026-11-25-evening",
+"id": "u-s-proposes-major-new-tariffs-on-14-global-trading-partners",
+"t": "U.S. Proposes Major New Tariffs on 14 Global Trading Partners",
+"dek": "The Trump administration has unveiled a sweeping new trade policy targeting China, the EU, and others over claims of unfair industrial subsidies.",
+"src": [
+"US announces new tariffs on host of countries including China",
+"Tariff Man Strikes Again",
+"US plans new tariffs on EU, China and 12 others",
+"US unveils proposed tariffs on major partners, including EU and China"
+],
+"terms": [
+"Tariff",
+"Excess Capacity",
+"Section 301",
+"Trade Deficit",
+"Importer of Record"
+]
+},
+{
+"d": "2026-11-25-evening",
+"id": "inflation-heat-and-the-tech-correction",
+"t": "Inflation Heat and the Tech Correction",
+"dek": "A surge in the Federal Reserve's preferred inflation gauge has collided with a sharp sell-off in AI-driven technology stocks and new trade tensions.",
+"src": [
+"Inflation is still hot, fueled in part by the AI boom",
+"Fed’s preferred inflation gauge accelerated to 3.8% in October, raising the 2027 stakes for the central bank",
+"Nasdaq 100 plunges nearly 5%, briefly enters bear-market zone as AI fears and fresh tariffs hit sentiment"
+],
+"terms": [
+"PCE (Personal Consumption Expenditures)",
+"Core PCE",
+"Bear Market",
+"Tariff",
+"GDP (Gross Domestic Product)",
+"Initial Jobless Claims"
+]
+},
+{
+"d": "2026-11-25-evening",
+"id": "the-end-of-resistance-how-tiny-wires-and-dna-cubes-could-red",
+"t": "The End of Resistance: How Tiny Wires and DNA Cubes Could Redefine Computing",
+"dek": "New discoveries in topological materials and DNA self-assembly offer a way to shrink computer chips beyond today's physical limits.",
+"src": [
+"Strange ‘topological’ wires conduct electricity better the thinner they get",
+"From sketch to publication-ready flowchart: how AI tools can bridge the gap",
+"Minecraft-like DNA cubes self-assemble into complex 3D nanostructures"
+],
+"terms": [
+"Topological",
+"Resistance",
+"Nanoscale",
+"Self-assembly",
+"Carbon nanotubes"
+]
+},
+{
 "d": "2026-11-24-evening",
 "id": "researchers-identify-circadian-depression-linked-to-internal",
 "t": "Researchers Identify 'Circadian Depression' Linked to Internal Body Clock Disruption",
