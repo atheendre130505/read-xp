@@ -1,5 +1,54 @@
 [
 {
+"d": "2026-11-24-evening",
+"id": "researchers-identify-circadian-depression-linked-to-internal",
+"t": "Researchers Identify 'Circadian Depression' Linked to Internal Body Clock Disruption",
+"dek": "A University of Sydney study reported by ScienceDaily finds that nearly one in four people with severe depression may have a subtype tied to body clock misalignment, which responds poorly to standard antidepressants.",
+"src": [
+"Scientists discover a new type of depression that common antidepressants struggle to treat"
+],
+"terms": [
+"Circadian Depression",
+"SSRI (Selective Serotonin Reuptake Inhibitor)",
+"Melatonin",
+"Light Therapy",
+"Suprachiasmatic Nucleus"
+]
+},
+{
+"d": "2026-11-24-evening",
+"id": "sanofi-s-41-billion-insmed-deal-explains-pharma-s-patent-cli",
+"t": "Sanofi’s $41 Billion Insmed Deal Explains Pharma’s Patent Cliff",
+"dek": "A massive biopharma takeover highlights how drugmakers are spending billions to replace expiring blockbusters.",
+"src": [
+"Sanofi’s $41 Billion Insmed Deal Shows Cost of a Patent Cliff",
+"Sanofi strikes $41 billion deal to acquire US drugmaker Insmed"
+],
+"terms": [
+"Patent Cliff",
+"Bolt-on Acquisition",
+"Accretive Deal",
+"Generic Competition"
+]
+},
+{
+"d": "2026-11-24-evening",
+"id": "huawei-convicted-of-trade-secret-theft-and-bank-fraud",
+"t": "Huawei Convicted of Trade Secret Theft and Bank Fraud",
+"dek": "A New York federal jury convicted Huawei of trade secret theft and sanctions fraud, but rejected government racketeering claims.",
+"src": [
+"New York jury convicts Huawei of stealing trade secrets",
+"Huawei found guilty of stealing trade secrets but acquitted of racketeering",
+"China’s Huawei found guilty of trade secrets conspiracy, fraud in US trial"
+],
+"terms": [
+"Trade Secret",
+"RICO Act",
+"Bank Fraud",
+"Deferred Prosecution Agreement"
+]
+},
+{
 "d": "2026-11-23-evening",
 "id": "how-moral-anger-lowers-our-guard-against-online-misinformati",
 "t": "How Moral Anger Lowers Our Guard Against Online Misinformation",
