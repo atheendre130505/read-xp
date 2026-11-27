@@ -1,5 +1,55 @@
 [
 {
+"d": "2026-11-26-evening",
+"id": "non-invasive-brain-scans-and-ai-decode-sentences-and-reveal-",
+"t": "Non-Invasive Brain Scans and AI Decode Sentences and Reveal Linguistic Rules",
+"dek": "Researchers use magnetic brain imaging and AI to translate typed thoughts into text while uncovering how different languages reshape internal brain predictions.",
+"src": [
+"Scientists at Meta decode typed sentences from brain activity without surgically implanted chips",
+"Brain Predicts Spoken Mandarin Differently Than English"
+],
+"terms": [
+"Magnetoencephalography (MEG)",
+"Electroencephalography (EEG)",
+"Character error rate",
+"Phoneme",
+"Sub-syllable"
+]
+},
+{
+"d": "2026-11-26-evening",
+"id": "nvidia-s-governance-gamble-why-jensen-huang-s-return-trigger",
+"t": "Nvidia's Governance Gamble: Why Jensen Huang's Return Triggered Credit Warnings",
+"dek": "A look inside how boardroom turmoil, key man risks, and credit ratings impact Nvidia and the broader AI market.",
+"src": [
+"S&P considers Nvidia credit downgrade over governance and ‘key man’ risks",
+"S&P Global places Nvidia rating on 'CreditWatch Negative' on rising management and governance risks - Reuters",
+"Nvidia reinstated Jensen Huang as CEO. Now S&P may downgrade its AA credit rating"
+],
+"terms": [
+"CreditWatch Negative",
+"Key Man Risk",
+"Neocloud",
+"Investment-Grade Rating"
+]
+},
+{
+"d": "2026-11-26-evening",
+"id": "how-bacteria-infected-mosquitoes-slashed-dengue-transmission",
+"t": "How Bacteria-Infected Mosquitoes Slashed Dengue Transmission in Brazil",
+"dek": "A landmark trial in Brazil shows how replacing wild mosquito populations with virus-blocking insects offers a scalable solution to a global health crisis.",
+"src": [
+"Release of mosquitoes infected with virus-fighting bacteria slashes dengue in children",
+"Dengue has exploded globally with shocking speed"
+],
+"terms": [
+"Aedes aegypti",
+"Wolbachia",
+"Cytoplasmic incompatibility",
+"Biological control"
+]
+},
+{
 "d": "2026-11-25-evening",
 "id": "stanford-ai-scans-reveal-three-hidden-brain-types-for-adhd-a",
 "t": "Stanford AI Scans Reveal Three Hidden Brain Types for ADHD and Anxiety",
