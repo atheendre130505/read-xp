@@ -49,21 +49,20 @@ S.rr ||= {};                                               // stories read on yo
 
 const h36 = k => { let h = 5381; for (let i = 0; i < k.length; i++) h = (h * 33 ^ k.charCodeAt(i)) >>> 0; return h.toString(36); };
 
-// Phone and laptop stay in step through one small file in your private GitHub repo (read-xp-sync/state.json):
-// for every story, how far you've got, exactly where you are, and whether you've read it. Each device sends its
-// changes within a few seconds and checks for the other's every 15 s while open, and at once when you come back to it.
-// For each story the newer place wins; "read" never gets undone.
+// Phone and laptop stay in step through a small database (Supabase project "read-xp-sync"), with no setup on any
+// device: for every story, how far you've got, exactly where you are, and whether you've read it. Each device sends
+// its changes within a few seconds and checks for the other's every 15 s while open, and at once when you come back.
+// The server merges: "read" is never undone, the furthest section wins, the newer place wins. The key below is
+// Supabase's public site key (meant to live in page code); it can read, and write only through that merge.
 const VERSION_N = (document.currentScript?.src.match(/v=(\d+)/) || [])[1];
-const b64e = s => btoa(unescape(encodeURIComponent(s)));
-const b64d = s => decodeURIComponent(escape(atob(s.replace(/\s/g, ""))));
+const SB = "https://nnaurcreujedzmehadom.supabase.co", SBK = "sb_publishable_65MKC44yF7_IlH10WgmLnA_WjbQo9kP";
 const touch = p => { p.t = Date.now(); sync.soon(); };
 const DEVICE = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) ? "phone" : "laptop";
 const sync = {
   dev: {},                              // when each device last sent (so a silent device can be spotted)
-  sha: null, etag: null, dirty: false, busy: null, timer: null, last: 0, err: "",
-  on: () => !!(S.settings.sync && S.settings.syncRepo),
-  url: () => `https://api.github.com/repos/${S.settings.syncRepo}/contents/state.json`,
-  hdr: () => ({ Authorization: `Bearer ${S.settings.sync}`, Accept: "application/vnd.github+json" }),
+  since: "", sent: {}, dirty: false, busy: null, timer: null, last: 0, err: "",
+  on: () => true,
+  hdr: { apikey: SBK },
   mine() {
     const out = {};
     for (const [k, p] of Object.entries(S.progress)) if (/^\d{4}-\d\d-\d\d/.test(k))
@@ -87,45 +86,48 @@ const sync = {
     return changed;
   },
   async pull() {
-    if (!this.on()) return new Set();
     if (this.busy) await this.busy.catch(() => {});
-    return this.fetchState();
-  },
-  async fetchState() {
-    const r = await fetch(this.url(), { cache: "no-store", headers: { ...this.hdr(), ...(this.etag ? { "If-None-Match": this.etag } : {}) } });
-    if (r.status === 304) { this.last = Date.now(); this.err = ""; return new Set(); }
-    if (!r.ok) { this.err = r.status === 401 || r.status === 403 || r.status === 404 ? "key" : "net"; throw new Error(r.status); }
-    const j = await r.json();
-    this.sha = j.sha; this.etag = r.headers.get("ETag"); this.last = Date.now(); this.err = "";
-    const whole = JSON.parse(b64d(j.content));
-    const remote = whole.progress || {};
-    this.dev = whole.dev || {};
-    if (whole.news && whole.news > (S.settings.newsSeen || "")) { S.settings.newsSeen = whole.news; save(); }   // announced there
-    if ((S.settings.newsSeen || "") > (whole.news || "")) this.soon();
+    const first = !this.since;
+    const q = first ? "" : `&updated_at=gt.${encodeURIComponent(this.since)}`;
+    let r, m;
+    try {
+      [r, m] = await Promise.all([
+        fetch(`${SB}/rest/v1/progress?select=key,sec,done,at,place,t,updated_at&order=updated_at.asc${q}`, { cache: "no-store", headers: this.hdr }),
+        fetch(`${SB}/rest/v1/meta?select=k,v`, { cache: "no-store", headers: this.hdr })]);
+    } catch (e) { this.err = "net"; throw e; }
+    if (!r.ok) { this.err = "net"; throw new Error(r.status); }
+    const rows = await r.json(), meta = m.ok ? await m.json() : [];
+    this.last = Date.now(); this.err = "";
+    const remote = {};
+    for (const x of rows) {
+      remote[x.key] = { sec: x.sec, done: x.done, at: x.at, place: x.place, t: x.t };
+      this.sent[x.key] = JSON.stringify(remote[x.key]);          // the server already has this
+      if (x.updated_at > this.since) this.since = x.updated_at;
+    }
+    for (const { k, v } of meta) {
+      if (k === "dev") this.dev = v || {};
+      if (k === "news" && typeof v === "string" && v > (S.settings.newsSeen || "")) { S.settings.newsSeen = v; save(); }   // announced there
+    }
     const changed = this.merge(remote);
-    const same = (a, b) => !!b && a.sec === (b.sec || 1) && a.done === !!b.done && a.t === (b.t || 0);
-    if (Object.entries(this.mine()).some(([k, v]) => !same(v, remote[k]))) this.soon();       // we know something it doesn't
+    const mine = this.mine();                                   // send what only this device knows (and, at first, say it's here)
+    if (first || Object.entries(mine).some(([k, v]) => this.sent[k] !== JSON.stringify(v))) this.soon();
     return changed;
   },
   soon(ms = 3000) { this.dirty = true; clearTimeout(this.timer); this.timer = setTimeout(() => this.push(), ms); },
   push(final = false) {
-    if (!this.on() || !this.dirty) return Promise.resolve();
+    if (!this.dirty) return Promise.resolve();
     clearTimeout(this.timer);
     const run = async () => {
-      for (let attempt = 0; attempt < 3; attempt++) {
-        if (!this.sha) await this.fetchState().catch(() => {});
-        this.dirty = false;
-        const r = await fetch(this.url(), { method: "PUT", keepalive: final, headers: this.hdr(),
-          body: JSON.stringify({ message: "sync", content: b64e(JSON.stringify({ progress: this.mine(), news: S.settings.newsSeen || "", dev: { ...this.dev, [DEVICE]: { at: Date.now(), v: VERSION_N } } })), sha: this.sha || undefined }) });
-        if (r.ok) { this.sha = (await r.json()).content.sha; this.etag = null; this.last = Date.now(); this.err = ""; return; }
-        this.dirty = true;
-        if (r.status === 409 || r.status === 422) { this.sha = null; this.etag = null; continue; }   // the other device wrote first: merge, retry
-        this.err = r.status === 401 || r.status === 403 || r.status === 404 ? "key" : "net";
-        break;
-      }
-      this.timer = setTimeout(() => this.push(), 30000);              // offline or refused: keep it and try again
+      this.dirty = false;
+      const mine = this.mine();
+      const rows = Object.entries(mine).filter(([k, v]) => this.sent[k] !== JSON.stringify(v)).map(([k, v]) => ({ key: k, ...v }));
+      const r = await fetch(`${SB}/rest/v1/rpc/readxp_put`, { method: "POST", keepalive: final, headers: { ...this.hdr, "Content-Type": "application/json" },
+        body: JSON.stringify({ rows, news: S.settings.newsSeen || null, dev: { [DEVICE]: { at: Date.now(), v: VERSION_N } } }) });
+      if (!r.ok) throw new Error(r.status);
+      for (const x of rows) this.sent[x.key] = JSON.stringify(mine[x.key]);
+      this.last = Date.now(); this.err = "";
     };
-    return (this.busy = run().catch(() => { this.dirty = true; this.err = "net"; this.timer = setTimeout(() => this.push(), 30000); })
+    return (this.busy = run().catch(() => { this.dirty = true; this.err = "net"; this.timer = setTimeout(() => this.push(), 30000); })   // offline: try again
       .finally(() => { this.busy = null; }));
   },
   async check() {                       // look for the other device's changes and show them
@@ -642,13 +644,13 @@ function renderSettings() {
       <p><a class="btn" href="ntfy://ntfy.sh/${esc(st.ntfy)}">Subscribe in ntfy</a> <button class="btn" data-act="copy-topic">Copy topic</button></p>`
       : `<p class="note">Open your setup link on this device to turn on the reminder.</p>`}
     <h3>Phone and laptop</h3>
-    <p class="note" id="syncnote">${!sync.on() ? "Not linked yet. Open your setup link on this device (or paste the sync key below) and your place and what you've read follow you between devices."
-      : sync.err === "key" ? "The sync key isn't working (expired or deleted). Make a new one and paste it below."
-      : sync.err ? "Offline right now; changes will be sent when you're back online."
-      : sync.last ? `In step with your other device (checked ${Math.max(0, Math.round((Date.now() - sync.last) / 1000))} s ago).` : "Linked."}</p>
-    <div class="row" style="display:block"><label>Sync key<small>A GitHub token that can only touch your private read-xp-sync repo.</small></label>
+    <p class="note" id="syncnote">${sync.err ? "Offline right now; changes will be sent when you're back online."
+      : sync.last ? `Your place and what you've read follow you on every device automatically (checked ${Math.max(0, Math.round((Date.now() - sync.last) / 1000))} s ago).`
+      : "Your place and what you've read follow you on every device automatically."}</p>
+    <h3>9 PM stories on time</h3>
+    <div class="row" style="display:block"><label>GitHub key (optional)<small>With "Actions: Read and write" on read-xp, opening Read after 9 PM starts the night's stories if GitHub hasn't yet.</small></label>
       <input class="field" id="synckey" type="password" autocomplete="off" placeholder="github_pat_…" value="${esc(st.sync || "")}"></div>
-    ${nightlyErr === "perm" ? `<p class="note">To start the 9 PM stories on time when you open Read, give this key "Actions: Read and write" on the read-xp repo too (GitHub → Settings → Developer settings → Fine-grained tokens).</p>` : ""}
+    ${nightlyErr === "perm" ? `<p class="note">This key can't start the run yet: give it "Actions: Read and write" on the read-xp repo (GitHub → Settings → Developer settings → Fine-grained tokens).</p>` : ""}
     <h3>History</h3>
     <p class="note">${Object.values(S.progress).filter(p => p.done).length} stories read in the last two weeks.</p>
     <p style="margin-bottom:60px"><button class="btn" data-act="reset">Clear reading history</button></p>
@@ -656,9 +658,8 @@ function renderSettings() {
   $("#key").addEventListener("change", e => { st.key = e.target.value.trim(); save(); toast(st.key ? "Key saved" : "Key removed"); });
   $("#groq").addEventListener("change", e => { st.groq = e.target.value.trim(); save(); toast(st.groq ? "Groq key saved" : "Groq key removed"); });
   $("#synckey").addEventListener("change", async e => {
-    st.sync = e.target.value.trim(); save(); sync.sha = sync.etag = null;
-    if (!st.sync) return toast("Sync key removed");
-    try { await sync.pull(); sync.soon(100); toast("Linked"); } catch { toast(sync.err === "key" ? "That key didn't work" : "Couldn't reach GitHub"); }
+    st.sync = e.target.value.trim(); save(); toast(st.sync ? "Key saved" : "Key removed");
+    if (st.sync) { try { localStorage.removeItem("rxp-nightly"); } catch {} await loadIndex(); await nightly(); }
     renderSettings();
   });
 }
@@ -710,12 +711,12 @@ window.caches?.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(() => 
 Promise.race([sync.pull().catch(() => {}), new Promise(r => setTimeout(r, 4000))]).finally(() => loadIndex().then(route).then(nightly).then(newsCheck));
 
 // GitHub starts its own 9 PM schedule hours late, so opening Read after 9 PM starts tonight's run itself if it
-// hasn't happened yet (once per evening per device, retried after 45 min). Uses the sync key, which needs
+// hasn't happened yet (once per evening per device, retried after 45 min). Uses the GitHub key in Settings, which needs
 // "Actions: read and write" on read-xp for this; without it nothing happens and GitHub's schedule still runs.
 const SITE_REPO = "atheendre130505/read-xp";
 let nightlyErr = "";
 async function nightly() {
-  if (!sync.on()) return;
+  if (!S.settings.sync) return;
   const ist = new Date(Date.now() + 5.5 * 3600e3), h = ist.getUTCHours();
   if (h === 20) return;                                     // 8-9 PM: last night's stories are the current ones
   const day = new Date(ist - (h < 20 ? 86400e3 : 0)).toISOString().slice(0, 10), ed = `${day}-evening`;
@@ -725,7 +726,7 @@ async function nightly() {
   if (Date.now() - (tried[ed] || 0) < 45 * 60e3) return;
   try {
     const r = await fetch(`https://api.github.com/repos/${SITE_REPO}/actions/workflows/daily.yml/dispatches`, {
-      method: "POST", headers: { ...sync.hdr(), "Content-Type": "application/json" },
+      method: "POST", headers: { Authorization: `Bearer ${S.settings.sync}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
       body: JSON.stringify({ ref: "main", inputs: { nightly: "true" } }) });
     nightlyErr = r.ok ? "" : r.status === 403 || r.status === 404 ? "perm" : "net";
     if (r.ok) { try { localStorage.setItem("rxp-nightly", JSON.stringify({ [ed]: Date.now() })); } catch {} toast("Tonight's stories are being written (about 15 min)"); }
