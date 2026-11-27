@@ -320,7 +320,7 @@ async function renderReader(date, id) {
     <article class="story">
       <div class="kicker">${esc(s.topic.name)}</div>
       <h1>${esc(s.title)}</h1><p class="dek">${esc(s.dek)}</p>
-      <div class="meta">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min read<i class="dot"></i>${esc(outlets(s).join(", "))}${s.score ? `<i class="dot"></i><span title="${esc(Object.entries(s.rating || {}).map(([k, v]) => `${k} ${v}`).concat(/Psychology|Philosophy/.test(s.topic?.name || "") ? ["+1 psychology/philosophy"] : []).join(" · "))}">Rated ${Number(s.score).toFixed(1)}</span>` : ""}</div>
+      <div class="meta">${kindLabel(s.kind)}<i class="dot"></i>${s.minutes} min read<i class="dot"></i>${esc(outlets(s).join(", "))}${s.score ? `<i class="dot"></i><span title="${esc(Object.entries(s.rating || {}).map(([k, v]) => `${k} ${v}`).concat(/Psychology|Philosophy/.test(s.topic?.name || "") ? ["+0.5 psychology/philosophy"] : []).join(" · "))}">Rated ${Number(s.score).toFixed(1)}</span>` : ""}</div>
       <div id="thread"></div><div id="end"></div><div class="after"></div>
     </article>
     <div class="dock"><div class="in"><div class="cont" id="cont"></div>

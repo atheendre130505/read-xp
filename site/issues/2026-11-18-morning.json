@@ -1183,7 +1183,7 @@
       "novelty": 9,
       "solidity": 8
      },
-     "score": 10.14
+     "score": 9.64
     },
     {
      "id": "how-an-ancient-virus-helped-shape-the-human-brain",
@@ -1294,7 +1294,7 @@
       "novelty": 9,
       "solidity": 8
      },
-     "score": 8.71
+     "score": 8.21
     }
    ]
   },
@@ -1808,7 +1808,7 @@
       "novelty": 4,
       "solidity": 9
      },
-     "score": 7.57
+     "score": 7.07
     },
     {
      "id": "how-awe-changes-our-brains-and-our-sense-of-self",
@@ -1926,98 +1926,7 @@
       "novelty": 6,
       "solidity": 7
      },
-     "score": 8.14
-    },
-    {
-     "id": "understanding-hans-georg-gadamer-and-the-art-of-interpretati",
-     "title": "Understanding Hans-Georg Gadamer and the Art of Interpretation",
-     "dek": "A look at the legacy of the twentieth century's most influential philosopher of meaning.",
-     "kind": "research",
-     "why": "It captures a major scholarly reassessment of the central thinker who shaped how we interpret text, history, and human meaning.",
-     "minutes": 3,
-     "words": 726,
-     "sections": [
-      {
-       "heading": "The Decisive Figure",
-       "cue": "",
-       "body": "The Stanford Encyclopedia of Philosophy recently revised its entry on Hans-Georg Gadamer, identifying him as the most decisive figure in twentieth-century hermeneutics. While names like Paul Ricoeur or Gianni Vattimo are well-known, Gadamer’s influence is considered to have eclipsed them. Born in 1900 in Germany, Gadamer was shaped by the complex intellectual climate of his time, including the mentorship of Martin Heidegger. His work is not merely an academic exercise; it is a **dialogical approach to understanding** that rejects the idea that we can be objective, neutral observers of the world. Instead, Gadamer argues that we are always embedded in history and tradition, and that our understanding of anything—a text, a piece of art, or a conversation—is a 'happening' that occurs through language. His 1960 masterpiece, *Truth and Method*, remains the bedrock of his reputation, arguing that we cannot escape our own biases, but rather, we must engage with them in a constant process of exchange."
-      },
-      {
-       "heading": "The Mechanism of Understanding",
-       "cue": "How does that actually work?",
-       "body": "To understand Gadamer’s mechanism, you have to move away from the scientific idea of a 'method'—a set of rules you follow to get the 'correct' answer. Gadamer argues that understanding is more like a conversation, which he calls *Gespräch*. Imagine you are reading a classic novel. You don't approach it as a blank slate; you bring your own life experiences, values, and language to the page. The text, in turn, has its own history and context. **Understanding occurs in the 'fusion of horizons'**, where your perspective and the perspective of the text meet and overlap. You aren't just 'extracting' the author's original intent, nor are you imposing your own will. Instead, you are participating in a process where your horizon is expanded by the text, and the text’s meaning is enlivened by your engagement with it. It is a back-and-forth movement that never truly ends."
-      },
-      {
-       "heading": "The Law as a Conversation",
-       "cue": "Can you give an example?",
-       "body": "A clear example of this in practice is the field of jurisprudence, or the law. When a judge interprets a constitution written two hundred years ago, they aren't just acting as a historian trying to uncover the exact intent of the authors. If they did that, the law would be frozen in time. Instead, the judge engages in a **dialogical interpretation**. The law must remain a living, breathing thing that speaks to contemporary political and ethical issues. The judge brings the 'horizon' of the present day—our modern understanding of rights and justice—to the 'horizon' of the original text. Through this engagement, the law evolves. It is not about discovering a static 'truth,' but about creating a meaningful application of tradition to the current moment. This is why Gadamer’s work has had such a significant impact on legal theory in both Europe and the English-speaking world."
-      },
-      {
-       "heading": "Tensions and Disputes",
-       "cue": "Who disagrees with him?",
-       "body": "While Gadamer is celebrated, his life and work have not been without controversy. During the 1930s and 1940s, he remained in Germany, accommodating himself to the National Socialist regime and later to the Communist regime in the Soviet zone. While he was never a member of the Nazi party, some scholars, such as Richard Wolin, have argued that his stance was one of **acquiescence to dictatorship**. Others, like Palmer, have defended him, noting that he did not identify with these regimes and that the reality of surviving in those times was incredibly complex. Philosophically, some critics argue that his rejection of 'method' makes his approach too vague or prone to relativism. However, Gadamer’s supporters argue that his work is the opposite of relativism; by anchoring us in tradition and dialogue, he provides a firm, albeit non-dogmatic, foundation for human meaning."
-      },
-      {
-       "heading": "The Enduring Legacy",
-       "cue": "What does this mean for me?",
-       "body": "For an ordinary person, Gadamer’s legacy is a reminder that we are not isolated individuals trying to 'decode' a world that is separate from us. We are, instead, participants in a long, ongoing conversation that began long before we arrived. **Our biases are not obstacles to truth**; they are the necessary starting points that allow us to connect with history, art, and each other. In an age of polarized opinions and fragmented information, Gadamer’s philosophy suggests that the most important thing we can do is stay in the conversation. By remaining open to the 'other'—whether that is an ancient book, a different political perspective, or a person with a different background—we allow our own horizons to expand. Understanding is not a destination we reach, but a way of living in the world that keeps us connected to the human tradition."
-      }
-     ],
-     "glossary": [
-      {
-       "word": "hermeneutics",
-       "hint": "study of interpreting meaning"
-      },
-      {
-       "word": "relativism",
-       "hint": "no absolute objective truth"
-      },
-      {
-       "word": "jurisprudence",
-       "hint": "theory of the law"
-      },
-      {
-       "word": "acquiescence",
-       "hint": "accepting without protest"
-      }
-     ],
-     "terms": [
-      {
-       "term": "Philosophical Hermeneutics",
-       "meaning": "The study of how humans understand the world, arguing that interpretation is central to all human experience."
-      },
-      {
-       "term": "Fusion of Horizons",
-       "meaning": "The process where two different perspectives—such as a reader and a text—meet and create a new, shared understanding."
-      },
-      {
-       "term": "Dialogical",
-       "meaning": "A style of thinking or writing that treats meaning as something produced through conversation and exchange rather than one-way delivery."
-      }
-     ],
-     "ask": [
-      "How did Gadamer’s personal health struggles shape his philosophical outlook?",
-      "What specific critiques did Heidegger make of Gadamer’s early work?",
-      "How does Gadamer’s view of art differ from traditional aesthetics?"
-     ],
-     "sources": [
-      {
-       "title": "Hans-Georg Gadamer",
-       "url": "https://plato.stanford.edu/entries/gadamer/",
-       "source": "Stanford Encyclopedia (new & revised)",
-       "date": "2026-11-18"
-      }
-     ],
-     "rating": {
-      "size": 3,
-      "lasting": 8,
-      "growth": 5,
-      "learning": 8,
-      "relevance": 4,
-      "novelty": 3,
-      "solidity": 9
-     },
-     "score": 6.71
+     "score": 7.64
     }
    ]
   }

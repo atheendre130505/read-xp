@@ -1,11 +1,11 @@
 """How important is a story? The editor model rates it 0-10 on seven plain questions; the score is the simple
-average (every question counts the same), plus 1 for a psychology or philosophy story. Stories are ranked by that
+average (every question counts the same), plus 0.5 for a psychology or philosophy story. Stories are ranked by that
 score, and the app's queue is ordered by it.
 """
 import os
 import re
 
-THRESHOLD = float(os.environ.get("IMPORTANCE_THRESHOLD", "6.5"))     # average out of 10 needed to get in
+THRESHOLD = float(os.environ.get("IMPORTANCE_THRESHOLD", "7"))     # average out of 10 needed to get in
 
 METRICS = {
     "size": "how big the story is: how many people, how much money, power or knowledge it changes",
@@ -22,18 +22,18 @@ RATING_INSTRUCTIONS = "Rate each story 0-10 on each of these, honestly and stric
 RATING_JSON = "{" + ", ".join(f'"{k}": 0-10' for k in METRICS) + "}"
 
 
-BONUS_FIELDS = {"Psychology & Mind", "Philosophy & Ideas"}   # the reader's favourite fields: +1 on the total
+BONUS_FIELDS = {"Psychology & Mind", "Philosophy & Ideas"}   # the reader's favourite fields: +0.5 on the total
 
 
-def bonus(fields) -> int:
-    """1 if any of the story's fields is psychology or philosophy (fields: a list, or names joined by ' · ')."""
+def bonus(fields) -> float:
+    """0.5 if any of the story's fields is psychology or philosophy (fields: a list, or names joined by ' · ')."""
     if isinstance(fields, str):
         fields = fields.split(" · ")
-    return 1 if BONUS_FIELDS & set(fields or []) else 0
+    return 0.5 if BONUS_FIELDS & set(fields or []) else 0
 
 
 def score(ratings, fields=()) -> float:
-    """The plain average of the seven ratings (a missing one counts as 5), +1 for psychology or philosophy."""
+    """The plain average of the seven ratings (a missing one counts as 5), +0.5 for psychology or philosophy."""
     vals = []
     for k in METRICS:
         try:

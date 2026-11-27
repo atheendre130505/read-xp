@@ -25,7 +25,7 @@
       "novelty": 8,
       "solidity": 9
      },
-     "score": 9.57,
+     "score": 9.07,
      "minutes": 8,
      "words": 1934,
      "sections": [
@@ -182,7 +182,7 @@
       "novelty": 8,
       "solidity": 9
      },
-     "score": 9.43,
+     "score": 8.93,
      "minutes": 7,
      "words": 1703,
      "sections": [
@@ -324,7 +324,7 @@
       "novelty": 6,
       "solidity": 10
      },
-     "score": 8.86,
+     "score": 8.36,
      "minutes": 7,
      "words": 1702,
      "sections": [
@@ -924,7 +924,7 @@
       "novelty": 6,
       "solidity": 10
      },
-     "score": 7.86,
+     "score": 7.36,
      "minutes": 4,
      "words": 925,
      "sections": [
@@ -1481,142 +1481,6 @@
        "url": "https://cepr.org/voxeu/columns/when-transparency-raises-prices-lessons-californias-all-pricing-law-short-term",
        "source": "CEPR VoxEU",
        "date": "2026-11-24"
-      }
-     ]
-    }
-   ]
-  },
-  {
-   "id": "politics",
-   "name": "Politics & World",
-   "stories": [
-    {
-     "id": "un-calls-for-global-ai-safety-framework-within-a-year",
-     "title": "UN Calls for Global AI Safety Framework Within a Year",
-     "dek": "Antonio Guterres urges nations to agree on a multilateral AI risk‑management system backed by independent oversight by next year.",
-     "kind": "news",
-     "why": "The UN push introduces a high-stakes multilateral deadline for artificial intelligence oversight amid escalating geopolitical and economic risks.",
-     "rating": {
-      "size": 7,
-      "lasting": 7,
-      "growth": 5,
-      "learning": 6,
-      "relevance": 6,
-      "novelty": 6,
-      "solidity": 9
-     },
-     "score": 6.57,
-     "minutes": 4,
-     "words": 941,
-     "sections": [
-      {
-       "heading": "The Announcement",
-       "cue": "",
-       "body": "**What was announced?**\n\nAt the Bridgetown Special Summit on AI Safety in Barbados, UN Secretary‑General Antonio Guterres called for member states to coordinate efforts and develop a globally inclusive, principles‑based multilateral framework for AI risk management within the next year. According to Al Jazeera and France 24, he stated that this framework should be backed by independent and credible oversight. Guterres made this appeal on Monday, November 24, 2026, as his term approaches its end in December. Al Jazeera and France 24 report that he has become increasingly vocal about AI safety measures to prevent a future where 'killer robots' are a reality.\n\n**Why now?**\n\nAl Jazeera and France 24 report that Guterres highlighted a mismatch between post‑World War II global institutions and the realities of today's world. He argued that the UN, the international financial architecture, and the world trade system all need reform. He also noted that he will advise his successor—who is due to take office in the new year but has not yet been selected—that properly controlling AI is necessary for humanity to maintain control of our world."
-      },
-      {
-       "heading": "Key Elements",
-       "cue": "What should the framework contain?",
-       "body": "**What does the UN chief suggest as a starting point?**\n\nAccording to Al Jazeera and France 24, international regulation appears distant because AI superpowers like the United States and China seek the upper hand in research and development. However, Guterres proposed that countries can start by agreeing on:\n\n1. **Shared safety measures** \n2. **A testing regime** \n3. **Basic requirements for independent oversight** \n\n**Industry divisions**\n\nThe sources note a sharp split among tech leaders. In September, Anthropic CEO Dario Amodei, OpenAI CEO Sam Altman, and SpaceX chief Elon Musk called for a slowdown in AI development. Conversely, Nvidia CEO Jensen Huang and Meta CEO Mark Zuckerberg want to move full steam ahead. Meanwhile, US regulators are unlikely to immediately intervene; Al Jazeera and France 24 report that in September, US President Donald Trump hosted American tech executives who agreed to abide by a voluntary code of conduct on AI safety."
-      },
-      {
-       "heading": "Oversight Mechanism",
-       "cue": "How would oversight work?",
-       "body": "**How is oversight envisioned?**\n\nWhile Al Jazeera and France 24 note that Guterres called for independent and credible oversight backed by a testing regime and shared safety measures, the exact structural details and enforcement powers of this proposed body were not specified in the reports.\n\nTo understand how international oversight typically functions when nations cooperate on safety, we can look at historical examples like aviation. As background, the International Civil Aviation Organization (ICAO), established after World War II, sets global standards for airline safety and pilot licensing, using peer reviews and safety audits to encourage compliance across sovereign borders."
-      },
-      {
-       "heading": "Geopolitical Stakes",
-       "cue": "Why is there urgency?",
-       "body": "**Why is international agreement difficult?**\n\nAl Jazeera and France 24 report that international regulation of AI appears to be a pipe dream because the technology's superpowers, the United States and China, continue to seek the upper hand in research and development breakthroughs. \n\n**Where is development fastest?**\n\nAccording to Al Jazeera and France 24, AI development has proceeded at the fastest pace in the United States, where regulators currently appear unlikely to immediately intervene, relying instead on voluntary agreements like the code of conduct agreed upon by tech executives and US President Donald Trump in September."
-      },
-      {
-       "heading": "Historical Parallel",
-       "cue": "Has anything similar worked before?",
-       "body": "**Past multilateral agreements**\n\nWhile today's reports do not name specific historical precedents for AI, global cooperation on complex technical risks has been attempted before. For example, the 1987 Montreal Protocol brought nations together to phase out ozone-depleting chemicals through agreed timelines and shared scientific assessments, demonstrating that sovereign states can coordinate to manage a global technological hazard.\n\nAs background on global governance, Guterres noted that existing institutions correspond to the reality of 1945, illustrating why governing bodies often struggle to keep pace with new technologies like AI."
-      },
-      {
-       "heading": "Uncertainties",
-       "cue": "What are the doubts?",
-       "body": "**What challenges stand in the way?**\n\nAl Jazeera and France 24 point out several major hurdles:\n\n- **Superpower competition:** The US and China are actively competing for an R&D advantage, making binding global rules hard to reach.\n- **Divided industry leadership:** While some tech executives (such as Anthropic's Dario Amodei, OpenAI's Sam Altman, and Elon Musk) called for a slowdown in September, others (like Nvidia's Jensen Huang and Meta's Mark Zuckerberg) want to move full steam ahead.\n- **Regulatory hesitation:** Regulators in the US, where development is fastest, are unlikely to intervene immediately, favoring voluntary codes of conduct instead."
-      },
-      {
-       "heading": "Next Steps",
-       "cue": "What should we watch next?",
-       "body": "**What developments are coming up?**\n\nAccording to Al Jazeera and France 24, key milestones to watch include:\n\n1. **The one‑year timeline:** Member states face Guterres's call to develop a multilateral framework within the next year.\n2. **Leadership transition:** The selection and inauguration of Guterres's successor in the new year, who will be advised on maintaining control over AI.\n3. **National regulatory shifts:** Whether countries like the US move away from voluntary codes of conduct toward stricter oversight."
-      },
-      {
-       "heading": "Everyday Impact",
-       "cue": "How does this affect me?",
-       "body": "**How do global AI debates touch daily life?**\n\nWhile the UN summit in Barbados focuses on high‑level multilateral frameworks, the outcomes of these discussions ultimately trickle down to how AI is deployed in consumer software, workplaces, and public services. Decisions made by global leaders and tech executives regarding safety measures and testing regimes will help determine how safely advanced technologies are integrated into society."
-      },
-      {
-       "heading": "Apply",
-       "cue": "How can I use this?",
-       "body": "**Practical suggestions for readers**\n\n- **Stay informed on safety standards:** If you use or purchase AI-enabled tools, keep an eye on whether developers adopt formal testing regimes or voluntary codes of conduct.\n- **Monitor industry practices:** If you work in technology or business, follow the debate between tech leaders who advocate for caution and those pushing for rapid deployment to anticipate potential shifts in compliance expectations.\n- **Track policy developments:** Watch for updates from national governments—particularly in the US and China—regarding whether voluntary safety guidelines evolve into mandatory regulations.",
-       "apply": true
-      }
-     ],
-     "glossary": [
-      {
-       "word": "multilateral",
-       "hint": "involving many nations"
-      },
-      {
-       "word": "architecture",
-       "hint": "foundational structure"
-      },
-      {
-       "word": "Conversely",
-       "hint": "on the other hand"
-      },
-      {
-       "word": "compliance",
-       "hint": "following rules"
-      },
-      {
-       "word": "precedents",
-       "hint": "past examples"
-      },
-      {
-       "word": "oversight",
-       "hint": "supervision and control"
-      },
-      {
-       "word": "intervene",
-       "hint": "step in"
-      }
-     ],
-     "terms": [
-      {
-       "term": "Multilateral framework",
-       "meaning": "An agreement or system involving multiple countries working together to address a shared challenge."
-      },
-      {
-       "term": "Principles‑based framework",
-       "meaning": "A set of high‑level guidelines and rules rather than rigid, minute technical instructions."
-      },
-      {
-       "term": "Testing regime",
-       "meaning": "A structured system of evaluations used to check the safety and reliability of a technology."
-      }
-     ],
-     "ask": [
-      "How will UN member states bridge the gap between the US and China's competitive R&D race and the demand for global AI oversight?",
-      "What specific form will the independent oversight body take if created within the next year?",
-      "How will the incoming UN Secretary-General approach the challenge of AI safety after taking office in the new year?"
-     ],
-     "sources": [
-      {
-       "title": "UN chief calls for world to agree on AI oversight within a year",
-       "url": "https://www.aljazeera.com/news/2026/11/24/un-chief-calls-for-world-to-agree-on-ai-oversight-within-a-year?traffic_source=rss",
-       "source": "Al Jazeera",
-       "date": "2026-11-24"
-      },
-      {
-       "title": "'Maintain control': UN chief calls for creation of global AI safety framework within a year",
-       "url": "https://www.france24.com/en/americas/20261123-un-chief-antonio-guterres-calls-for-global-ai-safety-framework-within-a-year",
-       "source": "France 24",
-       "date": "2026-11-23"
       }
      ]
     }
