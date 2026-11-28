@@ -279,17 +279,12 @@ SOURCES
 Walk the reader through this story as a conversation, in beats. After each beat the reader asks the natural next
 question, and the next beat answers it.
 
-Cover, in a natural order:
-- What was reported, in order: who did what, when, and the reasons given (the incentives, constraints and options
-  involved, as reported or as clearly explained background).
-- HOW it works: the mechanism step by step, a cause-and-effect chain a curious 16-year-old could follow.
-  Economics/finance: follow the money and the incentives. Business: the decisions, bets and trade-offs.
-  Politics: power, interests and rules. Research: what was done, how, what was found, how strong the evidence is.
-  Ideas: the argument, the best objection and the reply.
-- A real example or case study that makes the mechanism click, if one genuinely helps.
-- Context: history, comparisons, base rates.
-- What's uncertain or disputed, and the other side's case.
-- What to watch next, and what it means for an ordinary person.
+Cover only what the sources give you something real to say about, in a natural order (skip a part rather than pad it):
+- What happened: who did what, and why (the incentives and constraints).
+- HOW it works: the mechanism as a short cause-and-effect chain a curious 16-year-old could follow.
+  Economics/finance: follow the money. Business: the decision and the trade-off. Politics: power and interests.
+  Research: what was done, what was found, how strong the evidence is. Ideas: the argument and the best objection.
+- Only if it earns its place: one example, one piece of context, what's disputed, what to watch.
 - Finally, the LAST beat, marked "apply": true, is about what the reader can take away and use. Make it concrete and
   practical, tied to this story's mechanism:
   Business: the strategy or decision principle at work, when it works and when it backfires, and how the reader
@@ -304,9 +299,10 @@ Cover, in a natural order:
   These suggestions are yours, as the helper, not the sources': phrase them as suggestions ("One way to use
   this...", "You could try..."), never as reported fact.
 
-Length: {words} words across 8-11 beats of roughly 150-300 words each. Depth matters more than breadth: every beat
-should teach something specific (a number in context, a step in the mechanism, a reason someone acted). Short
-paragraphs (1-4 sentences). Use **bold** for the 1-2 key ideas in a beat, a list only when steps are genuinely
+Length: {words} words across {beats} beats. This length is set by how much the sources actually contain: a thin
+source gets a short piece. Be concise: no throat-clearing, no recaps, no restating the question, no generic
+background the reader already knows; every sentence must teach something specific (a number in context, a step in the
+mechanism, a reason someone acted). Short paragraphs (1-3 sentences). Use **bold** for the 1-2 key ideas in a beat, a list only when steps are genuinely
 list-shaped. No links. Plain markdown text only: never any HTML or tags (no <ruby>, <hint>, <span>), and never add
 word meanings in brackets for hard words; a separate step shows short meanings above them.
 
@@ -345,10 +341,11 @@ Improve the draft and return it in exactly the same JSON shape.
 
 - Accuracy first: remove or correct any fact, number, name or quote that the sources don't support, and make sure
   each reported fact says who reported it. Background explanations may stay if they are well known and accurate.
-- Make it clearer and deeper: where a step in the explanation is skipped, add it; cut repetition and filler.
+- Make it clearer and tighter: where a step in the explanation is skipped, add it in a sentence; cut repetition,
+  filler, recaps and anything the sources don't support.
 - Keep the calm, plain voice, the beats and the reader's cues (adjust a cue if the beat changed). Keep the final
-  "apply" beat and make it more concrete and useful if you can; it must stay framed as suggestions. Keep the length
-  about the same or longer; never shorten it by more than a tenth.
+  "apply" beat and make it more concrete and useful if you can; it must stay framed as suggestions. Never make it longer
+  than the draft; shorter is fine when that removes filler, not substance.
 - Plain markdown only, no HTML or tags, no word meanings in brackets.
 
 SOURCES
@@ -432,11 +429,16 @@ def write(topic, story, tier="best"):
             texts = list(ex.map(full_text, items))
     blocks = [f"[{i + 1}] {it['source']} ({it['kind']}, {it['date']}): {it['title']}\n{t}"
               for i, (it, t) in enumerate(zip(items, texts))]
-    depth = sum(len(t) for t in texts)
-    words = "1600-2200" if depth > 6000 else "1300-1700"
+    # the depth of the sources sets the length: about a third of what they contain, 350-1100 words
+    src_words = sum(len(t.split()) for t in texts)
+    target = max(350, min(1100, round(src_words * 0.33 / 50) * 50))
+    words = f"{int(target * 0.8)}-{target}"
+    beats = "3-4" if target < 550 else "4-5" if target < 850 else "5-6"
+    print(f"    sources {src_words} words -> {words} words, {beats} beats", flush=True)
     sources = "\n\n".join(blocks)
     def write_prompt(src, w=words):
-        return WRITE_PROMPT.format(topic=topic["name"], angle=story["angle"], why=story["why"], sources=src, words=w)
+        return WRITE_PROMPT.format(topic=topic["name"], angle=story["angle"], why=story["why"], sources=src, words=w,
+                                   beats=beats)
 
     def trimmed(max_chars, make):
         """For small-request models: the same sources, each cut to fit (the opening of an article carries the most)."""
@@ -448,8 +450,8 @@ def write(topic, story, tier="best"):
         return make("\n\n".join(b[:per] for b in blocks))
 
     piece = llm.generate_json(write_prompt(sources), system=WRITE_SYSTEM, temperature=0.7, max_tokens=14000, tier=tier,
-                              shrink=lambda mc: trimmed(mc, lambda s: write_prompt(s, "1200-1600")))
-    # second pass: an editor checks it against the sources and makes it clearer and deeper
+                              shrink=lambda mc: trimmed(mc, lambda s: write_prompt(s)))
+    # second pass: an editor checks it against the sources and makes it clearer and tighter
     try:
         draft = json.dumps(piece, ensure_ascii=False)
         edited = llm.generate_json(EDIT_PROMPT.format(sources=sources, draft=draft),
@@ -457,7 +459,7 @@ def write(topic, story, tier="best"):
                                    shrink=lambda mc: trimmed(mc, lambda s: EDIT_PROMPT.format(sources=s, draft=draft)))
         old_n = sum(len(b.get("body", "").split()) for b in piece.get("beats", []))
         new_n = sum(len(b.get("body", "").split()) for b in edited.get("beats", []))
-        if new_n >= 0.85 * old_n and len(edited.get("beats", [])) >= 3:
+        if 0.6 * old_n <= new_n <= 1.1 * old_n and len(edited.get("beats", [])) >= 3:
             piece = {**piece, **edited}
     except Exception as e:
         print("    edit pass skipped:", e, flush=True)
