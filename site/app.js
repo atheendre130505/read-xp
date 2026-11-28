@@ -535,32 +535,49 @@ async function ask(q) {
   if (!groqKey && !key) { out.className = "turn-ai"; out.innerHTML = `<p>To ask questions, add a free Groq key once in <a href="#/settings">Settings</a> (from console.groq.com), or open your setup link on this device.</p>`; return; }
 
   const s = R.s, heading = s.sections[sec]?.heading || "";
-  // the only instruction: here's what I'm reading; answer in simple words
-  const sys = `I'm reading this report. Answer my questions in simple words.
+  // what I'm reading, the full original reports behind it, and leave to look further
+  const srcs = (s.sources || []).map(x => `- ${x.title} (${x.source}${x.date ? ", " + x.date : ""}): ${x.url}`).join("\n");
+  const sys = `I'm reading this piece. Answer my questions in simple words.
 
+It was written from the original reports listed below. When my question needs more detail than the piece has, open
+those links and use the full reports. When it helps, also search for related research or reporting and combine it
+with the reports into one clear answer. Say which parts come from the reports and which from elsewhere, and add the
+links you used. Keep the answer as short as the question allows.
+
+ORIGINAL REPORTS
+${srcs || "(none listed)"}
+
+THE PIECE
 ${storyText(s)}`;
   const history = (S.chats[R.key] || []).slice(-4).flatMap(c => [
     { role: "user", parts: [{ text: (c.quote ? `"${c.quote}"\n\n` : "") + c.q }] }, { role: "model", parts: [{ text: c.a }] }]);
   const user = (quote ? `"${quote}"\n\n` : "") + q;
-  const body = { systemInstruction: { parts: [{ text: sys }] }, contents: [...history, { role: "user", parts: [{ text: user }] }],
-                 generationConfig: { temperature: 0.6, maxOutputTokens: 2048 } };
-  // Groq first when you've added a key (fast, generous free tier), then Gemini
+  // Gemini can open the original reports (url_context) and search the web (google_search); Groq's gpt-oss can search
+  const body = tools => JSON.stringify({ systemInstruction: { parts: [{ text: sys }] }, contents: [...history, { role: "user", parts: [{ text: user }] }],
+                 ...(tools ? { tools: [{ url_context: {} }, { google_search: {} }] } : {}),
+                 generationConfig: { temperature: 0.6, maxOutputTokens: 4096 } });
+  // Gemini first (it can read the full reports), then Groq with web search, then each without tools
   const tries = [];
-  if (groqKey) for (const m of ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "openai/gpt-oss-20b"]) tries.push(["groq", m]);
-  if (key) for (const m of [S.settings.model, R.iss.model, "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite", "gemini-flash-latest"]
-    .filter((m, i, a) => m && a.indexOf(m) === i)) tries.push(["gemini", m]);
-  const groqBody = m => JSON.stringify({ model: m, stream: true, temperature: 0.6, max_completion_tokens: 2048,
+  const gem = [S.settings.model, R.iss.model, "gemini-3-flash-preview", "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-latest"]
+    .filter((m, i, a) => m && a.indexOf(m) === i);
+  if (key) for (const m of gem.slice(0, 3)) tries.push(["gemini", m, true]);
+  if (groqKey) for (const m of ["openai/gpt-oss-120b", "openai/gpt-oss-20b"]) tries.push(["groq", m, true]);
+  if (groqKey) for (const m of ["openai/gpt-oss-120b", "llama-3.3-70b-versatile"]) tries.push(["groq", m, false]);
+  if (key) for (const m of gem) tries.push(["gemini", m, false]);
+  const groqBody = (m, tools) => JSON.stringify({ model: m, stream: true, temperature: 0.6, max_completion_tokens: 4096,
+    ...(tools ? { tools: [{ type: "browser_search" }], tool_choice: "auto" } : {}),
     messages: [{ role: "system", content: sys },
       ...(S.chats[R.key] || []).slice(-4).flatMap(c => [{ role: "user", content: (c.quote ? `"${c.quote}"\n\n` : "") + c.q }, { role: "assistant", content: c.a }]),
       { role: "user", content: user }] });
   let text = "", err = "";
   const keyTrouble = {};                                  // provider -> "quota" | "invalid"
-  for (const [prov, m] of tries) {
+  for (const [prov, m, tools] of tries) {
+    if (keyTrouble[prov] === "invalid") continue;
     try {
       const r = prov === "groq"
-        ? await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${groqKey}` }, body: groqBody(m) })
+        ? await fetch("https://api.groq.com/openai/v1/chat/completions", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${groqKey}` }, body: groqBody(m, tools) })
         : await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:streamGenerateContent?alt=sse`,
-            { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: JSON.stringify(body) });
+            { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key }, body: body(tools) });
       if (!r.ok) {
         const t = await r.text();
         err = `${r.status}: ${t.slice(0, 160)}`;
