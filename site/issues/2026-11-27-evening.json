@@ -1,0 +1,304 @@
+{
+ "date": "2026-11-27-evening",
+ "day": "2026-11-27",
+ "edition": "evening",
+ "generated": "2026-11-28T05:09+05:30",
+ "model": "gemini-3.7-flash",
+ "partial": false,
+ "topics": [
+  {
+   "id": "politics",
+   "name": "Politics & World · Business & Companies · Economics & Finance",
+   "stories": [
+    {
+     "id": "how-india-plans-to-freeze-parliament-seat-shares-until-2051",
+     "title": "How India Plans to Freeze Parliament Seat Shares Until 2051",
+     "dek": "A proposed constitutional amendment expands Parliament to 850 seats, freezes state representation ratios, and enables immediate women's quotas.",
+     "kind": "news",
+     "why": "It fundamentally reshapes India's federal legislative geography and power balance for the next quarter-century.",
+     "rating": {
+      "size": 9,
+      "lasting": 10,
+      "growth": 4,
+      "learning": 8,
+      "relevance": 9,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 8.14,
+     "minutes": 6,
+     "words": 1473,
+     "sections": [
+      {
+       "heading": "A New Blueprint",
+       "cue": "",
+       "body": "The Hindu reports that on Friday, November 27, 2026, India's Union Cabinet approved the 132nd Constitutional Amendment Bill along with a fresh Delimitation Bill. This proposed legislation sets out to reform how parliamentary seats are allocated across the country, expanding the Lok Sabha's maximum capacity while guaranteeing that no state loses its relative political weight.\n\nAccording to sources cited by Reuters, Prime Minister Narendra Modi's government plans to revive a broader parliament expansion effort tied directly to a long-awaited 33% reservation quota for women in the Lok Sabha. The Hindu reports that these bills are scheduled for consideration during special parliamentary sittings from November 30 to December 3, 2026.\n\nThis proposal marks a clear shift in legislative strategy. The Hindu notes that in April 2026, the government introduced the 131st Constitutional Amendment Bill, which proposed redistributing Lok Sabha seats among states according to population data from the 2011 Census. That earlier approach raised deep concerns among states that had successfully slowed population growth, as pure demographic reallocation threatened to reduce their relative seat share. The new 132nd Amendment abandons that method, opting instead for a uniform expansion while freezing inter-state seat ratios until 2051."
+      },
+      {
+       "heading": "The Demographic Dilemma",
+       "cue": "Why was a seat freeze necessary?",
+       "body": "To understand why the government chose to freeze seat proportions, it helps to examine the underlying tension in federal representation. In a federal system, legislative seats are typically allocated based on population so that every citizen receives equal voice. However, when regional population growth rates diverge sharply over decades, strict demographic reallocation creates intense political friction.\n\nIn India, southern states implemented effective family planning and social health programs over recent decades, causing their population growth rates to decline faster than those in several northern states. Under standard redistricting—known in India as delimitation—fast-growing northern states would gain a large share of parliamentary seats, while southern states would lose relative strength in the Lok Sabha despite their governance successes.\n\nA classic parallel occurred in the United States during the 1920s. Following the 1920 US Census, which revealed massive population shifts from rural areas to industrial cities, the US Congress deadlocked over seat reallocation. To avoid stripping rural states of political weight, Congress passed the Permanent Apportionment Act of 1929, capping total House seats at 435 and altering allocation mechanics. India addressed a similar challenge in 1976 and 2002 by freezing seat distributions to avoid penalizing states that controlled population growth. The 132nd Amendment extends that policy through 2051."
+      },
+      {
+       "heading": "The 50 Percent Rule",
+       "cue": "How does the seat math actually work?",
+       "body": "The core mechanism of the 132nd Constitutional Amendment is straightforward: rather than taking seats from low-growth states and giving them to high-growth states, the government proposes a uniform 50% increase in parliamentary seats for every state and Union territory.\n\nThe Hindu reports that under the proposed legislation, the maximum strength of the Lok Sabha will expand from its current cap of 550 seats to 850 seats. Every state and Union territory will receive a 50% increase in allocated Lok Sabha seats. For example, a state currently holding 20 seats will gain 10 seats, expanding its representation to 30.\n\nThis math also applies at the state level. The Hindu notes the Bill explicitly provides that the total number of seats in the Legislative Assembly of each State and Union territory will increase by 50% over and above the existing seat count. Because every state receives the exact same proportional increase, the relative political balance between regions remains identical to today's proportions, even as overall assembly size grows."
+      },
+      {
+       "heading": "Unlocking Women's Quotas",
+       "cue": "How does this connect to women's reservation?",
+       "body": "The seat expansion is directly linked to enacting a major political reform: implementing a 33% reservation for women in the Lok Sabha.\n\nThe Hindu reports that when provisions for women's reservation were established under Article 334A of the Constitution, implementation was tied to a fresh delimitation exercise. Under previous constitutional rules, delimitation could only be conducted after population figures from the first census taken after the year 2026 were published. That condition created potential delays for women's quotas pending a new census and broad seat reallocations.\n\nAccording to The Hindu, the 132nd Amendment resolves this hurdle by explicitly connecting seat expansion to Article 334A. The Bill provides that delimitation undertaken to give immediate effect to women's reservation shall increase seats allocated to each State and Union territory by 50%. By expanding the overall house to 850 seats, the reform opens a path to immediate delimitation, enabling the 33% women's quota to take effect without forcing male incumbents to compete for a smaller total pool of seats."
+      },
+      {
+       "heading": "Amending Articles 81 and 82",
+       "cue": "What specific constitutional changes are being made?",
+       "body": "To establish this new framework, the government is proposing targeted amendments to Articles 81 and 82 of the Indian Constitution, which govern the numerical size and distribution of Lok Sabha seats.\n\nAccording to The Hindu, Article 82 currently contains a clause stating that inter-state seat distribution does not need readjustment until relevant figures from the first census after 2026 are published. The 132nd Amendment replaces that language, extending the sunset clause directly until the year 2051.\n\nAdditionally, The Hindu details how the Bill modifies existing population baseline definitions in Article 82:\n\n* Inter-state seat proportions: The amendment drops the historical reference to the 1971 Census for allocating seat shares among states. Instead, inter-state distribution will be governed in accordance with Article 334A.\n* Intra-state constituency boundaries: While seat shares between states remain frozen, individual constituency boundaries within states will be redrawn based on the latest published census figures available on the date the 132nd Amendment Act takes effect.\n\nThis structure preserves the macro balance between states while updating local electoral maps inside each state based on recent demographic shifts."
+      },
+      {
+       "heading": "Abandoning the 2011 Proposal",
+       "cue": "Why did the government abandon the April 2026 proposal?",
+       "body": "The introduction of the 132nd Amendment represents a significant pivot from the Centre's earlier legislative attempt in 2026. The Hindu reports that in April 2026, the government introduced the 131st Constitutional Amendment Bill, which sought to redistribute Lok Sabha seats among states according to population data from the 2011 Census.\n\nThat earlier formula would have shifted seat weight toward states with higher population growth, while reducing the relative proportional strength of states with slower growth rates. The proposal renewed regional concerns among leaders who argued it penalized states for successful family planning policies.\n\nBy replacing the 131st Amendment with the 132nd Amendment, the Cabinet effectively set aside population-weighted reallocation across state lines. Decoupling seat distribution from raw population ratios and extending the freeze to 2051 allows the Centre to address regional representation concerns while advancing seat expansion and women's quotas."
+      },
+      {
+       "heading": "Democratic Principles and Mechanics",
+       "cue": "Are there any concerns or trade-offs with this approach?",
+       "body": "While freezing inter-state seat proportions resolves immediate friction between states, it highlights ongoing debates around democratic equity and legislative management.\n\nIn constitutional debates over seat freezes, a core argument against prolonged freezes is that they strain the principle of equal vote weight across regions. As populations in higher-growth states continue to expand relative to lower-growth states, each seat in a populous state represents a larger group of citizens. Conversely, defenders of seat freezes point out that preserving federal stability requires protecting member states from abrupt shifts in political power, maintaining national cohesion in diverse federations.\n\nThere are also practical operational questions. Expanding the Lok Sabha to 850 members represents a major administrative scale-up. Managing parliamentary debates, voting procedures, and committee structures with 300 additional lawmakers will require updated operational processes within Parliament."
+      },
+      {
+       "heading": "What to Watch Next",
+       "cue": "What happens during the special session?",
+       "body": "The immediate focus shifts to Parliament. The Hindu reports that the government intends to take up both the 132nd Constitutional Amendment Bill and the fresh Delimitation Bill during special parliamentary sittings scheduled from November 30 to December 3, 2026.\n\nIf Parliament passes these bills during the special sittings, The Hindu notes that the path to immediate delimitation will open. A fresh delimitation process will then redraw constituency boundaries within each state using the latest published census data available when the Act takes effect.\n\nOnce delimitation is completed under this framework, the mandatory 33% reservation for women in the Lok Sabha will officially come into force, transforming candidate nominations and legislative composition across India."
+      },
+      {
+       "heading": "Understanding Federal Compromises",
+       "cue": "What mental model can I take from this?",
+       "body": "When analyzing major structural reforms in large federations, a helpful mental model is the Federal Compromise Framework. In federal systems, governments must balance majoritarian representation (adjusting for population shifts) with regional security (ensuring member states are not marginalized by demographic trends).\n\nWhen reviewing federal reorganizations, consider three core mechanisms:\n\n1. Expanding capacity vs. shifting shares: Instead of redistributing a fixed set of resources or seats, leaders often enlarge the total pool (such as adding 50% more seats across all regions). Expanding total capacity enables structural reform without creating immediate losers among existing regions.\n2. Sunset milestones: Extended sunset clauses—such as a 25-year freeze until 2051—indicate that policymakers are prioritizing regional political stability over immediate demographic adjustments.\n3. Macro stability with micro updates: Separating inter-state distribution (frozen macro proportions) from intra-state boundaries (updated micro boundaries) allows governments to modernize local representation without disrupting regional equilibrium.\n\nYou can apply this framework when evaluating corporate governance restructurings, coalition agreements, or multilateral institutions: when reallocation threatens member consensus, leaders frequently expand overall capacity and lock in relative shares to enable progress.",
+       "apply": true
+      }
+     ],
+     "glossary": [
+      {
+       "word": "sunset clause",
+       "hint": "expiration date"
+      },
+      {
+       "word": "Delimitation",
+       "hint": "boundary redrawing"
+      },
+      {
+       "word": "majoritarian",
+       "hint": "majority-based"
+      },
+      {
+       "word": "demographic",
+       "hint": "population-based"
+      },
+      {
+       "word": "deadlocked",
+       "hint": "reached a standstill"
+      },
+      {
+       "word": "incumbents",
+       "hint": "current officeholders"
+      },
+      {
+       "word": "Decoupling",
+       "hint": "separating"
+      },
+      {
+       "word": "Conversely",
+       "hint": "on the other hand"
+      },
+      {
+       "word": "diverge",
+       "hint": "move apart"
+      }
+     ],
+     "terms": [
+      {
+       "term": "Delimitation",
+       "meaning": "The official process of redrawing boundaries of parliamentary or assembly constituencies to reflect internal population changes."
+      },
+      {
+       "term": "Sunset Clause",
+       "meaning": "A statutory provision establishing an expiration date or fixed timeline for specific legal arrangements or freezes."
+      },
+      {
+       "term": "Article 334A",
+       "meaning": "A constitutional provision in India setting out the implementation mechanics and timing for women's legislative quotas."
+      },
+      {
+       "term": "Lok Sabha",
+       "meaning": "The directly elected lower house of India's Parliament."
+      }
+     ],
+     "ask": [
+      "How will internal constituency boundaries within states be redrawn using the latest available census data?",
+      "What administrative and procedural changes will Parliament adopt to manage an 850-member assembly?",
+      "What legislative steps are scheduled during the special sittings from November 30 to December 3, 2026?"
+     ],
+     "sources": [
+      {
+       "title": "Centre proposes freeze on Lok Sabha seat proportions for States until 2051",
+       "url": "https://www.thehindu.com/news/national/centre-proposes-freeze-on-lok-sabha-seat-proportions-for-states-until-2051/article71752150.ece",
+       "source": "The Hindu · National",
+       "date": "2026-11-27"
+      },
+      {
+       "title": "India's Modi to revive parliament expansion bill tied to women's quota, sources say - Reuters",
+       "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQaGVmSDBaZjd6MF8xcFA3WEZUTEItZ2sxLXVDaDVCbS03YUtRM2NWWGJkMnlLS2dJak11aGRucTJZREc2dE9heUt2bnV5NENmeS11SWRRbUtQaWdUeUpKV2V5VXZRdFRaUlJNUU9VZXpORmZVbGZjeWVKZXlEa3gzOU5Ha09lTERuMU5OSG56c1ljNXpPb0NkeG1Rbnd5aVR2eHFWZUxQU3l5N0lkdGFmb2o4aVlSRXB1dDlGdS1SRQ?oc=5",
+       "source": "Reuters · World",
+       "date": "2026-11-27"
+      },
+      {
+       "title": "SAP weighs cutting at least 10,000 positions in AI restructuring",
+       "url": "https://economictimes.indiatimes.com/tech/technology/sap-weighs-cutting-at-least-10000-positions-in-ai-restructuring/articleshow/136207524.cms",
+       "source": "The Economic Times · Tech",
+       "date": "2026-11-27"
+      },
+      {
+       "title": "Software giant SAP weighs major job cuts as AI transforms sector, sources say - Reuters",
+       "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOYXlTRnczX1kzVVFWNmpBWWZscmx0cGVUUGNOMFctTUV5WmJVa1NrQ3N1NmFURDhfNUVEUXJiU09lc1NPV1UyUms1ZUdpMFMwZHdnaHcxcjJHdjBuQWRpZ2dwZ3ZVUUxBTU1fMHpLYl9pSExQOTVURGpSZ3JLazhwSVpWUkdJeGVsaElsZTNPVUY3N0JoUlVfcm5qbEhoQ2JYQ3lpWXBJU2g?oc=5",
+       "source": "Reuters · Companies",
+       "date": "2026-11-27"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "psych",
+   "name": "Psychology & Mind · Science & Technology",
+   "stories": [
+    {
+     "id": "most-brain-cells-are-versatile-multitaskers-study-finds",
+     "title": "Most Brain Cells Are Versatile Multitaskers, Study Finds",
+     "dek": "A major study challenges the long-held assumption that neurons act as isolated specialists, revealing instead that most cells across the cortex encode multiple types of information.",
+     "kind": "news",
+     "why": "It upends decades of neuroscientific assumptions by revealing that most brain cells are versatile multitaskers rather than isolated specialists.",
+     "rating": {
+      "size": 7,
+      "lasting": 8,
+      "growth": 6,
+      "learning": 8,
+      "relevance": 7,
+      "novelty": 8,
+      "solidity": 9
+     },
+     "score": 8.07,
+     "minutes": 7,
+     "words": 1515,
+     "sections": [
+      {
+       "heading": "A long-held assumption upended",
+       "cue": "",
+       "body": "ScienceDaily reports on a major study published in *Nature* that challenges a foundational assumption in neuroscience. For decades, scientists largely assumed that individual brain cells, or neurons, operate like specialized tools—a hammer designed only for driving nails, or a saw built strictly for cutting wood. Under that traditional view, specific neurons were thought to be dedicated to single, highly specific jobs.\n\nHowever, researchers at Columbia University's Zuckerman Institute, analyzing an extensive dataset of mouse brain activity, discovered that most neurons are versatile multitaskers rather than isolated specialists. While dedicated specialist cells do exist, they turn out to be the exception rather than the rule across most of the brain's cerebral cortex.\n\nCo-senior author Stefano Fusi, a professor of neuroscience at Columbia's Zuckerman Institute, Vagelos College of Physicians and Surgeons, and Center for Theoretical Neuroscience, explained that researchers need to move away from viewing the brain as a machine made of purpose-built gears. Instead, Fusi notes that individual neurons display a vast diversity of responses, allowing the brain to solve an enormous variety of complex tasks. ScienceDaily notes that even before the study's formal publication in *Nature*, a preliminary version had been downloaded over 11,000 times, signaling intense interest within the scientific community."
+      },
+      {
+       "heading": "The origins of the debate",
+       "cue": "Why did scientists think neurons were specialists?",
+       "body": "To understand why this finding matters, it helps to look at how neuroscientists studied the brain in the past. For over a century, brain research established that distinct anatomical regions handle specific duties—for instance, the visual cortex processes sight, while the olfactory system handles smell. Because whole brain regions appeared specialized, it seemed natural to assume that the individual cells inside them were specialized too.\n\nAs study co-lead author Lorenzo Posani of the Paris Brain Institute and France's CNRS (who conducted the work at Columbia) pointed out, this debate persisted for decades because earlier experiments measured vastly different things. Different research teams tested different animal species, examined different brain areas, or trained animals on entirely different tasks. Unsurprisingly, their conclusions often collided: one team would find highly specialized cells, while another found general-purpose cells.\n\nThis historical approach was like trying to understand a massive corporation by interviewing one employee on a factory assembly line and another in administration. If you only talk to a specialized assembly worker, you might conclude the whole company consists of single-task specialists. Without a standardized way to look across the entire organization at once, scientists were left with conflicting snapshots of neural function."
+      },
+      {
+       "heading": "Mapping 43 brain regions",
+       "cue": "How did this new study test the idea?",
+       "body": "To resolve this long-standing disagreement, the research team needed a massive, standardized dataset. They analyzed neural recordings gathered by the International Brain Laboratory consortium, focusing on mice performing the exact same standardized behavioral task. This allowed the researchers to compare neural activity under uniform conditions across 43 distinct regions of the mouse cerebral cortex simultaneously.\n\nBy analyzing such a wide swath of the brain under identical conditions, the researchers uncovered a clear structural pattern. Neurons in primary sensory regions—such as the areas responsible for processing raw visual input—did tend to exhibit specialized, predictable responses to specific sensory triggers.\n\nHowever, across other regions of the cortex, specialized neurons quickly became rare. Across the majority of the cortex, individual neurons responded to a wide range of different inputs and task elements. As Dr. Fusi emphasized, the researchers are not claiming specialized neurons do not exist, but rather that they are the exceptions to a broader rule of neural versatility across the cortex."
+      },
+      {
+       "heading": "High-dimensional representations",
+       "cue": "How do these generalist neurons actually work?",
+       "body": "To understand the mechanism behind this versatility, picture how a single brain cell processes incoming signals. Under the old specialist model, one neuron might fire only when seeing a red object, while a neighboring neuron fires only when seeing a circle. Under the new model revealed by the Columbia team, a single generalist neuron routinely encodes multiple characteristics at once, such as responding to both color and shape simultaneously.\n\nWhen thousands of these versatile neurons work together, they create what neuroscientists call high-dimensional representations of information. Rather than storing information in isolated, single-trait layers, the population of neurons builds a rich snapshot that captures multiple characteristics at the exact same time—allowing the brain to distinguish a red circle from a black square, for example.\n\nThis mechanism functions somewhat like a color printing press. Instead of needing a separate, pre-carved stamp for every single image you might want to print, the press relies on a few versatile ink channels—cyan, magenta, yellow, and black—that combine in different proportions to create millions of distinct images. Generalist neurons provide the brain with a flexible combinatorial system capable of representing almost any scenario."
+      },
+      {
+       "heading": "The key to computational power",
+       "cue": "Why is that arrangement better for the brain?",
+       "body": "The primary advantage of high-dimensional neural representations is efficiency and extraordinary adaptability. If the brain relied exclusively on dedicated specialist neurons, it would need to allocate brand-new, purpose-built neural hardware every single time you learned a new skill or encountered an unfamiliar situation. A rigid system like that would quickly run out of physical space and energy.\n\nBecause generalist neurons capture multiple variables at once, the brain can simply reuse existing patterns of neural activity to solve new problems. As Dr. Fusi explained, these high-dimensional representations serve as a flexible foundation that the brain can reconfigure on the fly. When facing a novel task, the brain does not need to build a new specialized circuit from scratch; it simply draws on existing combinations of generalist activity to generate appropriate responses.\n\nThis structural flexibility helps explain how biological brains achieve such astonishing computational power while working within physical constraints. By relying on versatile multitaskers, the brain maximizes its problem-solving capacity across diverse tasks."
+      },
+      {
+       "heading": "Unique patterns across the brain",
+       "cue": "Does every neuron multitask in the exact same way?",
+       "body": "Although most neurons act as generalists, they do not function as identical, interchangeable parts. Study co-lead author Shuqi Wang, a doctoral student at École Polytechnique Fédérale de Lausanne in Switzerland, highlighted that each neuron displays versatility in its own unique way, rarely repeating the exact activity patterns of its neighbors.\n\nThis vast individual diversity exists alongside recognizable regional organization. To illustrate this balance, Dr. Posani compared the brain to a map of voter opinions. On a broad geographical level, clear clusters emerge where communities generally vote the same way. However, when you zoom in, you discover a rich mix of personal opinions within those broad clusters.\n\nIn the brain, a neuron's activity makes it clear which overall functional module or region it belongs to, yet membership in that module does not restrict the cell to a single rigid script. This combination of regional structure and individual cellular diversity gives the brain both coarse organization and fine-grained computational flexibility."
+      },
+      {
+       "heading": "Shift from single cells to populations",
+       "cue": "How does this change how scientists study the brain?",
+       "body": "This discovery forces an important shift in how neuroscientists conduct research. For decades, standard laboratory practice often involved recording signals from one neuron at a time. If a cell's responses appeared messy or did not neatly match the specific experimental variable being tested, researchers frequently discarded those recordings because their responses could not be understood.\n\nDr. Fusi noted that this traditional perspective led scientists to discard neurons whose complex responses were not easily categorized. Because a single generalist neuron carries small pieces of information about several variables simultaneously, its activity can look confusing when viewed in isolation.\n\nA clearer picture emerges when researchers analyze the combined activity of large populations of neurons together. Just as you cannot understand a choir's harmony by listening to a single singer's isolated note, scientists must observe how populations of versatile neurons fire in concert. Moving toward population-level analysis represents a major methodological evolution for neuroscience."
+      },
+      {
+       "heading": "Mouse models and human brains",
+       "cue": "Are there still unresolved questions about this finding?",
+       "body": "While the study provides strong evidence across 43 cortical regions in mice, important questions and caveats remain. The most immediate consideration is that the current findings come from recordings in mouse brains. While mammalian cortices share core principles, human brains operate at a vastly larger scale.\n\nTo address this, the researchers are currently collaborating with Ueli Rutishauser's research group at Caltech to investigate whether human neurons exhibit similar patterns of versatility. The researchers also aim to establish whether the degree of specialization among neurons remains fixed or shifts dynamically depending on the specific demands of a task.\n\nAs Dr. Fusi summarized, there is still a lot to discover. The research paper, titled \"Rarely categorical and highly separable: how neural representations change along the cortical hierarchy,\" was co-authored by Lorenzo Posani, Shuqi Wang, Samuel P. Muscinelli, Liam Paninski, and Stefano Fusi, with funding provided by the National Institutes of Health."
+      },
+      {
+       "heading": "Practical takeaway for daily life",
+       "cue": "How can I apply this insight to my own learning?",
+       "body": "While this research reflects fundamental neuroscience in mice, its core finding—that the brain relies on multi-dimensional, reusable representations—offers a helpful practical model for how we approach learning and cognitive habits.\n\n**Try practicing multi-context learning when acquiring new skills.** Instead of studying a subject in isolated, rigid categories, try connecting new information to multiple contexts simultaneously. For example, if you are learning a foreign language or professional tool, practice applying it across diverse scenarios—combining writing, speaking, practical problem-solving, and visual contexts.\n\nBy engaging multiple cognitive angles at once, you encourage your mind to build richer, high-dimensional mental models that can be flexibly repurposed later. Keep in mind that this is a practical personal suggestion inspired by the study's findings on neural versatility, not a clinical recommendation directly tested on human subjects. However, testing multi-context practice in your routine aligns well with how versatile neural populations represent complex information.",
+       "apply": true
+      }
+     ],
+     "glossary": [
+      {
+       "word": "methodological",
+       "hint": "related to methods"
+      },
+      {
+       "word": "combinatorial",
+       "hint": "combining items"
+      },
+      {
+       "word": "foundational",
+       "hint": "basic or core"
+      },
+      {
+       "word": "constraints",
+       "hint": "limits or restrictions"
+      },
+      {
+       "word": "anatomical",
+       "hint": "body structure"
+      },
+      {
+       "word": "consortium",
+       "hint": "group of organizations"
+      },
+      {
+       "word": "mammalian",
+       "hint": "pertaining to mammals"
+      }
+     ],
+     "terms": [
+      {
+       "term": "Neuron",
+       "meaning": "A nerve cell that sends and receives electrical and chemical signals in the brain and nervous system."
+      },
+      {
+       "term": "Cerebral cortex",
+       "meaning": "The layered outer structure of the brain involved in sensory processing, decision-making, and complex behavioral control."
+      },
+      {
+       "term": "High-dimensional representation",
+       "meaning": "A pattern of activity across a population of neurons that simultaneously encodes multiple distinct characteristics or variables."
+      },
+      {
+       "term": "Primary sensory regions",
+       "meaning": "Cortical areas that receive direct, early-stage inputs from sensory organs like the eyes or skin."
+      }
+     ],
+     "ask": [
+      "How do neuroscientists record electrical activity from single neurons across dozens of brain regions simultaneously?",
+      "Does the balance between specialist and generalist neurons change as the brain ages or develops?",
+      "Could high-dimensional neural representations help computer scientists design more flexible artificial intelligence models?"
+     ],
+     "sources": [
+      {
+       "title": "For decades, scientists may have misunderstood how brain cells work",
+       "url": "https://www.sciencedaily.com/releases/2026/11/261125045302.htm",
+       "source": "ScienceDaily · Mind & Brain",
+       "date": "2026-11-26"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
